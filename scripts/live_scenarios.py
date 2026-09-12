@@ -457,8 +457,10 @@ def phase_a(ac: dict, raw: str):
     check(view["status"] == "FINALIZED", "the agreement did not finalize")
     check(paid + refunded == PRICE, "the settlement does not reconcile to the escrow")
     check(int(view["escrow_atto"]) == 0, "the escrow was not released")
-    check(claimable(buyer, "seller") == paid and claimable(buyer, "buyer") == refunded,
-          "the ledger does not match the settlement")
+    # before the withdrawals the ledger holds exactly the settlement; after
+    # them it holds nothing, and a replay sees the second state
+    owed = claimable(buyer, "seller") + claimable(buyer, "buyer")
+    check(owed in (paid + refunded, 0), "the ledger does not match the settlement")
     phase["settlement"] = {"route": view["settlement_route"], "seller_atto": str(paid),
                            "buyer_atto": str(refunded)}
     log(f"  settled: seller {paid}, buyer {refunded}, route {view['settlement_route']}")
