@@ -9,9 +9,9 @@ and `byte_identical`. The table below is filled from it at release, and
 
 | Item | Value |
 |---|---|
-| Contract | `0xF6705A905c766E51945535349322fEE25C075E45` |
-| Explorer | https://explorer-studio.genlayer.com/address/0xF6705A905c766E51945535349322fEE25C075E45 (the Code tab shows the deployed source) |
-| Deploy transaction | `0x25e1b1b32e49a5998f3554ad02257f742a56ffc3b8f3bc11b24c077db3b4c35d` |
+| Contract | `0xbB846F3Cc63e0C8fCF138B9CF0e407202158c861` |
+| Explorer | https://explorer-studio.genlayer.com/address/0xbB846F3Cc63e0C8fCF138B9CF0e407202158c861 (the Code tab shows the deployed source) |
+| Deploy transaction | `0x55e19c406eb742ad830561af3053cd9ba07e7422bb4b95f82a7878920d449376` |
 | Status | `FINALIZED`, leader execution `SUCCESS`, validator votes `AGREE` x5 |
 | Source | `contracts/agentguard.py` at commit `32f5ac0`, blob `43acf32`, sha256 `6233466b...a491` |
 | Source parity | the source read back with `gen_getContractCode` has the same sha256 (`python scripts/deploy_studionet.py --verify`) |
@@ -36,6 +36,15 @@ bytes; what differed was the live run around them.
   evidence names that id inside its own contents, so the arc was restarted from
   a clean deployment rather than run against evidence the contract would
   correctly flag as belonging to another agreement.
+- `0xF6705A905c766E51945535349322fEE25C075E45`, **superseded**: this one ran
+  the arc far enough to find a real fault. Its readjudication came back
+  INCONCLUSIVE with every criterion SATISFIED at 100/100, because the panel had
+  left `BUYER_CRITERIA_CHANGE` undecided - a question that records fault and
+  can never move money. The contract now holds an escrow only for a question
+  whose answer could have changed the verdict (`OUTCOME_INDICATORS`), which is
+  what the deployment of record carries. That agreement's escrow was returned
+  to the buyer through the stalled route and withdrawn (a balance change of
+  0.05 GEN, observed), so the address holds nothing.
 
 ## Network and assumptions
 
