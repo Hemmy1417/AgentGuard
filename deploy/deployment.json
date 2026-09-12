@@ -1,23 +1,24 @@
 {
   "byte_identical": true,
   "chain_id": 61999,
-  "contract_address": "0xF8bC4Da696306CF5874560469c8483793EC132Ff",
-  "deploy_tx": "0x5650702a29afdcf9c8d1c97aa8c0f3914dde4acadffce85ee6d8174fb25e161b",
-  "deployed_at": "2026-09-12T15:11:54Z",
+  "contract_address": "0xE8c834475F23447299835fD14721dBCA72f5c7F2",
+  "deploy_tx": "0x7842ed2ea50d7c6ba6e02d319e2792c645f8a5f224933bcf49ddf225cd592ac1",
+  "deployed_at": "2026-09-12T15:34:38Z",
   "deployed_sha256": "6233466b6c5da722704ca5817a0eca92803c837ac089afb25c5e852b0de6a491",
   "explorer": "https://explorer-studio.genlayer.com",
-  "explorer_contract": "https://explorer-studio.genlayer.com/address/0xF8bC4Da696306CF5874560469c8483793EC132Ff",
-  "explorer_tx": "https://explorer-studio.genlayer.com/tx/0x5650702a29afdcf9c8d1c97aa8c0f3914dde4acadffce85ee6d8174fb25e161b",
-  "head_at_deploy": "6032f61c5281f53fd45d5bca850b021bbe33acf8",
+  "explorer_contract": "https://explorer-studio.genlayer.com/address/0xE8c834475F23447299835fD14721dBCA72f5c7F2",
+  "explorer_tx": "https://explorer-studio.genlayer.com/tx/0x7842ed2ea50d7c6ba6e02d319e2792c645f8a5f224933bcf49ddf225cd592ac1",
+  "head_at_deploy": "ee0882db7946625d1e5960a25ded476bf3afd3e3",
   "leader_execution": "SUCCESS",
   "network": "studionet",
   "other_addresses": {
-    "diagnostic_2026-09-12T14:55Z": "0xB398982d7627c573bEe090D28B89CEf807149601",
-    "diagnostic_2026-09-12T15:44Z": "0xA81076fB65f216C56Bea51D4EE147eB9ffA672A3",
-    "diagnostic_2026-09-12T16:44Z": "0x50cfEED4FFf86Fab6737385794e5Fac2113eEC62",
-    "signer": "0xDe156e827E6a6D65Da58f06EaeEbA2A57BC57E8c"
+    "diagnostic_2026-09-12T13:55Z": "0xB398982d7627c573bEe090D28B89CEf807149601",
+    "diagnostic_2026-09-12T14:44Z": "0xA81076fB65f216C56Bea51D4EE147eB9ffA672A3",
+    "diagnostic_2026-09-12T15:02Z": "0x50cfEED4FFf86Fab6737385794e5Fac2113eEC62",
+    "signer": "0xDe156e827E6a6D65Da58f06EaeEbA2A57BC57E8c",
+    "superseded_2026-09-12T15:11Z": "0xF8bC4Da696306CF5874560469c8483793EC132Ff"
   },
-  "other_addresses_note": "The three diagnostic addresses are disposable deployments used to see what real validators do with the panel-decided cases before the canonical deployment; deploy/diagnostics/ holds their runs. None is a deployment of record.",
+  "other_addresses_note": "The three diagnostic addresses are disposable deployments used to see what real validators do with the panel-decided cases before a canonical deployment; deploy/diagnostics/ holds their runs. The superseded address holds the same contract bytes: its live run was abandoned because the run's own agreement terms set a 60-second appeal window, shorter than the two transactions an appeal takes on StudioNet, so the contract refused the appeal exactly as written. That agreement was then closed through the documented stalled route (UNSETTLED_ADJUDICATION, the buyer refunded in full and withdrawn), so the superseded deployment holds no escrow, and the run was repeated from a clean deployment with a ten-minute appeal window.",
   "rpc": "https://studio.genlayer.com/api",
   "signer": "0xDe156e827E6a6D65Da58f06EaeEbA2A57BC57E8c",
   "source_blob": "43acf328bc01b5f2342b022bb0073176500990b8",
@@ -28,7 +29,7 @@
     "AGREE",
     "AGREE",
     "AGREE",
-    "IDLE",
-    "IDLE"
+    "AGREE",
+    "AGREE"
   ]
 }

@@ -12,12 +12,12 @@ escrow.
 
 **Repository** - https://github.com/Hemmy1417/AgentGuard
 
-**Canonical StudioNet address** - `0xF8bC4Da696306CF5874560469c8483793EC132Ff`
+**Canonical StudioNet address** - `0xE8c834475F23447299835fD14721dBCA72f5c7F2`
 
-**Explorer URL** - https://explorer-studio.genlayer.com/address/0xF8bC4Da696306CF5874560469c8483793EC132Ff
+**Explorer URL** - https://explorer-studio.genlayer.com/address/0xE8c834475F23447299835fD14721dBCA72f5c7F2
 (the Code tab shows the deployed source).
 
-**Deployment tx** - `0x5650702a29afdcf9c8d1c97aa8c0f3914dde4acadffce85ee6d8174fb25e161b`, FINALIZED, leader execution SUCCESS.
+**Deployment tx** - `0x7842ed2ea50d7c6ba6e02d319e2792c645f8a5f224933bcf49ddf225cd592ac1`, FINALIZED, leader execution SUCCESS.
 
 **Deployment source** - `contracts/agentguard.py` at commit `32f5ac0`,
 sha256 `6233466b6c5da722704ca5817a0eca92803c837ac089afb25c5e852b0de6a491`; the source read back with `gen_getContractCode` has the same
