@@ -388,7 +388,20 @@ def phase_a(ac: dict, raw: str):
                        expect="ERROR")
         log(f"  waiting {WINDOW + 15}s for the appeal window to close")
         time.sleep(WINDOW + 15)
-    stranger.write("A:finalize", "finalize_settlement", [agreement_id])
+    if second["settleable"]:
+        stranger.write("A:finalize", "finalize_settlement", [agreement_id])
+    else:
+        # a real panel can end a round without a verdict. The documented exit
+        # then applies: once the stall window has passed as well, the escrow
+        # goes back to the agent who paid it.
+        log("  the readjudication does not settle; taking the stalled route")
+        stranger.write("A:refuse:finalize_a_hold", "finalize_settlement",
+                       [agreement_id], expect="ERROR")
+        log(f"  waiting {WINDOW + 15}s more for the stall window")
+        time.sleep(WINDOW + 15)
+        stranger.write("A:claim_stalled", "claim_stalled_agreement", [agreement_id])
+        check(buyer.read("get_agreement", [agreement_id])["settlement_route"]
+              == "UNSETTLED_ADJUDICATION", "the stalled route is wrong")
 
     view = buyer.read("get_agreement", [agreement_id])
     paid, refunded = int(view["settled_seller_atto"]), int(view["settled_buyer_atto"])
@@ -483,10 +496,15 @@ def phase_c(ac: dict, raw: str):
     phase["buyer_accepted"] = {"agreement_id": accepted_id, "paid_atto": str(PRICE)}
     log("  a buyer that accepts pays in full, with no round")
 
-    # 2. funded, never delivered: the buyer claims it back once the windows pass
-    deadline = now_iso(WINDOW)
+    # 2. funded, never delivered: the buyer claims it back once the windows
+    #    pass. The deadline has to outlast the acceptance and the funding -
+    #    a deadline already past is refused at assent, as it should be.
+    deadline_at = T.setdefault("stalled_deadline_at", int(time.time()) + 4 * WINDOW)
+    save()
     buyer.write("C:propose_stalled", "propose_agreement",
-                [WALLETS["seller"], terms_json(raw, deadline=deadline)])
+                [WALLETS["seller"],
+                 terms_json(raw, deadline=time.strftime("%Y-%m-%dT%H:%M:%SZ",
+                                                        time.gmtime(deadline_at)))])
     stalled_id = T.setdefault("stalled_id", buyer.read(
         "list_agent_agreements", [WALLETS["buyer"], 0, 50])["items"][-1])
     save()
@@ -494,8 +512,8 @@ def phase_c(ac: dict, raw: str):
     buyer.write("C:fund_stalled", "fund_escrow", [stalled_id], value=PRICE)
     stranger.write("C:refuse:early_claim", "claim_stalled_agreement", [stalled_id],
                    expect="ERROR")
-    waited = T.setdefault("stalled_funded_at", time.time())
-    remaining = max(0, (WINDOW * 3 + 20) - int(time.time() - waited))
+    # the deadline, then the cure period, then the stall window
+    remaining = max(0, deadline_at + 2 * WINDOW + 20 - int(time.time()))
     log(f"  waiting {remaining}s for the deadline, cure and stall windows")
     time.sleep(remaining)
     before = buyer.balance()
