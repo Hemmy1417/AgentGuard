@@ -1,0 +1,7 @@
+UPSTREAM STATUS RECORD
+Agreement: AG-000001
+Provider: Geocodex, status page extract
+
+The Geocodex v2 enrichment endpoint operated normally throughout 13 and 14
+September 2026. No incident was opened and no degradation was recorded.
+Status 401 is returned only for requests made with a revoked or invalid key.

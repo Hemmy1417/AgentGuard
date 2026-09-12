@@ -1,0 +1,9 @@
+ENRICHED DATASET - PARTIAL DELIVERY SUMMARY
+Agreement: AG-000001
+Produced by: Borealis (seller agent 0x254074bfea2c8be3ab28ef9879ea639f1524c09a)
+Rows delivered: 2,100
+Columns added: geo_lat, geo_lon
+
+The first pass completed. From the second run onward the Geocodex v2 endpoint
+refused every request, which was outside our control, so the remaining rows
+could not be enriched. What is delivered here is the first pass only.

@@ -241,6 +241,17 @@ def test_the_parser_reads_integers_only(mod):
         "status_code": 200, "billed_units": 5250}
 
 
+def test_a_document_is_read_only_as_the_type_it_declares(mod):
+    """The declared type is its own check, not left to the schema. A log
+    relabelled as a receipt keeps every field a log needs and is still not
+    read as a log: what a document says it is and what it is counted as never
+    disagree."""
+    doc = json.loads(file_bytes("sources/logs/borealis-run-log.json"))
+    assert mod._structured_facts(json.dumps(doc), "EXECUTION_LOG", "E1") is not None
+    doc["document_type"] = "API_RECEIPT"
+    assert mod._structured_facts(json.dumps(doc), "EXECUTION_LOG", "E1") is None
+
+
 def test_a_boolean_is_not_a_number(mod):
     """True is 1 in Python and a lie in a log. Every integer the contract
     reads goes through _is_int, which refuses the bool subclass outright."""

@@ -98,6 +98,10 @@ GOOD_RUNS = [("run-1", "2026-09-13T22:00:00Z", "2026-09-13T22:41:00Z", "SUCCEEDE
 PARTIAL_RUNS = [GOOD_RUNS[0],
                 ("run-2", "2026-09-14T02:00:00Z", "2026-09-14T02:10:00Z", "FAILED", 0),
                 ("run-3", "2026-09-14T06:00:00Z", "2026-09-14T06:20:00Z", "TIMEOUT", 400)]
+# every run after the seller revoked its own key: refused at once, nothing done
+REVOKED_RUNS = [GOOD_RUNS[0],
+                ("run-2", "2026-09-14T02:00:00Z", "2026-09-14T02:01:00Z", "FAILED", 0),
+                ("run-3", "2026-09-14T06:00:00Z", "2026-09-14T06:01:00Z", "FAILED", 0)]
 
 METHOD_LINE = "enrichment used the Geocodex v2 endpoint with a 3-pass reconciliation"
 
@@ -194,9 +198,35 @@ source rows without them. Runs two and three stopped at authentication. We
 asked twice and delivered what the sample bucket allowed.
 """)
     docs["sources/logs/borealis-partial-log.json"] = execution_log(AGREEMENT, PARTIAL_RUNS)
-    docs["sources/receipts/geocodex-partial-receipt.json"] = api_receipt(
-        AGREEMENT, 503, 2100, request_id="req-88214")
-    docs["sources/tests/borealis-partial-tests.json"] = test_output(AGREEMENT, 48, 31)
+    # -- a failure the seller caused, blamed on the dependency --------------------
+    docs["sources/delivery/blamed-dataset-summary.txt"] = text(f"""
+ENRICHED DATASET - PARTIAL DELIVERY SUMMARY
+Agreement: {AGREEMENT}
+Produced by: Borealis (seller agent {w['seller']})
+Rows delivered: 2,100
+Columns added: geo_lat, geo_lon
+
+The first pass completed. From the second run onward the Geocodex v2 endpoint
+refused every request, which was outside our control, so the remaining rows
+could not be enriched. What is delivered here is the first pass only.
+""")
+    docs["sources/logs/borealis-revoked-log.json"] = execution_log(AGREEMENT, REVOKED_RUNS)
+    docs["sources/receipts/geocodex-revoked-receipt.json"] = dump({
+        "document_type": "API_RECEIPT", "agreement_id": AGREEMENT, "issuer": "Geocodex",
+        "as_of": "2026-09-14T08:55:00Z",
+        "endpoint": "https://api.geocodex.example.org/v2/enrich",
+        "status_code": 401, "request_id": "req-88214", "billed_units": 2100,
+        "error": "api key revoked by the account owner at 2026-09-14T01:58:00Z; "
+                 "every request made with it since then is refused"})
+    docs["sources/thirdparty/geocodex-status-record.txt"] = text(f"""
+UPSTREAM STATUS RECORD
+Agreement: {AGREEMENT}
+Provider: Geocodex, status page extract
+
+The Geocodex v2 enrichment endpoint operated normally throughout 13 and 14
+September 2026. No incident was opened and no degradation was recorded.
+Status 401 is returned only for requests made with a revoked or invalid key.
+""")
     # -- nothing usable: the seller claims delivery it cannot show ---------------
     docs["messages/borealis-claims-completion.txt"] = text(f"""
 Borealis (seller agent) to Atlas, agreement {AGREEMENT}:
@@ -529,21 +559,26 @@ def cases() -> list:
              "PANEL", ALL_MET,
              buyer_says="Geocodex was down all week; none of this can be real."),
         case("A16", "SELLER_CAUSED_DEPENDENCY_FAILURE",
-             [("DELIVERABLE", "sources/delivery/partial-dataset-summary.txt", "seller",
+             [("DELIVERABLE", "sources/delivery/blamed-dataset-summary.txt", "seller",
                "Borealis", "the delivered summary"),
-              ("EXECUTION_LOG", "sources/logs/borealis-partial-log.json", "seller",
+              ("EXECUTION_LOG", "sources/logs/borealis-revoked-log.json", "seller",
                "Runner Cloud", "the run log"),
-              ("API_RECEIPT", "sources/receipts/geocodex-partial-receipt.json",
+              ("API_RECEIPT", "sources/receipts/geocodex-revoked-receipt.json",
                "seller", "Geocodex", "the upstream receipt"),
-              ("TEST_OUTPUT", "sources/tests/borealis-partial-tests.json", "seller",
-               "Borealis CI", "the test run")],
+              ("THIRD_PARTY_RECORD", "sources/thirdparty/geocodex-status-record.txt",
+               "buyer", "Geocodex status page", "the upstream status record")],
              "NOT_FULFILLED", 0, 0,
-             "a real outage, but only 2,100 of 5,000 rows arrived: below the "
-             "partial threshold, so the outage excuses nothing",
+             "the seller revoked its own API key and blames the dependency; the "
+             "receipt names the revocation and the status record shows no "
+             "incident, so nothing excuses a delivery below the partial threshold",
              "PANEL", panel({"C1": met("E1", "Rows delivered: 2,100", "NOT_SATISFIED"),
                              "C2": met("E2", '"status": "FAILED"', "NOT_SATISFIED"),
-                             "C3": met("E1", "The upstream endpoint began refusing "
-                                       "requests")})),
+                             "C3": met("E1", "What is delivered here is the first "
+                                       "pass only", "NOT_SATISFIED")}),
+             seller_says="The Geocodex endpoint refused every request after the "
+                         "first run, which was outside our control.",
+             buyer_says="Only 2,100 of 5,000 rows arrived, and Geocodex was up the "
+                        "whole time."),
         case("A17", "BUYER_WITHHELD_ACCESS",
              [("DELIVERABLE", "sources/delivery/blocked-dataset-summary.txt", "seller",
                "Borealis", "the delivered summary"),

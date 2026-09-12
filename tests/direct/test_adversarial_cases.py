@@ -224,6 +224,43 @@ def test_the_registry_flags_the_later_commitment_never_the_first(guard, direct_v
         first_record["indicators"]               # the first record is untouched
 
 
+def test_a_case_simulating_the_committing_agreement_is_not_reuse(guard, direct_vm,
+                                                                  policy_id):
+    """A case simulates one agreement, and the registry is read for that
+    agreement. When it is the agreement that committed the bytes, they are its
+    own evidence. The live run is exactly this: phase A commits its delivery
+    under AG-000001 and every phase B case simulates AG-000001. The same bytes
+    simulated under any other agreement are flagged, so the engine does read
+    the registry."""
+    from tests.direct.support import deliver
+    committed = agreement(guard, direct_vm, policy_id)
+    deliver(guard, direct_vm, committed)          # BASE-OK's four items
+    assert json.loads(bundle_json(CASES["BASE-OK"]))["agreement_id"] == committed
+
+    own = register_case(guard, direct_vm, policy_id, "BASE-OK")
+    stage(direct_vm, answer_for("BASE-OK"))
+    as_sender(direct_vm, "stranger")
+    guard.run_adversarial_case(own)
+    view = guard.get_adversarial_case(own)
+    record = guard.get_adjudication(view["receipt_id"])
+    assert finding(record, "CROSS_AGREEMENT_REUSE")["state"] == "ABSENT"
+    assert view["passed"] is True
+
+    bundle = json.loads(bundle_json(CASES["BASE-OK"]))
+    bundle["agreement_id"] = "AG-000002"
+    as_sender(direct_vm, "platform")
+    other = guard.register_adversarial_case(policy_id, 1, "OTHER",
+                                            "the same bytes under another agreement",
+                                            json.dumps(bundle), "FULFILLED", 0, 10000)
+    stage(direct_vm, answer_for("BASE-OK"))
+    as_sender(direct_vm, "stranger")
+    guard.run_adversarial_case(other)
+    record = guard.get_adjudication(guard.get_adversarial_case(other)["receipt_id"])
+    reuse = finding(record, "CROSS_AGREEMENT_REUSE")
+    assert reuse["state"] == "PRESENT" and reuse["by"] == "REGISTRY"
+    assert reuse["evidence_ids"] == ["E3", "E4"]  # the log and the receipt
+
+
 # -- the engine itself -------------------------------------------------------------
 
 def test_engine_permissions_and_single_run(guard, direct_vm, policy_id):

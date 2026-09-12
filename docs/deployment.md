@@ -12,14 +12,15 @@ and `byte_identical`. The table below is filled from it at release, and
 | Contract | `0xbB846F3Cc63e0C8fCF138B9CF0e407202158c861` |
 | Explorer | https://explorer-studio.genlayer.com/address/0xbB846F3Cc63e0C8fCF138B9CF0e407202158c861 (the Code tab shows the deployed source) |
 | Deploy transaction | `0x55e19c406eb742ad830561af3053cd9ba07e7422bb4b95f82a7878920d449376` |
-| Status | `FINALIZED`, leader execution `SUCCESS`, validator votes `AGREE` x5 |
-| Source | `contracts/agentguard.py` at commit `32f5ac0`, blob `43acf32`, sha256 `6233466b...a491` |
+| Status | `FINALIZED`, leader execution `SUCCESS`, validator votes `IDLE, AGREE, AGREE, AGREE, IDLE` |
+| Source | `contracts/agentguard.py` at commit `0a28ae9`, blob `8b0f94e`, sha256 `def6c97a...7b63` |
 | Source parity | the source read back with `gen_getContractCode` has the same sha256 (`python scripts/deploy_studionet.py --verify`) |
 | Signer | `0xDe156e827E6a6D65Da58f06EaeEbA2A57BC57E8c` |
 
 Addresses that are **not** the deployment of record are listed in the same
-file under `other_addresses`, with the reason. All carry the same contract
-bytes; what differed was the live run around them.
+file under `other_addresses`, with the reason. Read on 12 September 2026,
+every one of them reports `escrow_held_atto` 0 and `claimable_atto` 0 from
+`health_check`: nothing is held and nothing is owed.
 
 - Three **diagnostic** deployments (`deploy/diagnostics/`): disposable
   addresses used to see what real validators do with the panel-decided cases
@@ -45,6 +46,19 @@ bytes; what differed was the live run around them.
   what the deployment of record carries. That agreement's escrow was returned
   to the buyer through the stalled route and withdrawn (a balance change of
   0.05 GEN, observed), so the address holds nothing.
+- `0xbB846F3Cc63e0C8fCF138B9CF0e407202158c861`, **superseded**: the deployment
+  of record until its own live run showed validators losing quotes they had
+  copied exactly. Its quote grounding read every line break as an elision, so a
+  verbatim quote of a paragraph whose last line was one word was refused, and
+  it cut an over-long quote once, so a cut that stranded one word after a line
+  break lost a quote that grounded as written. Neither could ground anything
+  false; both put validators in disagreement for no reason the evidence gave
+  (`docs/consensus.md`, quote grounding, has the rounds). Its run is kept in
+  `deploy/superseded/live_scenarios_0xbB846F3C.json`: the whole commerce arc
+  with real GEN - a first round of INSUFFICIENT_EVIDENCE, the appeal, a
+  readjudication of FULFILLED, and 0.05 GEN finalized and withdrawn to the
+  seller's wallet - and all 26 on-chain cases, of which 23 held and A03, A12
+  and A16 did not. Phase C was not run there.
 
 ## Network and assumptions
 

@@ -1514,40 +1514,40 @@
     {
       "case_id": "A16",
       "attack_category": "SELLER_CAUSED_DEPENDENCY_FAILURE",
-      "notes": "a real outage, but only 2,100 of 5,000 rows arrived: below the partial threshold, so the outage excuses nothing",
+      "notes": "the seller revoked its own API key and blames the dependency; the receipt names the revocation and the status record shows no incident, so nothing excuses a delivery below the partial threshold",
       "commerce": true,
       "evidence": [
         {
           "category": "DELIVERABLE",
-          "path": "sources/delivery/partial-dataset-summary.txt",
+          "path": "sources/delivery/blamed-dataset-summary.txt",
           "party": "seller",
           "issuer": "Borealis",
           "description": "the delivered summary"
         },
         {
           "category": "EXECUTION_LOG",
-          "path": "sources/logs/borealis-partial-log.json",
+          "path": "sources/logs/borealis-revoked-log.json",
           "party": "seller",
           "issuer": "Runner Cloud",
           "description": "the run log"
         },
         {
           "category": "API_RECEIPT",
-          "path": "sources/receipts/geocodex-partial-receipt.json",
+          "path": "sources/receipts/geocodex-revoked-receipt.json",
           "party": "seller",
           "issuer": "Geocodex",
           "description": "the upstream receipt"
         },
         {
-          "category": "TEST_OUTPUT",
-          "path": "sources/tests/borealis-partial-tests.json",
-          "party": "seller",
-          "issuer": "Borealis CI",
-          "description": "the test run"
+          "category": "THIRD_PARTY_RECORD",
+          "path": "sources/thirdparty/geocodex-status-record.txt",
+          "party": "buyer",
+          "issuer": "Geocodex status page",
+          "description": "the upstream status record"
         }
       ],
-      "seller_statement": "",
-      "buyer_claim": "",
+      "seller_statement": "The Geocodex endpoint refused every request after the first run, which was outside our control.",
+      "buyer_claim": "Only 2,100 of 5,000 rows arrived, and Geocodex was up the whole time.",
       "expected_verdict": "NOT_FULFILLED",
       "expected_seller_bps_min": 0,
       "expected_seller_bps_max": 0,
@@ -1575,11 +1575,11 @@
             "note": ""
           },
           "C3": {
-            "state": "SATISFIED",
+            "state": "NOT_SATISFIED",
             "quotes": [
               {
                 "evidence_id": "E1",
-                "text": "The upstream endpoint began refusing requests"
+                "text": "What is delivered here is the first pass only"
               }
             ],
             "note": ""

@@ -30,6 +30,14 @@ declared category and issuer are the submitter's claims, and only
 authoritative. It states that the frozen criteria are the whole standard, and
 that anything either party said afterwards adds nothing.
 
+An item code has excluded (hidden text, an injection marker, another
+agreement's record, stale, duplicated or reused) is listed with
+`excluded_by_code: true` and without its text (`EXCLUDED_TEXT`). Nothing in it
+may support an answer, and its text is what an attacker wrote to be read. When
+the panel was shown it, models reported the hidden instruction they found
+there - a finding whose only quotes came from an item that cannot be quoted -
+and the round fell to UNDETERMINED or split on that question.
+
 An indicator the panel cannot decide is UNDETERMINED, and an undecided
 question holds the escrow only when its answer could have changed the verdict -
 the five in `OUTCOME_INDICATORS`. `BUYER_CRITERIA_CHANGE` is not among them:
@@ -54,17 +62,27 @@ recording the same fact in different places and every round disagreeing.
 > verified bytes); and every row's status and byte count, every structured
 > fact, the agreement link, injection and hidden-text scans, the panel state
 > and reason, and the state and deciding layer of every criterion and indicator
-> equal its own. The fulfillment level, verdict, fault levels, seller payment
-> and buyer refund are then computed by code from those agreed fields, so
-> validators agree on them by construction, and no model output reaches an
+> equal its own - for an indicator that records fault and never moves money,
+> whether it is PRESENT. The fulfillment level, verdict, fault levels, seller
+> payment and buyer refund are then computed by code from those agreed fields,
+> so validators agree on them by construction, and no model output reaches an
 > amount. Notes and quote choice are grounded, never compared.
 
 Two properties follow. **Consensus is required on everything with a
 consequence** - a criterion's state, an indicator's state, which layer decided
-it, and every byte-level fact under them. **Consensus is not required on
-prose** - the note a model wrote and which of several valid quotes it chose
-differ between models and decide nothing, so comparing them would only
-manufacture disagreement.
+it, and every byte-level fact under them. **Consensus is not required on what
+decides nothing** - the note a model wrote and which of several valid quotes it
+chose differ between models, so comparing them would only manufacture
+disagreement.
+
+The one indicator where those two meet is `BUYER_CRITERIA_CHANGE`, the only
+member of `FAULT_ONLY_INDICATORS`. It never changes the verdict or the split
+(`OUTCOME_INDICATORS` leaves it out), and the buyer's fault level follows
+PRESENT alone, so ABSENT and UNDETERMINED have exactly the same consequence.
+Validators compare whether it is PRESENT (`_same_reading`). On the live network
+ABSENT against UNDETERMINED on that question was six of 38 validator
+disagreements, and in diagnostic run four the whole reason a round of A15 stored
+nothing.
 
 ## The structural gate
 
@@ -105,11 +123,38 @@ had the perverse effect of throwing away the best evidence a party can give.
 ## Quote grounding
 
 `_quote_grounded` tokenizes both the quote and the source into lowercase
-alphanumeric words and requires the quote's words to appear as contiguous runs,
-in order, in the cited item. A quote may elide with `...` or join lines, in
-which case each fragment must be found in order after the previous one, and
-every fragment needs at least two words. Nothing the document does not say can
-ground, and a quote the model assembled from two places cannot.
+alphanumeric words. A quote is split at each ellipsis into parts, found in
+order. Each part is sought first as one contiguous run of the document's
+words, wherever its line breaks fall: a verbatim copy of a wrapped paragraph
+keeps the document's own breaks, and its last line may be a single word. A
+part that does not run contiguously is read as lines joined from different
+places - each line found in order, lines that follow each other in the
+document forming one run. Every run needs at least two words. Nothing the
+document does not say can ground, and nothing out of the document's order can.
+
+A model reading a structured document often reflows several of its lines onto
+one and joins them with a comma, which is the claim an ellipsis makes. A quote
+that does not ground as written and contains `, ` is tried once more with each
+`, ` read as an ellipsis, under exactly the same rule.
+
+A quote over the 240-character cap is tried at successively shorter cuts: at
+the last word boundary inside the cap, then back one line, part or reflowed
+item at a time. The cut is never what loses a quote that grounds as written;
+`test_cutting_to_the_cap_never_loses_a_quote_that_grounds` checks that over
+every line of four fixture documents, shifted a word at a time.
+
+Both rules came from the live network, where the deployment before this one
+refused quotes that were copied exactly. It read every line break as an
+elision, so a verbatim quote of a paragraph whose document wrapped its last
+word onto a line of its own ended in a one-word fragment: in case A16's rounds
+four validators quoted the same sentence of the delivery summary that way and
+lost it, and for one of them it was the only support for its reading of
+criterion C3. It also cut an over-long quote only once, and a cut that stranded
+one word after a line break dropped a quote of the method report that grounded
+as written - which is what put one validator in disagreement with the leader
+over C3 in case A15's round, and another in a diagnostic round of the baseline.
+Neither refusal can ground anything the document does not say; both only
+manufactured disagreement.
 
 If a quote fails to ground, it is dropped; a criterion left with no quote is
 downgraded to UNVERIFIABLE and an indicator to UNDETERMINED - and the node

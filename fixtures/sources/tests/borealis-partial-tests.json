@@ -1,9 +1,0 @@
-{
-  "document_type": "TEST_OUTPUT",
-  "agreement_id": "AG-000001",
-  "issuer": "Borealis CI",
-  "as_of": "2026-09-14T09:05:00Z",
-  "total": 48,
-  "passed": 31,
-  "failed": 17
-}

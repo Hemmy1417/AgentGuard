@@ -19,8 +19,8 @@ escrow.
 
 **Deployment tx** - `0x55e19c406eb742ad830561af3053cd9ba07e7422bb4b95f82a7878920d449376`, FINALIZED, leader execution SUCCESS.
 
-**Deployment source** - `contracts/agentguard.py` at commit `32f5ac0`,
-sha256 `6233466b6c5da722704ca5817a0eca92803c837ac089afb25c5e852b0de6a491`; the source read back with `gen_getContractCode` has the same
+**Deployment source** - `contracts/agentguard.py` at commit `0a28ae9`,
+sha256 `def6c97a70988f43012ff983cd9b4939f791931c9f9d7039ac5aa5cc11447b63`; the source read back with `gen_getContractCode` has the same
 sha256 (`python scripts/deploy_studionet.py --verify`).
 
 ## Why GenLayer is required
@@ -45,9 +45,10 @@ fields recomputed, every quote's words re-grounded in the bytes that validator
 hashed itself. It then compares row statuses and byte counts, structured
 facts, the agreement link and the injection and hidden-text scans, the panel
 state and reason, and the state and deciding layer of every criterion and
-indicator. Notes and quote choice are never compared: they differ between
-models and decide nothing. The equivalence rule is stored in the contract and
-returned by `get_config`.
+indicator - except that for the one indicator that records fault and never
+moves money, only whether it is PRESENT. Notes and quote choice are never
+compared: they differ between models and decide nothing. The equivalence rule
+is stored in the contract and returned by `get_config`.
 
 ## Deterministic responsibilities
 
@@ -63,12 +64,12 @@ conservation; the pull-payment ledger; every state transition.
 
 Fail closed, and hold rather than guess. An unreachable or changed source, an
 oversized or malformed item, an unusable model answer, too little usable
-evidence, fabrication or text aimed at the panel, or any undecided question
-produces a verdict that pays nobody and leaves the escrow in place. A held
-escrow is never stranded: every state that can hold funds has a permissionless
-wall-clock exit (`claim_stalled_agreement`) whose four routes are decided in
-advance, and an escrow never shown to be earned returns to the agent who paid
-it. Money moves in exactly two places - `fund_escrow` in, `withdraw` out - and
+evidence, fabrication or text aimed at the panel, or an undecided question
+whose answer could have changed the verdict produces a verdict that pays nobody
+and leaves the escrow in place. A held escrow is never stranded: every state
+that can hold funds has a permissionless wall-clock exit
+(`claim_stalled_agreement`) whose four routes are decided in advance, and an
+escrow never shown to be earned returns to the agent who paid it. Money moves in exactly two places - `fund_escrow` in, `withdraw` out - and
 `_settle` reverts unless the two allocations reconcile to the escrow exactly.
 
 ## Reuse surface
@@ -86,8 +87,8 @@ five things a caller must get right.
 
 | Check | Command | Result |
 |---|---|---|
-| Direct Mode | `python -m pytest tests/direct -q` | 298 passed |
-| Preflight | `python scripts/preflight.py` | 45 checks, 0 failed |
+| Direct Mode | `python -m pytest tests/direct -q` | 313 passed |
+| Preflight | `python scripts/preflight.py` | 47 checks, 0 failed |
 | GenVM validation | `genvm-lint check contracts/agentguard.py --json` | ok, 40 methods, 0 errors |
 | Lint | `ruff check .` | clean |
 | Mutation sweep | `python scripts/mutation_check.py --jobs 3` | recorded in `deploy/` |
@@ -151,6 +152,6 @@ every validator re-grounds in its own bytes. Code then derives the fulfillment
 level, the verdict, both fault levels and the split, so no model output reaches
 an amount. It exposes settlement_status, get_adjudication and get_claimable for
 downstream contracts, and every state has a permissionless wall-clock exit.
-Verified with 298 Direct Mode tests on the official genlayer-test runner, GenVM
+Verified with 313 Direct Mode tests on the official genlayer-test runner, GenVM
 lint and SDK validation, a mutation sweep with an accept-control, StudioNet
 integration tests and a FINALIZED StudioNet deployment.

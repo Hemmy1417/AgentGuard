@@ -10,8 +10,8 @@ import pytest
 
 from tests.direct.support import (
     DELIVERY, FULL_ANSWER, adjudicate, agreement, answer, captured_ctx,
-    captured_payload, commit, deliver, dispute, mock_panel, satisfied, serve_all,
-    serve_bytes, stage, url_of)
+    captured_payload, commit, deliver, dispute, file_bytes, finding, mock_panel,
+    satisfied, serve_all, serve_bytes, stage, url_of)
 
 
 def validate(direct_vm, mod, payload) -> bool:
@@ -164,6 +164,40 @@ def test_a_validator_undecided_where_the_leader_decided(guard, direct_vm, policy
     assert direct_vm.run_validator() is False
 
 
+def test_a_fault_only_question_undecided_is_not_a_split(guard, direct_vm, policy_id):
+    """BUYER_CRITERIA_CHANGE records fault and never moves money, and the
+    fault level follows PRESENT alone. A validator whose model left it
+    undecided reaches every consequence the leader's ABSENT reaches, so it
+    ratifies. On StudioNet six disagreements were exactly this."""
+    round_one(guard, direct_vm, policy_id)            # the leader: all ABSENT
+    stage(direct_vm, answer(
+        {"C1": satisfied("E1", "Rows delivered: 5,250"),
+         "C2": satisfied("E3", "\"status\": \"SUCCEEDED\""),
+         "C3": satisfied("E2", "The enrichment ran in three passes")},
+        {"BUYER_CRITERIA_CHANGE": {"state": "UNDETERMINED", "quotes": [], "note": ""}}))
+    assert direct_vm.run_validator() is True
+
+
+def test_a_fault_is_compared_on_whether_it_was_established(mod):
+    """Where a finding has a consequence it is compared: an established fault
+    against an unestablished one, and any difference in a question that can
+    change the verdict - where UNDETERMINED holds the escrow."""
+    def finding_of(subject_id, state):
+        return {"id": subject_id, "state": state, "by": "PANEL", "quotes": [],
+                "note": ""}
+    fault = "BUYER_CRITERIA_CHANGE"
+    assert mod.FAULT_ONLY_INDICATORS == (fault,)
+    assert mod._same_reading(finding_of(fault, "ABSENT"), finding_of(fault, "UNDETERMINED"))
+    assert not mod._same_reading(finding_of(fault, "PRESENT"),
+                                 finding_of(fault, "UNDETERMINED"))
+    assert not mod._same_reading(finding_of(fault, "ABSENT"), finding_of(fault, "PRESENT"))
+    for outcome in mod.OUTCOME_INDICATORS:
+        assert not mod._same_reading(finding_of(outcome, "ABSENT"),
+                                     finding_of(outcome, "UNDETERMINED")), outcome
+    assert not mod._same_reading(finding_of("C1", "SATISFIED"),
+                                 finding_of("C1", "UNVERIFIABLE"))
+
+
 def test_a_leader_claiming_the_model_failed(guard, direct_vm, mod, policy_id):
     round_one(guard, direct_vm, policy_id)
     payload = captured_payload(direct_vm)
@@ -314,7 +348,13 @@ def test_a_quote_grounds_only_in_the_bytes_it_cites(mod):
     assert grounds(mod, "ran in three passes")
     assert not grounds(mod, "Rows delivered: 6,000")      # not in the document
     assert not grounds(mod, "Rows delivered: 5,250", "E2")  # not in THAT document
-    assert not grounds(mod, "Rows delivered: 5,250", "E3")  # not an eligible item
+    # E3's bytes do say this; E3 is simply not an item the round may count,
+    # with or without the texts to check against
+    assert grounds(mod, "the enrichment reconciled batch 3", "E3", ("E3",))
+    assert not grounds(mod, "the enrichment reconciled batch 3", "E3")
+    assert not mod._quote_grounded({"evidence_id": "E3",
+                                    "text": "the enrichment reconciled batch 3"},
+                                   ["E1", "E2"], None)
     assert not grounds(mod, "no fabricated rows", "E1")
     assert grounds(mod, "no fabricated rows", "E2")
 
@@ -353,12 +393,56 @@ def test_a_reflowed_json_quote_grounds_like_an_elision(mod):
                            '"2026-09-14T06:00:00Z"')
 
 
-def test_a_fragment_needs_more_than_one_word(mod):
+def test_a_run_needs_more_than_one_word(mod):
     """A single word occurs in half the corpus; a finding resting on one is
-    not grounded in anything. Each fragment carries at least two."""
+    not grounded in anything. Every run carries at least two, and a quote
+    with no words at all grounds nothing."""
     assert not grounds(mod, "enrichment")
     assert not grounds(mod, "Rows delivered: 5,250 ... enrichment")
     assert grounds(mod, "the enrichment")
+    assert not grounds(mod, "... ... ...")
+
+
+def test_line_breaks_are_the_documents_not_the_quotes(mod):
+    """A verbatim copy of a wrapped paragraph keeps the document's own line
+    breaks, and its last line may be one word. On StudioNet four validators
+    quoted A16's delivery summary exactly like this and lost the quote,
+    because a line break was read as an elision and "run." as a fragment of
+    one word."""
+    summary = {"E1": file_bytes("sources/delivery/partial-dataset-summary.txt").decode()}
+    sentence = ("The upstream endpoint began refusing requests part way through "
+                "the second\nrun.")
+    assert mod._quote_grounded({"evidence_id": "E1", "text": sentence}, ["E1"], summary)
+    elided = "ENRICHED DATASET - DELIVERY SUMMARY ... " + sentence
+    assert mod._quote_grounded({"evidence_id": "E1", "text": elided}, ["E1"], summary)
+    # the method report ends the same way; its limitations are the likeliest quote
+    report = {"E1": file_bytes("sources/delivery/method-report.txt").decode()}
+    last = "No row was invented, and no value was copied from another\nrow."
+    assert mod._quote_grounded({"evidence_id": "E1", "text": last}, ["E1"], report)
+
+
+def test_joined_lines_ground_as_runs_of_two_words_or_more(mod):
+    """Lines quoted from different places are found in order, and lines that
+    follow each other in the document are one run. A one-word line from
+    elsewhere stands alone, and grounds nothing."""
+    assert grounds(mod, "Rows delivered: 5,250\n"
+                        "The enrichment ran in three passes over the\ndataset.")
+    assert not grounds(mod, "Rows delivered: 5,250\nenrichment\nover the dataset")
+    assert not grounds(mod, "Rows delivered: 5,250\nenrichment")
+    # a line the document does not have, even between two it does
+    assert not grounds(mod, "Rows delivered: 5,250\nColumns removed: none\n"
+                            "The enrichment ran")
+    # and the document's order only
+    assert not grounds(mod, "The enrichment ran\nColumns added: geo_lat")
+
+
+def test_a_wrapped_run_is_sought_whole_before_its_lines(mod):
+    """A part is sought as one run first, so a phrase the document also uses
+    earlier cannot pull a first line away from the one-word line that
+    completes it."""
+    texts = {"E1": "The file was delivered late. The file was\ncorrupt."}
+    assert mod._quote_grounded({"evidence_id": "E1", "text": "The file was\ncorrupt."},
+                               ["E1"], texts)
 
 
 def test_a_quote_is_kept_only_between_the_minimum_and_the_cap(mod):
@@ -366,12 +450,81 @@ def test_a_quote_is_kept_only_between_the_minimum_and_the_cap(mod):
     short to identify anything is dropped, and an over-long one is trimmed to
     the cap at a word boundary and must still ground."""
     assert mod._ground_quote("passes", None, ["E1"], SOURCE) is None
+    # two words the document does say, and still too short to identify anything
+    assert mod._ground_quote("5,250", None, ["E1"], SOURCE) is None
     assert mod._ground_quote("Rows delivered: 5,250", None, ["E1"], SOURCE) == {
         "evidence_id": "E1", "text": "Rows delivered: 5,250"}
     assert len(SOURCE["E3"]) > mod.QUOTE_CAP        # it really is over the cap
     trimmed = mod._ground_quote(SOURCE["E3"], "E3", ["E3"], SOURCE)
     assert trimmed is not None and len(trimmed["text"]) <= mod.QUOTE_CAP
     assert grounds(mod, trimmed["text"], "E3", ("E3",))
+
+
+def test_a_too_short_quote_is_dropped_not_fatal(guard, direct_vm, policy_id):
+    """The gate refuses a stored quote under the minimum length, so the
+    normalizer has to drop one before it is stored. Otherwise a model that
+    quotes "5,250" beside a proper quote makes the leader's own payload fail
+    its gate, and the round dies on every node."""
+    agreement_id = agreement(guard, direct_vm, policy_id)
+    deliver(guard, direct_vm, agreement_id)
+    dispute(guard, direct_vm, agreement_id)
+    record = adjudicate(guard, direct_vm, agreement_id, answer({
+        "C1": {"state": "SATISFIED", "note": "",
+               "quotes": [{"evidence_id": "E1", "text": "5,250"},
+                          {"evidence_id": "E1", "text": "Rows delivered: 5,250"}]},
+        "C2": satisfied("E3", "\"status\": \"SUCCEEDED\""),
+        "C3": satisfied("E2", "The enrichment ran in three passes"),
+    }))
+    c1 = finding(record, "C1")
+    assert c1["state"] == "SATISFIED"
+    assert [q["text"] for q in c1["quotes"]] == ["Rows delivered: 5,250"]
+
+
+def test_the_cut_that_lost_a_live_quote(mod):
+    """A StudioNet validator quoted the method report's first paragraph whole:
+    300 characters over four lines, grounded as written. Cut to the cap it
+    ended on one word after a line break, and the quote was dropped. It is
+    now kept, cut at the last word that fits."""
+    report = {"E2": file_bytes("sources/delivery/method-report.txt").decode()}
+    paragraph = ("The enrichment ran in three passes. The first pass queried the "
+                 "Geocodex v2\nendpoint for every row. The second pass re-queried rows "
+                 "whose confidence was\nbelow 0.6, using the postal code rather than the "
+                 "free-text address. The third\npass reconciled the two answers and kept "
+                 "the higher-confidence result.")
+    assert len(paragraph) > mod.QUOTE_CAP
+    kept = mod._ground_quote(paragraph, "E2", ["E2"], report)
+    assert kept is not None and len(kept["text"]) <= mod.QUOTE_CAP
+    assert kept["text"].endswith("The third\npass")
+
+
+@pytest.mark.parametrize("path", ["sources/delivery/method-report.txt",
+                                  "sources/delivery/enriched-dataset-summary.txt",
+                                  "sources/delivery/partial-dataset-summary.txt",
+                                  "sources/logs/borealis-run-log.json"])
+def test_cutting_to_the_cap_never_loses_a_quote_that_grounds(mod, path):
+    """The property behind the live failure: whatever a model quotes, the
+    cut to the cap is never what loses it. Verbatim runs of lines, lines
+    joined from every other line, elisions and comma reflows, starting at
+    every line and shifted a word at a time so the cap lands everywhere -
+    each one that grounds as written is kept."""
+    texts = {"E1": file_bytes(path).decode()}
+    lines = [line for line in texts["E1"].split("\n") if line.strip()]
+    checked = 0
+    for start in range(len(lines)):
+        for step in (1, 2):
+            for joiner in ("\n", " ... ", ", "):
+                picked = lines[start::step]
+                words = picked[0].split()
+                for skip in range(min(len(words) - 1, 12)):
+                    quote = joiner.join([" ".join(words[skip:])] + picked[1:]).strip()
+                    if len(quote) <= mod.QUOTE_CAP or not mod._quote_grounded(
+                            {"evidence_id": "E1", "text": quote}, ["E1"], texts):
+                        continue
+                    kept = mod._ground_quote(quote, "E1", ["E1"], texts)
+                    assert kept is not None, quote
+                    assert len(kept["text"]) <= mod.QUOTE_CAP
+                    checked += 1
+    assert checked > 20            # the property was exercised, not vacuous
 
 
 def test_an_answer_is_normalized_to_what_the_evidence_allows(mod):

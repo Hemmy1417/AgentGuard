@@ -396,9 +396,6 @@ MUTATIONS = [
      "        if f[\"id\"] in TAINTING and f[\"state\"] == PRESENT:\n",
      "        if False:\n"),
     # -- the registry -------------------------------------------------------------------
-    ("the first committer is flagged for its own bytes",
-     "            if seq is None or int(first_seq) < seq:\n",
-     "            if True:\n"),
     ("an agreement's own earlier commitment is flagged",
      "            if first_agreement == ctx[\"agreement_id\"]:\n                continue\n",
      "            if False:\n                continue\n"),
@@ -438,18 +435,63 @@ MUTATIONS = [
     ("a quote from an ineligible item grounds",
      "    if quote[\"evidence_id\"] not in eligible:\n        return False\n",
      "    if False:\n        return False\n"),
-    ("quote grounding is skipped",
-     "        position = _find_run(haystack, words, position)\n        if position < 0:\n",
-     "        position = 0\n        if position < 0:\n"),
-    ("elided fragments may appear out of order",
-     "        position = _find_run(haystack, words, position)\n",
-     "        position = _find_run(haystack, words, 0)\n"),
+    ("an excluded item's text is shown to the panel",
+     "                      \"text\": EXCLUDED_TEXT if excluded else texts[eid]})\n",
+     "                      \"text\": texts[eid]})\n"),
+    ("a fault-only question is compared on its exact state",
+     "    if a[\"id\"] in FAULT_ONLY_INDICATORS:\n",
+     "    if False:\n"),
+    ("an established fault is not compared",
+     "        return (a[\"state\"] == PRESENT) == (b[\"state\"] == PRESENT)\n",
+     "        return True\n"),
+    ("findings are compared without their state",
+     "    return a[\"state\"] == b[\"state\"]\n",
+     "    return True\n"),
+    ("every panel question is treated as fault-only",
+     "                              if i not in OUTCOME_INDICATORS)\n",
+     "                              if True)\n"),
+    ("a part the document does not have grounds",
+     "        if end < 0:\n            return False\n",
+     "        if False:\n            return False\n"),
+    ("elided parts may appear out of order",
+     "        end = _find_run(haystack, words, position)\n",
+     "        end = _find_run(haystack, words, 0)\n"),
+    ("a part is never sought as one run",
+     "        end = _find_run(haystack, words, position)\n",
+     "        end = -1\n"),
     ("a reflowed quote is not held to the elision rule",
      "    if \", \" not in quote[\"text\"]:\n        return False\n",
      "    if True:\n        return False\n"),
-    ("a one-word fragment grounds",
-     "        if len(words) == 1:\n            return []\n",
-     "        if False:\n            return []\n"),
+    ("a one-word part grounds",
+     "        if len(words) == 1:\n            return False\n",
+     "        if False:\n            return False\n"),
+    ("a quote with no words grounds",
+     "    return parts > 0\n",
+     "    return True\n"),
+    ("joined lines may appear out of order",
+     "        end = _find_run(haystack, line_words, position)\n",
+     "        end = _find_run(haystack, line_words, 0)\n"),
+    ("a joined line the document does not have is skipped",
+     "        if end < 0:\n            return -1\n",
+     "        if False:\n            return -1\n"),
+    ("lines that follow each other in the document are not one run",
+     "        if run > 0 and end - len(line_words) != position:\n",
+     "        if run > 0:\n"),
+    ("a one-word run of joined lines grounds",
+     "            if run == 1:\n                return -1\n",
+     "            if False:\n                return -1\n"),
+    ("the last run of joined lines may be one word",
+     "    return -1 if run < 2 else position\n",
+     "    return position\n"),
+    ("an over-long quote is tried at one cut only",
+     "        text = text[:at].strip()\n",
+     "        break\n"),
+    ("a cut never steps back over a reflowed item",
+     ", \", \")   # what quote grounding splits on\n",
+     ")   # what quote grounding splits on\n"),
+    ("an over-long quote is cut inside a word",
+     "    text = cut[:cut.rfind(\" \")].strip() if \" \" in cut else \"\"\n",
+     "    text = cut.strip()\n"),
     ("a quote below the minimum length is kept",
      "    if len(text) < QUOTE_MIN:\n        return None\n",
      "    if False:\n        return None\n"),
@@ -559,7 +601,7 @@ MUTATIONS = [
      "        if a[\"status\"] != b[\"status\"] or a[\"byte_count\"] != b[\"byte_count\"]:\n",
      "        if False:\n"),
     ("finding states are not compared",
-     "            if a[\"id\"] != b[\"id\"] or a[\"state\"] != b[\"state\"] or a[\"by\"] != b[\"by\"]:\n",
+     "            if a[\"id\"] != b[\"id\"] or a[\"by\"] != b[\"by\"] or not _same_reading(a, b):\n",
      "            if False:\n"),
     ("a model error no longer forces rotation",
      "    if leader_text.startswith(ERROR_LLM):\n        return False\n",
@@ -676,6 +718,22 @@ MUTATIONS = [
 #   which means at least one indicator comes back UNDETERMINED, which reaches
 #   INCONCLUSIVE one branch later. The branch states the reason plainly and
 #   survives a change to the indicator set; no test can distinguish it today.
+# - `int(first_seq) < seq` in _registry_findings: it is reached only for an
+#   item of another agreement than the one that committed the bytes first
+#   (the line before skips the committing agreement), and the registry is
+#   written only by submit_evidence, only for a digest it has not seen, with a
+#   counter that only increases. So the first commitment's sequence is always
+#   lower than any other agreement's commitment of the same bytes, and an
+#   engine item (no sequence) is flagged either way. The comparison states the
+#   ordering the docstring promises; the committing agreement's own skip is
+#   pinned through the engine.
+# - the `by` comparison in _first_difference: by the time findings are
+#   compared, the rows, facts and scans already match, so both nodes hold the
+#   same plan; the gate has required every code-fixed finding to equal that
+#   plan's and every asked finding to be by PANEL, and the panel state (compared
+#   first) fixes the layer of a skipped round. Two findings that reach the
+#   comparison cannot differ in their deciding layer. It stays in the rule the
+#   contract publishes.
 #
 # Removed rather than excluded: the `payload is None` branch of _derive and its
 # `delivered_at == ""` arm were unreachable (both call sites pass a payload
