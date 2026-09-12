@@ -60,6 +60,11 @@ WALLETS = CATALOGUE["wallets"]
 GEN = 10 ** 18
 PRICE = GEN // 20                     # 0.05 GEN: one faucet call covers the run
 WINDOW = 60                           # the contract's minimum, so C can wait it out
+# An appeal is two transactions - committing the new evidence and filing it -
+# and a StudioNet transaction takes a minute or more. A 60-second appeal
+# window is therefore shorter than the appeal itself; the first live attempt
+# had the contract refuse the appeal, correctly, for that reason.
+APPEAL_WINDOW = 600
 POLICY_ID = "SP-000001"
 T: dict = {}
 
@@ -172,6 +177,17 @@ class Actor:
 
     def balance(self) -> int:
         return int(retry(lambda: self.client.get_balance(self.account.address)))
+
+    def balance_after(self, before: int, amount: int, tries: int = 24) -> int:
+        """The recipient's balance once a payout has landed. An external
+        transfer settles a moment after the paying transaction finalizes, so
+        one read immediately afterwards can still show the old value."""
+        for _ in range(tries):
+            current = self.balance()
+            if current - before >= amount:
+                return current
+            time.sleep(5)
+        return self.balance()
 
     def write(self, step: str, fn: str, args: list, expect: str = "SUCCESS",
               value: int = 0) -> dict:
@@ -314,7 +330,9 @@ def phase_a(ac: dict, raw: str):
             time.sleep(5)
     phase["buyer_balance_before"] = str(buyer.balance())
 
-    buyer.write("A:propose", "propose_agreement", [WALLETS["seller"], terms_json(raw)])
+    buyer.write("A:propose", "propose_agreement",
+                [WALLETS["seller"],
+                 terms_json(raw, appeal_window_seconds=APPEAL_WINDOW)])
     agreement_id = T.setdefault("agreement_id", buyer.read(
         "list_agent_agreements", [WALLETS["buyer"], 0, 50])["items"][-1])
     phase["agreement_id"] = agreement_id
@@ -386,8 +404,8 @@ def phase_a(ac: dict, raw: str):
     if status["appeal_window_open"]:
         stranger.write("A:refuse:early_finalize", "finalize_settlement", [agreement_id],
                        expect="ERROR")
-        log(f"  waiting {WINDOW + 15}s for the appeal window to close")
-        time.sleep(WINDOW + 15)
+        log(f"  waiting {APPEAL_WINDOW + 15}s for the appeal window to close")
+        time.sleep(APPEAL_WINDOW + 15)
     if second["settleable"]:
         stranger.write("A:finalize", "finalize_settlement", [agreement_id])
     else:
@@ -417,7 +435,7 @@ def phase_a(ac: dict, raw: str):
     before = seller.balance()
     if paid > 0:
         seller.write("A:withdraw:seller", "withdraw", [])
-        after = seller.balance()
+        after = seller.balance_after(before, paid)
         check(after - before == paid,
               f"the seller's balance moved by {after - before}, expected {paid}")
         check(claimable(buyer, "seller") == 0, "the ledger was not cleared")
@@ -492,7 +510,8 @@ def phase_c(ac: dict, raw: str):
     check(int(view["settled_seller_atto"]) == PRICE, "acceptance did not pay in full")
     check(len(view["adjudication_ids"]) == 0, "acceptance ran a consensus round")
     seller.write("C:withdraw", "withdraw", [])
-    check(seller.balance() - before == PRICE, "the seller was not paid on chain")
+    check(seller.balance_after(before, PRICE) - before == PRICE,
+          "the seller was not paid on chain")
     phase["buyer_accepted"] = {"agreement_id": accepted_id, "paid_atto": str(PRICE)}
     log("  a buyer that accepts pays in full, with no round")
 
@@ -522,7 +541,8 @@ def phase_c(ac: dict, raw: str):
     check(view["settlement_route"] == "NO_DELIVERY", "the stalled route is wrong")
     check(int(view["settled_buyer_atto"]) == PRICE, "the buyer was not refunded in full")
     buyer.write("C:withdraw_refund", "withdraw", [])
-    check(buyer.balance() - before == PRICE, "the refund did not reach the buyer")
+    check(buyer.balance_after(before, PRICE) - before == PRICE,
+          "the refund did not reach the buyer")
     phase["stalled_refund"] = {"agreement_id": stalled_id, "refund_atto": str(PRICE)}
     log("  an undelivered agreement returns the escrow to its payer")
 
