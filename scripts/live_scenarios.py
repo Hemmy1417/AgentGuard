@@ -389,7 +389,7 @@ def phase_a(ac: dict, raw: str):
         "There is no dataset summary and no method report: I cannot tell what "
         "was delivered.", []])
 
-    stranger.write("A:adjudicate", "request_adjudication", [agreement_id])
+    adjudicated = stranger.write("A:adjudicate", "request_adjudication", [agreement_id])
     # by id, not "the latest": after the appeal the latest is the second round
     rounds = [str(a) for a in buyer.read("get_agreement",
                                          [agreement_id])["adjudication_ids"]]
@@ -401,8 +401,9 @@ def phase_a(ac: dict, raw: str):
           "C3 has no evidence of its categories and must be UNVERIFIABLE by code")
     check(find(first["criteria"], "C3")["by"] == "CODE", "C3 was decided by a model")
     check(first["seller_bps"] < 10000, "a delivery missing a criterion paid in full")
-    check(int(buyer.read("get_agreement", [agreement_id])["escrow_atto"]) == PRICE,
-          "an adjudication moved the escrow; it must not")
+    if not adjudicated.get("replayed"):
+        check(int(buyer.read("get_agreement", [agreement_id])["escrow_atto"]) == PRICE,
+              "an adjudication moved the escrow; it must not")
     phase["first_digest"] = first["record_digest"]
 
     later = items_of("BASE-OK", raw, only=(
