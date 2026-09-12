@@ -390,7 +390,11 @@ def phase_a(ac: dict, raw: str):
         "was delivered.", []])
 
     stranger.write("A:adjudicate", "request_adjudication", [agreement_id])
-    first = buyer.read("get_latest_adjudication", [agreement_id])
+    # by id, not "the latest": after the appeal the latest is the second round
+    rounds = [str(a) for a in buyer.read("get_agreement",
+                                         [agreement_id])["adjudication_ids"]]
+    check(len(rounds) >= 1, "the adjudication was not stored")
+    first = buyer.read("get_adjudication", [rounds[0]])
     expect(phase, "first_round", first, "PARTIALLY_FULFILLED", 0, 9999,
            decided_by="PANEL")
     check(find(first["criteria"], "C3")["state"] == "UNVERIFIABLE",
@@ -413,7 +417,10 @@ def phase_a(ac: dict, raw: str):
         "get_agreement", [agreement_id])["appeal_ids"][-1])
     save()
     stranger.write("A:readjudicate", "request_readjudication", [appeal_id])
-    second = buyer.read("get_latest_adjudication", [agreement_id])
+    rounds = [str(a) for a in buyer.read("get_agreement",
+                                         [agreement_id])["adjudication_ids"]]
+    check(len(rounds) >= 2, "the readjudication was not stored")
+    second = buyer.read("get_adjudication", [rounds[-1]])
     expect(phase, "readjudication", second, "FULFILLED", 10000, 10000, decided_by="PANEL")
     phase["changes"] = second.get("changes")
     original = buyer.read("get_adjudication", [first["adjudication_id"]])
