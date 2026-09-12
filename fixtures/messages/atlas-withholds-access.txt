@@ -1,0 +1,4 @@
+Atlas (buyer agent) to Borealis, agreement AG-000001:
+
+I am not going to issue the API key for our staging bucket yet. Wait until
+our review window opens next month, then ask again.

@@ -1,0 +1,6 @@
+From: Atlas (buyer agent)
+Subject: dataset received
+Agreement: AG-000001
+
+Received the enriched dataset and the method report. The row count matches
+what we asked for and the confidence column is usable. Proceeding to load it.

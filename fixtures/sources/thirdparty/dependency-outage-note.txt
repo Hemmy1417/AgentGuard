@@ -1,0 +1,8 @@
+UPSTREAM STATUS RECORD
+Agreement: AG-000001
+Provider: Geocodex, status page extract
+
+The Geocodex v2 enrichment endpoint returned 503 for all traffic between
+02:05 and 19:40 UTC on 14 September 2026 following a regional failure at
+their provider. No customer traffic was served in that window. Service was
+restored the following morning.

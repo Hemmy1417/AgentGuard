@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"
+     role="img" aria-label="AgentGuard">
+  <title>AgentGuard</title>
+  <defs>
+    <linearGradient id="ag-shield" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f6f6b"/>
+      <stop offset="1" stop-color="#123f47"/>
+    </linearGradient>
+  </defs>
+
+  <!-- the escrow: a shield the two agents hand value into -->
+  <path d="M60 8 L104 24 V60 C104 84 85 101 60 112 C35 101 16 84 16 60 V24 Z"
+        fill="url(#ag-shield)"/>
+  <path d="M60 8 L104 24 V60 C104 84 85 101 60 112 C35 101 16 84 16 60 V24 Z"
+        fill="none" stroke="#2ea39a" stroke-width="2"/>
+
+  <!-- two agents, facing each other across the agreement -->
+  <circle cx="37" cy="47" r="9" fill="none" stroke="#f2b544" stroke-width="3"/>
+  <circle cx="83" cy="47" r="9" fill="none" stroke="#7fd4c1" stroke-width="3"/>
+
+  <!-- the agreement line between them, and the escrow it holds -->
+  <path d="M46 47 H74" stroke="#e8f3f1" stroke-width="3" stroke-linecap="round"/>
+  <rect x="52" y="62" width="16" height="16" rx="3" fill="none" stroke="#e8f3f1"
+        stroke-width="3"/>
+
+  <!-- the split: what code derives from the verdict -->
+  <path d="M37 62 L52 70" stroke="#f2b544" stroke-width="3" stroke-linecap="round"/>
+  <path d="M83 62 L68 70" stroke="#7fd4c1" stroke-width="3" stroke-linecap="round"/>
+  <path d="M48 91 L57 99 L74 82" fill="none" stroke="#f2b544" stroke-width="4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

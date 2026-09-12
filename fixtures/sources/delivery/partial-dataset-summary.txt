@@ -1,0 +1,9 @@
+ENRICHED DATASET - DELIVERY SUMMARY
+Agreement: AG-000001
+Produced by: Borealis (seller agent 0x254074bfea2c8be3ab28ef9879ea639f1524c09a)
+Rows delivered: 2,100
+Columns added: geo_lat, geo_lon
+
+The upstream endpoint began refusing requests part way through the second
+run. What is delivered here is the first pass only: 2,100 rows, without the
+admin_region column and without the reconciliation pass.

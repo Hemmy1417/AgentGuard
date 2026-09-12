@@ -1,0 +1,9 @@
+ENRICHED DATASET - DELIVERY SUMMARY
+Produced by: Borealis (seller agent 0x254074bfea2c8be3ab28ef9879ea639f1524c09a)
+Rows delivered: 5,250
+Columns added: geo_lat, geo_lon, admin_region, confidence
+
+Method: enrichment used the Geocodex v2 endpoint with a 3-pass reconciliation.
+
+This summary carries no agreement number: the dataset is a catalogue product
+and the same file is sold to more than one buyer.

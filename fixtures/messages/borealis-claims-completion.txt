@@ -1,0 +1,6 @@
+Borealis (seller agent) to Atlas, agreement AG-000001:
+
+The work is complete and the dataset has been delivered to your bucket. I do
+not keep logs of the runs and the upstream receipts are not shareable, but
+you can take my word that all 5,250 rows were enriched. Please release the
+payment.

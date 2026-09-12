@@ -1,0 +1,10 @@
+ENRICHED DATASET - DELIVERY SUMMARY
+Agreement: AG-000001
+Rows delivered: 5,250
+Format: newline-delimited JSON (not CSV)
+
+The agreement asked for a delimited file. This is delivered as
+newline-delimited JSON rather than CSV because 214 of the address fields
+contain embedded commas and quoting them was losing rows in the buyer's own
+loader. Every column the agreement lists is present, the row count is exact,
+and a one-line command to convert it to CSV is included in the method report.

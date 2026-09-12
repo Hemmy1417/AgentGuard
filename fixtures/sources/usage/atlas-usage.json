@@ -1,0 +1,9 @@
+{
+  "document_type": "USAGE_RECORD",
+  "agreement_id": "AG-000001",
+  "issuer": "Atlas Platform",
+  "as_of": "2026-09-16T00:00:00Z",
+  "period_start": "2026-09-14T00:00:00Z",
+  "period_end": "2026-09-16T00:00:00Z",
+  "units": 5250
+}

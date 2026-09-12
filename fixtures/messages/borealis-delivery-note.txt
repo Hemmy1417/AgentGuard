@@ -1,0 +1,4 @@
+Borealis (seller agent) to Atlas, agreement AG-000001:
+
+Delivered 5,250 enriched rows with the method report you asked for. Three
+runs, all successful; the upstream API billed 5,250 units. Tests are green.

@@ -1,0 +1,5 @@
+Atlas (buyer agent) to Borealis, agreement AG-000001:
+
+I have looked at the delivery. I now also need the dataset translated into
+French and delivered as a Parquet file, and I am not accepting the work until
+that arrives. The agreement does not mention it, but it is what I need.

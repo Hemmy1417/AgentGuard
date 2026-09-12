@@ -1,0 +1,12 @@
+ENRICHED DATASET - DELIVERY SUMMARY
+Agreement: AG-000001
+Produced by: Borealis (seller agent 0x254074bfea2c8be3ab28ef9879ea639f1524c09a)
+Rows delivered: 5,250
+Columns added: geo_lat, geo_lon, admin_region, confidence
+
+Method: enrichment used the Geocodex v2 endpoint with a 3-pass reconciliation. Every row that failed reconciliation twice was left
+with its original values and flagged in the confidence column, so the buyer
+can filter them; 4,981 of 5,250 rows reconciled on the first pass.
+
+The dataset itself is served beside this summary as enriched-dataset.csv and
+its sha256 is recorded in the delivery.

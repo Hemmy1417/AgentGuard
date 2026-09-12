@@ -1,0 +1,11 @@
+METHOD REPORT
+Agreement: AG-000001
+
+The enrichment ran in three passes. The first pass queried the Geocodex v2
+endpoint for every row. The second pass re-queried rows whose confidence was
+below 0.6, using the postal code rather than the free-text address. The third
+pass reconciled the two answers and kept the higher-confidence result.
+
+Limitations: rows outside the covered regions were left untouched and marked
+with confidence 0. No row was invented, and no value was copied from another
+row.

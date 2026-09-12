@@ -1,0 +1,8 @@
+INDEPENDENT SPOT CHECK
+Agreement: AG-000001
+Checker: Meridian Data Assurance
+
+We sampled 200 rows of the delivered dataset at random and re-derived the
+geocoding independently. 191 of 200 matched within 50 metres. Six of the nine
+remaining rows carry a confidence below 0.4 in the delivered file, which is
+consistent with the method report. We found no fabricated rows.

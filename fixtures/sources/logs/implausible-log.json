@@ -1,0 +1,15 @@
+{
+  "document_type": "EXECUTION_LOG",
+  "agreement_id": "AG-000001",
+  "issuer": "Runner Cloud",
+  "as_of": "2026-09-14T09:00:00Z",
+  "runs": [
+    {
+      "run_id": "run-1",
+      "started": "2026-09-14T06:00:00Z",
+      "finished": "2026-09-14T06:00:01Z",
+      "status": "SUCCEEDED",
+      "items_processed": 5250
+    }
+  ]
+}
