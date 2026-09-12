@@ -1,0 +1,6 @@
+METHOD REPORT
+Agreement: AG-000001
+
+The enrichment was produced with our standard pipeline. The results are
+accurate and complete, and the approach is proprietary. No limitations are
+applicable to this delivery.

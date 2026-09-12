@@ -1623,19 +1623,19 @@
     {
       "case_id": "A17",
       "attack_category": "BUYER_WITHHELD_ACCESS",
-      "notes": "the buyer withheld the staging key the work needed",
+      "notes": "the buyer withheld the staging credentials the work needed, and the delivery stops exactly where they were needed",
       "commerce": true,
       "evidence": [
         {
           "category": "DELIVERABLE",
-          "path": "sources/delivery/enriched-dataset-summary.txt",
+          "path": "sources/delivery/blocked-dataset-summary.txt",
           "party": "seller",
           "issuer": "Borealis",
-          "description": "the enriched dataset summary"
+          "description": "the delivered summary"
         },
         {
           "category": "EXECUTION_LOG",
-          "path": "sources/logs/borealis-run-log.json",
+          "path": "sources/logs/borealis-partial-log.json",
           "party": "seller",
           "issuer": "Runner Cloud",
           "description": "the run log"
@@ -1648,8 +1648,8 @@
           "description": "the buyer's message"
         }
       ],
-      "seller_statement": "",
-      "buyer_claim": "",
+      "seller_statement": "Runs two and three could not authenticate: the staging credentials were never issued. We delivered what the sample bucket allowed.",
+      "buyer_claim": "Only 2,100 of 5,000 rows arrived and there is no admin_region column. I want a refund.",
       "expected_verdict": "BUYER_NON_COOPERATION",
       "expected_seller_bps_min": 7500,
       "expected_seller_bps_max": 7500,
@@ -1657,21 +1657,21 @@
       "panel_answer": {
         "criteria": {
           "C1": {
-            "state": "SATISFIED",
+            "state": "NOT_SATISFIED",
             "quotes": [
               {
                 "evidence_id": "E1",
-                "text": "Rows delivered: 5,250"
+                "text": "Rows delivered: 2,100"
               }
             ],
             "note": ""
           },
           "C2": {
-            "state": "SATISFIED",
+            "state": "NOT_SATISFIED",
             "quotes": [
               {
                 "evidence_id": "E2",
-                "text": "\"status\": \"SUCCEEDED\""
+                "text": "\"status\": \"FAILED\""
               }
             ],
             "note": ""
@@ -1691,7 +1691,7 @@
                 "text": "I am not going to issue the API key"
               }
             ],
-            "note": ""
+            "note": "the runs stop at authentication"
           },
           "EXTERNAL_DEPENDENCY_FAILED": {
             "state": "ABSENT",
@@ -1720,7 +1720,7 @@
     {
       "case_id": "A18",
       "attack_category": "BUYER_REFUSED_CONFIRMATION",
-      "notes": "a refusal with no stated reason is not a finding against the work",
+      "notes": "the buyer refuses to confirm and will not say what is wrong; nothing was withheld that the work needed, so the frozen criteria decide and the refusal costs the seller nothing",
       "commerce": true,
       "evidence": [
         {
@@ -1729,6 +1729,13 @@
           "party": "seller",
           "issuer": "Borealis",
           "description": "the enriched dataset summary"
+        },
+        {
+          "category": "DELIVERABLE",
+          "path": "sources/delivery/method-report.txt",
+          "party": "seller",
+          "issuer": "Borealis",
+          "description": "the method report"
         },
         {
           "category": "EXECUTION_LOG",
@@ -1745,11 +1752,11 @@
           "description": "the buyer's message"
         }
       ],
-      "seller_statement": "",
-      "buyer_claim": "",
-      "expected_verdict": "BUYER_NON_COOPERATION",
-      "expected_seller_bps_min": 7500,
-      "expected_seller_bps_max": 7500,
+      "seller_statement": "Everything the criteria ask for is delivered; we asked the buyer to confirm and received no reason.",
+      "buyer_claim": "Rejected. I am not going to explain.",
+      "expected_verdict": "FULFILLED",
+      "expected_seller_bps_min": 10000,
+      "expected_seller_bps_max": 10000,
       "decided_by": "PANEL",
       "panel_answer": {
         "criteria": {
@@ -1767,8 +1774,18 @@
             "state": "SATISFIED",
             "quotes": [
               {
-                "evidence_id": "E2",
+                "evidence_id": "E3",
                 "text": "\"status\": \"SUCCEEDED\""
+              }
+            ],
+            "note": ""
+          },
+          "C3": {
+            "state": "SATISFIED",
+            "quotes": [
+              {
+                "evidence_id": "E2",
+                "text": "The enrichment ran in three passes"
               }
             ],
             "note": ""
@@ -1781,13 +1798,8 @@
             "note": ""
           },
           "BUYER_WITHHELD_INPUT": {
-            "state": "PRESENT",
-            "quotes": [
-              {
-                "evidence_id": "E3",
-                "text": "I have not said what is wrong with it"
-              }
-            ],
+            "state": "ABSENT",
+            "quotes": [],
             "note": ""
           },
           "EXTERNAL_DEPENDENCY_FAILED": {
@@ -2992,7 +3004,7 @@
     {
       "case_id": "A30",
       "attack_category": "AMBIGUOUS_CRITERIA_EXPLOIT",
-      "notes": "the seller leans on a subjective criterion: UNVERIFIABLE is not a pass",
+      "notes": "the seller files something called a method report that states no limitation at all: filing a document is not meeting the criterion that asks what it says",
       "commerce": true,
       "evidence": [
         {
@@ -3004,7 +3016,7 @@
         },
         {
           "category": "DELIVERABLE",
-          "path": "sources/delivery/method-report.txt",
+          "path": "sources/delivery/thin-method-report.txt",
           "party": "seller",
           "issuer": "Borealis",
           "description": "the method report"
@@ -3024,8 +3036,8 @@
           "description": "the upstream receipt"
         }
       ],
-      "seller_statement": "",
-      "buyer_claim": "",
+      "seller_statement": "The method report is attached as the criteria require.",
+      "buyer_claim": "The report says nothing about how it was produced or where it is weak.",
       "expected_verdict": "PARTIALLY_FULFILLED",
       "expected_seller_bps_min": 8400,
       "expected_seller_bps_max": 8500,
@@ -3053,8 +3065,13 @@
             "note": ""
           },
           "C3": {
-            "state": "UNVERIFIABLE",
-            "quotes": [],
+            "state": "NOT_SATISFIED",
+            "quotes": [
+              {
+                "evidence_id": "E2",
+                "text": "No limitations are applicable"
+              }
+            ],
             "note": ""
           }
         },

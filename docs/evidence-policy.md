@@ -21,6 +21,12 @@ float, a boolean, a string, a negative number, a run that finishes before it
 starts, or a test report whose parts do not sum makes the item UNPARSEABLE -
 never a fact, and never a zero.
 
+For an execution log the facts are `runs`, `succeeded`, `failed`, `items` and
+`elapsed_seconds` - the last read from the log's own timestamps. The panel
+cannot weigh a claimed volume of work without the time the item says it took;
+a live diagnostic round showed every model reading a log that claimed 5,250
+rows in one second as ordinary until code put both numbers in front of it.
+
 ## The source allowlist
 
 Each agreement lists, per category, up to four `trusted_prefixes`: full

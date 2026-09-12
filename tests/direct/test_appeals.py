@@ -266,6 +266,65 @@ def test_a_settleable_adjudication_left_alone_still_settles(guard, direct_vm, po
     assert guard.get_agreement(agreement_id)["settlement_route"] == "ADJUDICATED"
 
 
+def test_an_adjudicated_agreement_is_not_stalled_until_both_windows_pass(
+        guard, direct_vm, policy_id):
+    """The stalled route is the last resort, not a shortcut past the appeal
+    window: the appealing party gets its window and the stall window on top
+    of it before anyone can end the matter."""
+    agreement_id, _record = adjudicated(guard, direct_vm, policy_id, FULL_ANSWER)
+    as_sender(direct_vm, "stranger")
+    with direct_vm.expect_revert("appeal window has not passed"):
+        guard.claim_stalled_agreement(agreement_id)
+    warp(direct_vm, AFTER_APPEAL)               # the appeal window alone is not enough
+    with direct_vm.expect_revert("appeal window has not passed"):
+        guard.claim_stalled_agreement(agreement_id)
+    warp(direct_vm, "2026-09-21T12:00:01Z")
+    assert guard.claim_stalled_agreement(agreement_id) == "FULFILLED"
+
+
+def test_a_pending_appeal_blocks_the_stalled_route_too(guard, direct_vm, policy_id):
+    """finalize_settlement refuses while an appeal waits; so does the stalled
+    route, or a party could simply wait out the clock rather than answer the
+    appeal it was served."""
+    agreement_id, record = adjudicated(guard, direct_vm, policy_id, PARTIAL)
+    new_ids = commit(guard, direct_vm, agreement_id, [VERIFIER], "seller")
+    as_sender(direct_vm, "seller")
+    appeal_id = guard.submit_appeal(agreement_id, "An independent check.", new_ids)
+    warp(direct_vm, "2026-09-21T12:00:01Z")
+    as_sender(direct_vm, "stranger")
+    with direct_vm.expect_revert("appeal is waiting to be heard"):
+        guard.claim_stalled_agreement(agreement_id)
+    stage(direct_vm, APPEALED)
+    guard.request_readjudication(appeal_id)
+    # the readjudication arms its own appeal window, so the clock starts again
+    warp(direct_vm, "2026-09-28T12:00:02Z")
+    as_sender(direct_vm, "stranger")
+    assert guard.claim_stalled_agreement(agreement_id) == "FULFILLED"
+    assert claimable(guard, "seller") == PRICE
+
+
+def test_an_appeal_cannot_be_heard_after_the_escrow_has_gone(guard, direct_vm,
+                                                             policy_id):
+    """An unsettleable adjudication with an open appeal can still be claimed
+    as stalled - the escrow returns to the buyer. What must not happen next
+    is a readjudication of an agreement that no longer holds anything."""
+    agreement_id = agreement(guard, direct_vm, policy_id)
+    deliver(guard, direct_vm, agreement_id)
+    dispute(guard, direct_vm, agreement_id)
+    adjudicate(guard, direct_vm, agreement_id, {"not": "an answer"})
+    new_ids = commit(guard, direct_vm, agreement_id, [VERIFIER], "seller")
+    as_sender(direct_vm, "seller")
+    appeal_id = guard.submit_appeal(agreement_id, "An independent check.", new_ids)
+    warp(direct_vm, "2026-09-21T12:00:01Z")
+    as_sender(direct_vm, "stranger")
+    assert guard.claim_stalled_agreement(agreement_id) == "INCONCLUSIVE"
+    assert claimable(guard, "buyer") == PRICE
+    stage(direct_vm, APPEALED)
+    with direct_vm.expect_revert("agreement is FINALIZED"):
+        guard.request_readjudication(appeal_id)
+    assert guard.health_check()["escrow_held_atto"] == "0"
+
+
 def test_every_state_has_an_exit(guard, direct_vm, policy_id):
     """For each state an escrow can rest in, name who can move it and by
     when. None of these needs the counterparty's cooperation."""

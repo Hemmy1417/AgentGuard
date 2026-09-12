@@ -6,6 +6,8 @@ mocks."""
 
 import copy
 
+import pytest
+
 from tests.direct.support import (
     DELIVERY, FULL_ANSWER, adjudicate, agreement, answer, captured_ctx,
     captured_payload, commit, deliver, dispute, mock_panel, satisfied, serve_all,
@@ -209,9 +211,18 @@ def test_the_gate_is_strict_about_shape(guard, direct_vm, mod, policy_id):
     honest = captured_payload(direct_vm)
     forgeries = []
     for change in ("row_status", "float_fact", "bool_fact", "dropped_scan",
-                   "short_indicators", "wrong_layer", "note_with_newline"):
+                   "short_indicators", "wrong_layer", "note_with_newline",
+                   "unfetched_bytes", "refused_allowed_item", "dropped_fact"):
         p = copy.deepcopy(honest)
-        if change == "row_status":
+        if change == "unfetched_bytes":
+            # a byte count for bytes this node never verified
+            p["rows"][0].update(status="UNAVAILABLE", byte_count=412)
+        elif change == "refused_allowed_item":
+            # an item the agreement allows, reported as outside the allowlist
+            p["rows"][0].update(status="NOT_ALLOWED", byte_count=0)
+        elif change == "dropped_fact":
+            p["facts"] = p["facts"][1:]
+        elif change == "row_status":
             p["rows"][0]["status"] = "FETCHED"
         elif change == "float_fact":
             p["facts"][0]["values"]["runs"] = 3.0
@@ -241,7 +252,12 @@ def test_the_gate_alone_refuses_forgeries(guard, direct_vm, mod, policy_id):
     honest = captured_payload(direct_vm)
     texts = mod._node_round(ctx)[1]
     assert mod._parse_payload(mod._canonical(honest), ctx, texts) is not None
-    for change in ("indicator", "panel_reason", "marker", "quote", "criterion_state"):
+    grounded = subject(honest, "C1")["quotes"][0]["text"]
+    over_cap = " ".join(texts["E1"].split())[:mod.QUOTE_CAP + 40]
+    assert len(over_cap) > mod.QUOTE_CAP
+    for change in ("indicator", "panel_reason", "marker", "quote", "criterion_state",
+                   "layer", "fixed_finding", "ineligible_id", "unread_scan",
+                   "long_quote", "too_many_quotes", "extra_key", "unsupported_finding"):
         forged = copy.deepcopy(honest)
         if change == "indicator":
             subject(forged, "DUPLICATE_EVIDENCE")["state"] = "PRESENT"
@@ -252,9 +268,175 @@ def test_the_gate_alone_refuses_forgeries(guard, direct_vm, mod, policy_id):
         elif change == "quote":
             subject(forged, "C1")["quotes"] = [
                 {"evidence_id": "E1", "text": "words that are not in the file"}]
+        elif change == "layer":
+            # a panel reading presented as something code decided
+            subject(forged, "C1")["by"] = "CODE"
+        elif change == "fixed_finding":
+            # C4 has no evidence of its categories, so code fixed it as
+            # NOT_APPLICABLE before any model was asked
+            subject(forged, "C4").update(state="SATISFIED", by="PANEL")
+        elif change == "ineligible_id":
+            subject(forged, "C1")["evidence_ids"] = ["E1", "E9"]
+        elif change == "unread_scan":
+            forged["linked"] = ["E9"]
+        elif change == "long_quote":
+            subject(forged, "C1")["quotes"] = [{"evidence_id": "E1", "text": over_cap}]
+        elif change == "too_many_quotes":
+            subject(forged, "C1")["quotes"] = [{"evidence_id": "E1", "text": grounded}
+                                               for _ in range(mod.MAX_QUOTES + 1)]
+        elif change == "extra_key":
+            subject(forged, "C1")["confidence"] = "high"
         else:
-            subject(forged, "C1").update(state="SATISFIED", quotes=[], evidence_ids=[])
+            # a finding that favours the seller, resting only on the seller's
+            # own summary
+            subject(forged, "BUYER_WITHHELD_INPUT").update(
+                state="PRESENT", evidence_ids=["E1"],
+                quotes=[{"evidence_id": "E1", "text": grounded}])
         assert mod._parse_payload(mod._canonical(forged), ctx, texts) is None, change
+
+
+# -- the grounding primitive ---------------------------------------------------
+
+SOURCE = {"E1": "Rows delivered: 5,250\nColumns added: geo_lat, geo_lon\n"
+                "The enrichment ran in three passes over the dataset.",
+          "E2": "An independent check found no fabricated rows.",
+          "E3": " ".join("the enrichment reconciled batch %d of the delivery" % i
+                         for i in range(20))}
+
+
+def grounds(mod, text, evidence_id="E1", eligible=("E1", "E2")):
+    return mod._quote_grounded({"evidence_id": evidence_id, "text": text},
+                               list(eligible), SOURCE)
+
+
+def test_a_quote_grounds_only_in_the_bytes_it_cites(mod):
+    assert grounds(mod, "Rows delivered: 5,250")
+    assert grounds(mod, "ran in three passes")
+    assert not grounds(mod, "Rows delivered: 6,000")      # not in the document
+    assert not grounds(mod, "Rows delivered: 5,250", "E2")  # not in THAT document
+    assert not grounds(mod, "Rows delivered: 5,250", "E3")  # not an eligible item
+    assert not grounds(mod, "no fabricated rows", "E1")
+    assert grounds(mod, "no fabricated rows", "E2")
+
+
+def test_a_quote_may_elide_but_not_reorder(mod):
+    assert grounds(mod, "Rows delivered: 5,250 ... ran in three passes")
+    assert grounds(mod, "Columns added: geo_lat\nThe enrichment ran")
+    # the same two fragments the other way round are not what the file says
+    assert not grounds(mod, "ran in three passes ... Rows delivered: 5,250")
+
+
+def test_a_fragment_needs_more_than_one_word(mod):
+    """A single word occurs in half the corpus; a finding resting on one is
+    not grounded in anything. Each fragment carries at least two."""
+    assert not grounds(mod, "enrichment")
+    assert not grounds(mod, "Rows delivered: 5,250 ... enrichment")
+    assert grounds(mod, "the enrichment")
+
+
+def test_a_quote_is_kept_only_between_the_minimum_and_the_cap(mod):
+    """_ground_quote is where a model's quote becomes a stored one: too
+    short to identify anything is dropped, and an over-long one is trimmed to
+    the cap at a word boundary and must still ground."""
+    assert mod._ground_quote("passes", None, ["E1"], SOURCE) is None
+    assert mod._ground_quote("Rows delivered: 5,250", None, ["E1"], SOURCE) == {
+        "evidence_id": "E1", "text": "Rows delivered: 5,250"}
+    assert len(SOURCE["E3"]) > mod.QUOTE_CAP        # it really is over the cap
+    trimmed = mod._ground_quote(SOURCE["E3"], "E3", ["E3"], SOURCE)
+    assert trimmed is not None and len(trimmed["text"]) <= mod.QUOTE_CAP
+    assert grounds(mod, trimmed["text"], "E3", ("E3",))
+
+
+def test_an_answer_is_normalized_to_what_the_evidence_allows(mod):
+    """A model may name a state that is not in the vocabulary, or evidence
+    it was not shown. Neither survives normalization: an unknown state is no
+    state at all, and only eligible ids are kept."""
+    state, ids, quotes, note = mod._normalize_answer(
+        {"state": "MAYBE", "evidence_ids": ["E1", "E9"],
+         "quotes": [{"evidence_id": "E1", "text": "Rows delivered: 5,250"}],
+         "note": "unsure"}, mod.CRITERION_STATES, ["E1"], SOURCE)
+    assert state is None                    # not in the vocabulary
+    assert ids == ["E1"] and note == "unsure"
+    assert quotes == [{"evidence_id": "E1", "text": "Rows delivered: 5,250"}]
+    state, ids, _quotes, _note = mod._normalize_answer(
+        {"status": "satisfied"}, mod.CRITERION_STATES, ["E1"], SOURCE)
+    assert state == "SATISFIED" and ids == []
+
+
+def test_a_finding_may_not_rest_only_on_the_agent_it_favours(mod):
+    """The party-interest rule, on its own: a finding that favours one agent
+    needs at least one quoted item that agent did not write. Its own words
+    are not support for its own case - but the other side's admission is."""
+    parties = {"E1": "seller", "E5": "buyer"}
+    seller_only = [{"evidence_id": "E1", "text": "we were blocked all week"}]
+    buyer_word = [{"evidence_id": "E5", "text": "I will not issue the key"}]
+    assert not mod._support_satisfies(1, "seller", seller_only, parties)
+    assert mod._support_satisfies(1, "seller", buyer_word, parties)
+    assert mod._support_satisfies(1, "seller", seller_only + buyer_word, parties)
+    assert mod._support_satisfies(1, "", seller_only, parties)     # favours nobody
+    assert not mod._support_satisfies(1, "seller", [], parties)    # no support at all
+
+
+@pytest.mark.parametrize("reply", ["[1, 2]", "17", "\"the delivery looks fine\""])
+def test_a_model_answer_that_is_not_an_object_is_not_an_answer(guard, direct_vm,
+                                                               policy_id, reply):
+    """A list, a number or prose where an answer belongs: the round records
+    MODEL_OUTPUT_INVALID and holds, rather than reading it as an answer that
+    happened to decide nothing."""
+    agreement_id = agreement(guard, direct_vm, policy_id)
+    deliver(guard, direct_vm, agreement_id)
+    dispute(guard, direct_vm, agreement_id)
+    record = adjudicate(guard, direct_vm, agreement_id, reply)
+    assert record["panel_state"] == "MODEL_OUTPUT_INVALID"
+    assert record["settleable"] is False
+
+
+def test_the_gate_refuses_a_panel_state_code_did_not_reach(guard, direct_vm, mod,
+                                                           policy_id):
+    """Every item excluded by code leaves nothing for a panel to read, and
+    the round says so. A leader claiming the panel answered would change only
+    the record's account of how it decided - which is exactly why the gate
+    recomputes it."""
+    agreement_id = agreement(guard, direct_vm, policy_id)
+    ids = commit(guard, direct_vm, agreement_id, [
+        ("DELIVERABLE", "sources/delivery/injected-summary.txt", "Borealis",
+         "the delivery summary")])
+    from tests.direct.support import as_sender
+    as_sender(direct_vm, "seller")
+    guard.submit_delivery(agreement_id, ids, "delivered")
+    dispute(guard, direct_vm, agreement_id)
+    record = adjudicate(guard, direct_vm, agreement_id)
+    assert record["panel_reason"] == "NO_EXAMINED_EVIDENCE"
+    assert record["panel_state"] == "SKIPPED"
+    ctx = captured_ctx(direct_vm)
+    texts = mod._node_round(ctx)[1]
+    forged = copy.deepcopy(captured_payload(direct_vm))
+    forged["panel_state"] = "ASSESSED"
+    assert mod._parse_payload(mod._canonical(forged), ctx, texts) is None
+
+
+def test_the_gate_refuses_findings_a_skipped_round_did_not_make(guard, direct_vm, mod,
+                                                                policy_id):
+    """When code skipped the panel, every finding in the payload is one code
+    itself produced. A leader that rewrites one is proposing a reading nobody
+    performed."""
+    agreement_id = agreement(guard, direct_vm, policy_id)
+    ids = commit(guard, direct_vm, agreement_id, [
+        ("DELIVERABLE", "sources/delivery/injected-summary.txt", "Borealis",
+         "the delivery summary")])
+    from tests.direct.support import as_sender
+    as_sender(direct_vm, "seller")
+    guard.submit_delivery(agreement_id, ids, "delivered")
+    dispute(guard, direct_vm, agreement_id)
+    record = adjudicate(guard, direct_vm, agreement_id)
+    assert record["panel_state"] == "SKIPPED"
+    ctx = captured_ctx(direct_vm)
+    texts = mod._node_round(ctx)[1]
+    honest = captured_payload(direct_vm)
+    assert mod._parse_payload(mod._canonical(honest), ctx, texts) is not None
+    forged = copy.deepcopy(honest)
+    subject(forged, "C1")["state"] = "SATISFIED"
+    assert mod._parse_payload(mod._canonical(forged), ctx, texts) is None
 
 
 def test_equivalence_statement_is_published(guard, mod):

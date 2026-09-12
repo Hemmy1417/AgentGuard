@@ -18,7 +18,7 @@ No model output ever reaches an amount.
 | What evidence it uses | Only items committed to this agreement, from the per-category prefixes both agents froze at assent. Every node verifies the hash before reading a byte. An agent's own message is admissible as words and can never satisfy a criterion. |
 | How consensus works | `gl.vm.run_nondet_unsafe` once per round. Each validator reproduces the round from its own fetch and model call, gates the leader's payload against its own bytes, and agrees only if every row, fact, scan, panel state and finding state matches. The payload carries no amount: validators agree on the money by construction. |
 | How money moves | One payable entry (`fund_escrow`), one exit (`withdraw`, a pull-payment ledger cleared before the transfer), and eight settlement paths between them - all of which must reconcile to the escrow exactly or revert. |
-| What tests prove it works | 263 Direct Mode tests on the official `genlayer-test` runner, covering all 30 brief attacks twice over (the real commerce path and the on-chain test engine), forged leaders through the captured validator closure, hostile model output, settlement bounds and the appeal lifecycle; a mutation sweep; `genvm-lint check`; preflight. See "Verified". |
+| What tests prove it works | 291 Direct Mode tests on the official `genlayer-test` runner, covering all 30 brief attacks twice over (the real commerce path and the on-chain test engine), forged leaders through the captured validator closure, hostile model output, settlement bounds and the appeal lifecycle; a mutation sweep; `genvm-lint check`; preflight. See "Verified". |
 
 ## What it is
 
@@ -152,7 +152,7 @@ propose_agreement --> PROPOSED --accept_agreement--> ACCEPTED --fund_escrow--> F
 
 | Check | Command | Result |
 |---|---|---|
-| Direct Mode | `python -m pytest tests/direct -q` | 263 passed |
+| Direct Mode | `python -m pytest tests/direct -q` | 291 passed |
 | Preflight | `python scripts/preflight.py` | 42 checks, 0 failed |
 | GenVM validation | `genvm-lint check contracts/agentguard.py --json` | ok, 40 methods, 0 errors (I200 informational) |
 | Lint | `ruff check .` | clean |

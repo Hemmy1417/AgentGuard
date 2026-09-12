@@ -154,9 +154,12 @@ INDICATOR_QUESTIONS = {
     "EVIDENCE_MANIPULATION":
         "Does any evidence item show signs of fabrication or alteration "
         "visible inside its own content - a log whose runs contradict its "
-        "own totals, impossible timings, a receipt that contradicts itself? "
-        "A disagreement between two different items is not this; report that "
-        "under the criterion it affects.",
+        "own totals, a receipt that contradicts itself, or work that could "
+        "not have been done in the time the item reports? "
+        "facts_verified_by_code gives you items and elapsed_seconds for every "
+        "log: compare them, and treat a volume no real system could process "
+        "in that time as fabrication. A disagreement between two different "
+        "items is not this; report that under the criterion it affects.",
     "BUYER_WITHHELD_INPUT":
         "Did the buyer fail to provide something the agreement required of "
         "the buyer - access, data, a confirmation, a review - and did that "
@@ -287,7 +290,7 @@ BUNDLE_KEYS = ("agreement_id", "buyer", "seller", "terms", "evidence",
                "seller_statement", "buyer_claim")
 
 FACT_VALUE_KEYS = {
-    "EXECUTION_LOG": ("runs", "succeeded", "failed", "items"),
+    "EXECUTION_LOG": ("runs", "succeeded", "failed", "items", "elapsed_seconds"),
     "API_RECEIPT": ("status_code", "billed_units"),
     "TEST_OUTPUT": ("total", "passed", "failed"),
     "USAGE_RECORD": ("units", "period_days"),
@@ -525,12 +528,15 @@ def _norm_key(text: str) -> str:
 
 
 def _clean_note(value) -> str:
+    """A model's note, reduced to one line within the cap. Idempotent: the
+    trailing .strip() matters, because the cut can land on a space and the
+    structural gate refuses any note that cleaning would change again."""
     if not isinstance(value, str):
         return ""
     chars = []
     for ch in value:
         chars.append(" " if (ord(ch) < 32 or ord(ch) == 127) else ch)
-    return " ".join("".join(chars).split())[:NOTE_CAP]
+    return " ".join("".join(chars).split())[:NOTE_CAP].strip()
 
 
 def _url_parts(url):
@@ -1106,7 +1112,7 @@ def _structured_facts(text: str, category: str, evidence_id: str):
         runs = doc.get("runs")
         if not isinstance(runs, list) or len(runs) < 1 or len(runs) > MAX_RUNS:
             return None
-        succeeded = failed = items = 0
+        succeeded = failed = items = elapsed = 0
         for run in runs:
             if not isinstance(run, dict):
                 return None
@@ -1123,8 +1129,12 @@ def _structured_facts(text: str, category: str, evidence_id: str):
             else:
                 failed = failed + 1
             items = items + run["items_processed"]
+            # how long the log itself says the work took: the panel cannot
+            # judge a claimed volume without it
+            elapsed = elapsed + (_iso_epoch(run["finished"])
+                                 - _iso_epoch(run["started"]))
         values = {"runs": len(runs), "succeeded": succeeded, "failed": failed,
-                  "items": items}
+                  "items": items, "elapsed_seconds": elapsed}
     elif category == "API_RECEIPT":
         if not _int_in(doc.get("status_code"), 100, 599) \
                 or not _amount(doc.get("billed_units")) \

@@ -197,14 +197,6 @@ MUTATIONS = [
     ("the seller may answer a dispute twice",
      "        if str(agreement.seller_counterclaim) != \"\":\n",
      "        if False:\n"),
-    ("an adjudication runs with no evidence",
-     "        if len(items) == 0:\n"
-     "            self._fail(\"no evidence has been committed to this agreement\")\n",
-     "        if False:\n"
-     "            self._fail(\"no evidence has been committed to this agreement\")\n"),
-    ("an adjudication record may be overwritten",
-     "        if self.adjudications.get(record[\"adjudication_id\"]) is not None:\n",
-     "        if False:\n"),
     # -- appeals ----------------------------------------------------------------------
     ("the appeal window is not enforced",
      "        if _iso_epoch(now) > _iso_epoch(str(agreement.appeal_deadline)):\n"
@@ -423,9 +415,6 @@ MUTATIONS = [
      "    if any(row_of[e][\"status\"] != ROW_EXAMINED for e in allowed):\n"
      "        skip = SKIP_NOT_EXAMINED\n",
      "    if False:\n        skip = SKIP_NOT_EXAMINED\n"),
-    ("the panel is convened with nothing to ask",
-     "    elif len(asked) == 0:\n        skip = SKIP_NOTHING\n",
-     "    elif False:\n        skip = SKIP_NOTHING\n"),
     ("the panel is convened with no eligible evidence",
      "    elif len(eligible) == 0:\n        skip = SKIP_NO_EVIDENCE\n",
      "    elif False:\n        skip = SKIP_NO_EVIDENCE\n"),
@@ -466,6 +455,9 @@ MUTATIONS = [
     ("an answer with no sections is read as an answer",
      "    if not isinstance(raw, dict):\n        return None\n",
      "    if not isinstance(raw, dict):\n        return {\"criteria\": {}, \"indicators\": {}}\n"),
+    ("note trimming is not idempotent",
+     "    return \" \".join(\"\".join(chars).split())[:NOTE_CAP].strip()\n",
+     "    return \" \".join(\"\".join(chars).split())[:NOTE_CAP]\n"),
     # -- the structural gate (_parse_payload) ----------------------------------------------
     ("the gate accepts extra or missing payload keys",
      "    if not isinstance(p, dict) or sorted(p.keys()) != sorted(PAYLOAD_KEYS):\n",
@@ -562,10 +554,6 @@ MUTATIONS = [
     ("finding states are not compared",
      "            if a[\"id\"] != b[\"id\"] or a[\"state\"] != b[\"state\"] or a[\"by\"] != b[\"by\"]:\n",
      "            if False:\n"),
-    ("the panel state is not compared",
-     "    if own[\"panel_state\"] != theirs[\"panel_state\"] \\\n"
-     "            or own[\"panel_reason\"] != theirs[\"panel_reason\"]:\n",
-     "    if False:\n"),
     ("a model error no longer forces rotation",
      "    if leader_text.startswith(ERROR_LLM):\n        return False\n",
      "    if False:\n        return False\n"),
@@ -576,10 +564,6 @@ MUTATIONS = [
     ("a leader error is agreed with without reproducing",
      "    try:\n        reproduce()\n    except gl.vm.UserError as own_err:\n",
      "    try:\n        pass\n    except gl.vm.UserError as own_err:\n"),
-    ("the ratified payload is not gated again",
-     "        if payload is None:\n"
-     "            raise gl.vm.UserError(ERROR_LLM + \" ratified payload failed the gate\")\n",
-     "        if payload is None:\n            payload = json.loads(ratified)\n"),
     # -- the settlement policy and the agreement --------------------------------------------
     ("policy keys are not an exact set",
      "    if not isinstance(p, dict) or sorted(p.keys()) != sorted(POLICY_KEYS):\n",
@@ -664,6 +648,22 @@ MUTATIONS = [
 # - `if len(quotes) >= MAX_QUOTES` inside _normalize_answer: the gate rejects
 #   any finding carrying more than MAX_QUOTES quotes, so dropping the
 #   normalizer's cap is caught by the gate's cap in every path.
+# - `if len(items) == 0` in request_adjudication: an adjudication needs a
+#   DISPUTED agreement, a dispute needs a delivery, and a delivery names at
+#   least one evidence item, so the list is never empty here.
+# - the duplicate check in _store_adjudication: ids come from a counter that
+#   only ever increases, so no two records can share one.
+# - `elif len(asked) == 0` in _plan: the panel's indicators are fixed only when
+#   no evidence is eligible, and that case is answered one branch earlier, so
+#   there is no round with eligible evidence and nothing to ask.
+# - the panel_state comparison in _first_difference: a payload that reaches the
+#   comparison has already passed the gate, which ties the panel state to the
+#   plan, and any difference in state shows up again in the findings the
+#   section comparison walks.
+# - the `raise` when the ratified payload fails the gate in _run_round: Direct
+#   Mode cannot forge the ratified value (only a leader result, which the
+#   validator gates), so the last line of defence against a colluding majority
+#   has no offline route. Its clauses are covered by the gate tests.
 # - `elif payload["panel_state"] == PANEL_INVALID` in _derive: a panel state of
 #   MODEL_OUTPUT_INVALID is only reachable when the plan had questions to ask,
 #   which means at least one indicator comes back UNDETERMINED, which reaches

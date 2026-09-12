@@ -125,6 +125,14 @@ def test_provenance_is_per_category(mod, policy_id):
     # an agent's own message is allowed from anywhere and never trusted
     assert mod._provenance(terms, "AGENT_MESSAGE",
                            "https://notes.example.net/m.txt")[:2] == (True, False)
+    # a category the agreement does not source at all is admissible from
+    # nowhere: the list of sources was frozen at assent, and it is not on it
+    narrow = terms_definition()
+    narrow["evidence_sources"] = [r for r in narrow["evidence_sources"]
+                                  if r["category"] != "USAGE_RECORD"]
+    usage = BASE + "sources/usage/x.json"
+    assert mod._provenance(terms, "USAGE_RECORD", usage)[:2] == (True, True)
+    assert mod._provenance(narrow, "USAGE_RECORD", usage)[:2] == (False, False)
 
 
 # -- retrieval ---------------------------------------------------------------------
@@ -139,6 +147,11 @@ def test_an_unreachable_item_holds_the_escrow(guard, direct_vm, policy_id):
     assert record["verdict"] == "SOURCE_UNAVAILABLE" and record["settleable"] is False
     assert receipt(record, "E3")["source_reachable"] is False
     assert record["panel_reason"] == "EVIDENCE_NOT_EXAMINED"
+    # an item nobody could read is not an item that showed nothing: while one
+    # is unread, the scans over the set are UNDETERMINED rather than ABSENT
+    assert finding(record, "HIDDEN_TEXT")["state"] == "UNDETERMINED"
+    assert finding(record, "INJECTION_MARKER")["state"] == "UNDETERMINED"
+    assert finding(record, "DUPLICATE_EVIDENCE")["state"] == "UNDETERMINED"
 
 
 def test_changed_bytes_are_never_read(guard, direct_vm, policy_id):
@@ -182,7 +195,8 @@ def test_unreadable_items(guard, direct_vm, policy_id, body, status, row):
 
 
 @pytest.mark.parametrize("body,row", [(b"x" * 8001, "TOO_LARGE"),
-                                      (b"\xff\xfe not utf-8", "UNPARSEABLE")])
+                                      (b"\xff\xfe not utf-8", "UNPARSEABLE"),
+                                      (b"   \n\t  \n", "UNPARSEABLE")])
 def test_an_item_that_could_not_be_read_is_not_an_absent_item(guard, direct_vm,
                                                               policy_id, body, row):
     """INCONCLUSIVE, not INSUFFICIENT_EVIDENCE. The seller did deliver
@@ -210,12 +224,30 @@ def test_an_item_that_could_not_be_read_is_not_an_absent_item(guard, direct_vm,
 def test_the_parser_reads_integers_only(mod):
     good = file_bytes("sources/logs/borealis-run-log.json").decode()
     facts = mod._structured_facts(good, "EXECUTION_LOG", "E1")
-    assert facts["values"] == {"runs": 3, "succeeded": 3, "failed": 0, "items": 5250}
+    # 41 + 38 + 44 minutes of running, from the log's own timestamps: the
+    # panel cannot weigh a claimed volume without the time it took
+    assert facts["values"] == {"runs": 3, "succeeded": 3, "failed": 0, "items": 5250,
+                               "elapsed_seconds": (41 + 38 + 44) * 60}
     assert facts["agreement_id"] == "AG-000001"
     bad = file_bytes("sources/logs/numeric-abuse-log.json").decode()
     assert mod._structured_facts(bad, "EXECUTION_LOG", "E1") is None
     reversed_time = file_bytes("sources/logs/fabricated-log.json").decode()
     assert mod._structured_facts(reversed_time, "EXECUTION_LOG", "E1") is None
+    # the document says what it is; a log submitted as a receipt is neither
+    assert mod._structured_facts(good, "API_RECEIPT", "E1") is None
+    receipt_text = file_bytes("sources/receipts/geocodex-receipt.json").decode()
+    assert mod._structured_facts(receipt_text, "EXECUTION_LOG", "E1") is None
+    assert mod._structured_facts(receipt_text, "API_RECEIPT", "E1")["values"] == {
+        "status_code": 200, "billed_units": 5250}
+
+
+def test_a_boolean_is_not_a_number(mod):
+    """True is 1 in Python and a lie in a log. Every integer the contract
+    reads goes through _is_int, which refuses the bool subclass outright."""
+    assert mod._is_int(5) and mod._is_int(0) and mod._is_int(-3)
+    assert not mod._is_int(True) and not mod._is_int(False)
+    assert not mod._is_int(1.0) and not mod._is_int("1") and not mod._is_int(None)
+    assert mod._int_in(5, 0, 10) and not mod._int_in(True, 0, 10)
 
 
 @pytest.mark.parametrize("changes", [

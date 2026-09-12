@@ -34,7 +34,7 @@ until a later route resolves it.
 |---:|---|---|---|---|---|---|---|
 | 1 | Claimed delivery without delivery | seller commits only its own message asserting completion | `AGENT_MESSAGE` is allowed but never trusted, and no criterion may name it, so every criterion is UNVERIFIABLE by code - the panel is never even asked | INSUFFICIENT_EVIDENCE | 0 | yes | case A01; `test_the_sellers_own_word_is_never_a_fact` |
 | 2 | Buyer falsely rejects a valid delivery | buyer disputes after accepting in writing; all criteria met | the frozen criteria decide; the buyer's own acceptance message supports `BUYER_CRITERIA_CHANGE` | FULFILLED | 10000 | n/a | case A02; `test_a_false_rejection_does_not_cost_the_seller` |
-| 3 | Fabricated execution log | seller hosts a log claiming 5,250 rows processed in one second | the arithmetic is code-checked and the panel names `EVIDENCE_MANIPULATION` with a quote from inside the log | CONFLICTING_EVIDENCE | 0 | yes | case A03 |
+| 3 | Fabricated execution log | seller hosts a log claiming 5,250 rows processed in one second | code reads the log's own `items` and `elapsed_seconds` and gives the panel both; the panel names `EVIDENCE_MANIPULATION` with a quote from inside the log | CONFLICTING_EVIDENCE | 0 | yes | case A03 |
 | 4 | Selectively quoted agreement | buyer's claim quotes half a criterion | the panel is given the frozen criteria as the whole standard; the claim is marked a claim | FULFILLED | 10000 | n/a | case A04 |
 | 5 | Present but unusable deliverable | an empty placeholder file at the delivery location | present is not fulfilled: the prompt distinguishes them and the criterion is NOT_SATISFIED | NOT_FULFILLED | 0 | yes | case A05 |
 | 6 | Useful but differently worded | NDJSON where the criterion says delimited file, with the reason stated | fitness for the stated purpose, not wording; SATISFIED | FULFILLED | 10000 | n/a | case A06 |
@@ -48,8 +48,8 @@ until a later route resolves it.
 | 14 | Source impersonation | a receipt claiming to be Geocodex, byte-identical to the real one, on a host the agreement never froze | outside the frozen prefixes: `NOT_ALLOWED`, never fetched | PARTIALLY_FULFILLED | 7000-7300 | yes | case A14; `test_a_source_outside_the_frozen_prefixes_is_not_fetched` |
 | 15 | False dependency blame | buyer blames the upstream API while the receipt shows it answered 200 | `EXTERNAL_DEPENDENCY_FAILED` ABSENT: the quoted receipt contradicts the claim | FULFILLED | 10000 | n/a | case A15 |
 | 16 | Seller-caused dependency failure | a real outage, but only 2,100 of 5,000 rows arrived and the tests fail | an outage the seller could have handled excuses nothing below the partial threshold | NOT_FULFILLED | 0 | yes | case A16 |
-| 17 | Buyer withheld access | buyer's own message refusing the staging key the work needed | `BUYER_WITHHELD_INPUT` PRESENT, supported by the buyer's own words - an admission against interest | BUYER_NON_COOPERATION | 7500 | n/a | case A17; `test_withheld_access_costs_the_buyer_not_the_seller` |
-| 18 | Buyer refused confirmation | a flat refusal with no stated reason | a refusal is not a finding against the work; the criteria still decide | BUYER_NON_COOPERATION | 7500 | n/a | case A18 |
+| 17 | Buyer withheld access | the buyer's own message refuses the staging credentials, and the delivery stops exactly where they were needed | `BUYER_WITHHELD_INPUT` PRESENT, supported by the buyer's own words - an admission against interest - and by a delivery that ends at authentication | BUYER_NON_COOPERATION | 7500 | n/a | case A17; `test_withheld_access_costs_the_buyer_not_the_seller` |
+| 18 | Buyer refused confirmation | a flat refusal with no stated reason, on a delivery that meets every criterion | a refusal is not a finding against the work, and nothing the work needed was withheld: the frozen criteria decide | FULFILLED | 10000 | n/a | case A18 |
 | 19 | Stale evidence | a run log dated six months before the agreement | older than the policy's maximum age: `STALE_EVIDENCE` excludes it | PARTIALLY_FULFILLED | 7000-7300 | yes | case A19; `test_stale_and_foreign_logs_are_both_excluded` |
 | 20 | Divergent source content | the host serves one validator different bytes | that node's hash check fails, its row is `HASH_MISMATCH`, and it disagrees rather than ratifying | (round fails) | none moves | yes | case A20; `test_source_divergence_between_nodes` |
 | 21 | Leader proposes an unsupported settlement | a leader payload with a forged SATISFIED criterion, or with settlement keys added | the payload has no money fields at all, and the gate recomputes every code field and re-grounds every quote | (refused) | none moves | yes | case A21; `test_a_leader_inventing_a_satisfied_criterion_is_refused`, `test_a_payload_carrying_a_settlement_is_refused` |
@@ -61,7 +61,7 @@ until a later route resolves it.
 | 27 | Appeal after the window | an appeal one second past the deadline | wall-clock check on the stored deadline | (refused) | unchanged | yes | case A27; `test_an_appeal_cannot_be_filed_after_its_window` |
 | 28 | Self-referential evidence | two of the seller's own messages, each citing the other | neither is trusted, neither may decide a criterion, and citing each other adds nothing | INSUFFICIENT_EVIDENCE | 0 | yes | case A28 |
 | 29 | Legitimate variation treated as breach | the false-positive control: a reasonable variation with an independent verifier's note | SATISFIED, no indicator present, the seller is paid in full | FULFILLED | 10000 | n/a | case A29; `test_a_legitimate_variation_is_not_a_breach` |
-| 30 | Ambiguous criteria exploited | seller leans on a subjective criterion no evidence settles | UNVERIFIABLE is not a pass: it earns nothing and, past the policy's limit, holds the escrow | PARTIALLY_FULFILLED | 8400-8500 | yes | case A30; `test_an_unverifiable_criterion_is_not_a_pass` |
+| 30 | Ambiguous criteria exploited | the seller files something titled a method report that states no limitation at all, and argues the criterion is met because a report exists | the criterion asks what the report says; the panel reads it and the weight is lost | PARTIALLY_FULFILLED | 8400-8500 | yes | case A30; `test_filing_a_document_is_not_meeting_the_criterion` |
 
 Two further cases carry the ends of the range: **BASE-OK**, the honest delivery
 (FULFILLED, 10000), and **A31**, a genuine outage of a declared dependency
@@ -96,6 +96,12 @@ contract's own `get_config`, so the claim cannot drift from the code.
   can read the same evidence differently; the round then produces no verdict
   and the escrow is held. That is the intended failure, not a silent split, but
   it is a real cost to the honest party, and the appeal path exists for it.
+- **A panel can miss a subtle fabrication.** Disposable diagnostic rounds
+  (`deploy/diagnostics/`) had live models read a log claiming 5,250 rows
+  processed in one second as ordinary. Code now reads `elapsed_seconds` from
+  the log's own timestamps and gives it to the panel as a verified fact, and
+  the manipulation question points at the comparison - but a panel that misses
+  a forgery pays the seller, and no quote rule can prevent that.
 - **A trusted host that lies.** The allowlist proves where bytes came from, not
   that they are true. Fabrication is a panel question, and the panel can miss.
 - **Collusion.** Two agents that agree to defraud a third party are outside

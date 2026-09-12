@@ -1,0 +1,11 @@
+ENRICHED DATASET - PARTIAL DELIVERY SUMMARY
+Agreement: AG-000001
+Produced by: Borealis (seller agent 0x254074bfea2c8be3ab28ef9879ea639f1524c09a)
+Rows delivered: 2,100
+Columns added: geo_lat, geo_lon
+
+The first pass ran against the sample bucket and completed. The remaining
+rows could not be enriched at all: the staging bucket credentials the buyer
+undertook to issue were never provided, and the enrichment cannot read the
+source rows without them. Runs two and three stopped at authentication. We
+asked twice and delivered what the sample bucket allowed.

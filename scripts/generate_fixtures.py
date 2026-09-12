@@ -146,6 +146,14 @@ geocoding independently. 191 of 200 matched within 50 metres. Six of the nine
 remaining rows carry a confidence below 0.4 in the delivered file, which is
 consistent with the method report. We found no fabricated rows.
 """)
+    docs["sources/delivery/thin-method-report.txt"] = text(f"""
+METHOD REPORT
+Agreement: {AGREEMENT}
+
+The enrichment was produced with our standard pipeline. The results are
+accurate and complete, and the approach is proprietary. No limitations are
+applicable to this delivery.
+""")
     docs["sources/inbox/atlas-acceptance.txt"] = text(f"""
 From: Atlas (buyer agent)
 Subject: dataset received
@@ -171,6 +179,19 @@ Columns added: geo_lat, geo_lon
 The upstream endpoint began refusing requests part way through the second
 run. What is delivered here is the first pass only: 2,100 rows, without the
 admin_region column and without the reconciliation pass.
+""")
+    docs["sources/delivery/blocked-dataset-summary.txt"] = text(f"""
+ENRICHED DATASET - PARTIAL DELIVERY SUMMARY
+Agreement: {AGREEMENT}
+Produced by: Borealis (seller agent {w['seller']})
+Rows delivered: 2,100
+Columns added: geo_lat, geo_lon
+
+The first pass ran against the sample bucket and completed. The remaining
+rows could not be enriched at all: the staging bucket credentials the buyer
+undertook to issue were never provided, and the enrichment cannot read the
+source rows without them. Runs two and three stopped at authentication. We
+asked twice and delivered what the sample bucket allowed.
 """)
     docs["sources/logs/borealis-partial-log.json"] = execution_log(AGREEMENT, PARTIAL_RUNS)
     docs["sources/receipts/geocodex-partial-receipt.json"] = api_receipt(
@@ -518,25 +539,40 @@ def cases() -> list:
                              "C3": met("E1", "The upstream endpoint began refusing "
                                        "requests")})),
         case("A17", "BUYER_WITHHELD_ACCESS",
-             [DELIVERY_SUMMARY, RUN_LOG,
+             [("DELIVERABLE", "sources/delivery/blocked-dataset-summary.txt", "seller",
+               "Borealis", "the delivered summary"),
+              ("EXECUTION_LOG", "sources/logs/borealis-partial-log.json", "seller",
+               "Runner Cloud", "the run log"),
               ("AGENT_MESSAGE", "messages/atlas-withholds-access.txt", "buyer",
                "Atlas", "the buyer's message")],
              "BUYER_NON_COOPERATION", 7500, 7500,
-             "the buyer withheld the staging key the work needed",
-             "PANEL", panel({"C1": met("E1", ROWS_QUOTE),
-                             "C2": met("E2", STATUS_QUOTE)},
+             "the buyer withheld the staging credentials the work needed, and "
+             "the delivery stops exactly where they were needed",
+             "PANEL", panel({"C1": met("E1", "Rows delivered: 2,100",
+                                       "NOT_SATISFIED"),
+                             "C2": met("E2", '"status": "FAILED"', "NOT_SATISFIED")},
                             {"BUYER_WITHHELD_INPUT": flag(
-                                "E3", "I am not going to issue the API key")})),
+                                "E3", "I am not going to issue the API key",
+                                "the runs stop at authentication")}),
+             seller_says="Runs two and three could not authenticate: the staging "
+                         "credentials were never issued. We delivered what the "
+                         "sample bucket allowed.",
+             buyer_says="Only 2,100 of 5,000 rows arrived and there is no "
+                        "admin_region column. I want a refund."),
         case("A18", "BUYER_REFUSED_CONFIRMATION",
-             [DELIVERY_SUMMARY, RUN_LOG,
+             [DELIVERY_SUMMARY, METHOD_REPORT, RUN_LOG,
               ("AGENT_MESSAGE", "messages/atlas-flat-rejection.txt", "buyer", "Atlas",
                "the buyer's message")],
-             "BUYER_NON_COOPERATION", 7500, 7500,
-             "a refusal with no stated reason is not a finding against the work",
+             "FULFILLED", 10000, 10000,
+             "the buyer refuses to confirm and will not say what is wrong; "
+             "nothing was withheld that the work needed, so the frozen "
+             "criteria decide and the refusal costs the seller nothing",
              "PANEL", panel({"C1": met("E1", ROWS_QUOTE),
-                             "C2": met("E2", STATUS_QUOTE)},
-                            {"BUYER_WITHHELD_INPUT": flag(
-                                "E3", "I have not said what is wrong with it")})),
+                             "C2": met("E3", STATUS_QUOTE),
+                             "C3": met("E2", METHOD_QUOTE)}),
+             seller_says="Everything the criteria ask for is delivered; we asked "
+                         "the buyer to confirm and received no reason.",
+             buyer_says="Rejected. I am not going to explain."),
         case("A19", "STALE_EVIDENCE",
              [DELIVERY_SUMMARY,
               ("EXECUTION_LOG", "sources/logs/stale-log.json", "seller",
@@ -618,13 +654,22 @@ def cases() -> list:
                             {"EXTERNAL_DEPENDENCY_FAILED": flag(
                                 "E3", "returned 503 for all traffic between 02:05 and "
                                 "19:40 UTC")})),
-        case("A30", "AMBIGUOUS_CRITERIA_EXPLOIT", HONEST, "PARTIALLY_FULFILLED",
-             8400, 8500,
-             "the seller leans on a subjective criterion: UNVERIFIABLE is not a pass",
+        case("A30", "AMBIGUOUS_CRITERIA_EXPLOIT",
+             [DELIVERY_SUMMARY,
+              ("DELIVERABLE", "sources/delivery/thin-method-report.txt", "seller",
+               "Borealis", "the method report"),
+              RUN_LOG, RECEIPT],
+             "PARTIALLY_FULFILLED", 8400, 8500,
+             "the seller files something called a method report that states no "
+             "limitation at all: filing a document is not meeting the criterion "
+             "that asks what it says",
              "PANEL", panel({"C1": met("E1", ROWS_QUOTE),
                              "C2": met("E3", STATUS_QUOTE),
-                             "C3": {"state": "UNVERIFIABLE", "quotes": [],
-                                    "note": ""}})),
+                             "C3": met("E2", "No limitations are applicable",
+                                       "NOT_SATISFIED")}),
+             seller_says="The method report is attached as the criteria require.",
+             buyer_says="The report says nothing about how it was produced or "
+                        "where it is weak."),
     ]
 
 

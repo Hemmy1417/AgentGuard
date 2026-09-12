@@ -134,12 +134,16 @@ def test_a_legitimate_variation_is_not_a_breach(guard, direct_vm, policy_id):
     assert present(record) == []
 
 
-def test_an_unverifiable_criterion_is_not_a_pass(guard, direct_vm, policy_id):
+def test_filing_a_document_is_not_meeting_the_criterion(guard, direct_vm, policy_id):
+    """A30: the seller files something titled a method report which states no
+    limitation at all. The criterion asks what the report says, not whether
+    one exists, so its weight is lost and the split follows the level."""
     _id, record = run_through_commerce(guard, direct_vm, policy_id, "A30")
-    assert finding(record, "C3")["state"] == "UNVERIFIABLE"
+    assert finding(record, "C3")["state"] == "NOT_SATISFIED"
     assert record["verdict"] == "PARTIALLY_FULFILLED"
-    assert record["seller_bps"] < 10000
-    assert "UNVERIFIABLE_WEIGHT:22%" in record["reason_codes"]
+    assert record["fulfillment_level"] == 77          # 70 of the 90 counted weight
+    assert record["seller_bps"] == 8440
+    assert record["seller_fault_level"] == "PARTIAL"
 
 
 def test_stale_and_foreign_logs_are_both_excluded(guard, direct_vm, policy_id):
@@ -148,6 +152,76 @@ def test_stale_and_foreign_logs_are_both_excluded(guard, direct_vm, policy_id):
         _id, record = run_through_commerce(guard, direct_vm, policy_id, case_id)
         assert indicator in present(record), case_id
         assert finding(record, "C2")["state"] == "UNVERIFIABLE", case_id
+
+
+def test_a_late_delivery_is_recorded_against_the_deadline(guard, direct_vm, policy_id):
+    """The deadline and the cure period the two agents agreed, applied by the
+    clock alone: a delivery inside the cure period is on time, and one past it
+    is recorded as missed - by code, whatever the panel says about the work."""
+    from tests.direct.support import adjudicate, answer, deliver, satisfied, warp
+    one_criterion = answer({"C1": satisfied("E1", "Rows delivered: 5,250")})
+    on_time = agreement(guard, direct_vm, policy_id)
+    warp(direct_vm, "2026-09-16T11:00:00Z")     # deadline + 23h; the cure period is 24h
+    deliver(guard, direct_vm, on_time)
+    dispute(guard, direct_vm, on_time)
+    record = adjudicate(guard, direct_vm, on_time, one_criterion)
+    assert finding(record, "DEADLINE_MISSED")["state"] == "ABSENT"
+
+    warp(direct_vm, "2026-09-13T12:00:00Z")
+    late = agreement(guard, direct_vm, policy_id)
+    warp(direct_vm, "2026-09-16T12:00:01Z")     # one second past the cure period
+    deliver(guard, direct_vm, late)
+    dispute(guard, direct_vm, late)
+    record = adjudicate(guard, direct_vm, late, one_criterion)
+    assert finding(record, "DEADLINE_MISSED")["state"] == "PRESENT"
+    assert finding(record, "DEADLINE_MISSED")["by"] == "CODE"
+    assert "INDICATOR:DEADLINE_MISSED" in record["reason_codes"]
+
+
+def test_the_same_bytes_twice_cannot_look_like_two_deliveries(guard, direct_vm,
+                                                              policy_id):
+    """A09 through the engine: the commerce path refuses the second
+    commitment outright, so the engine is where the indicator is visible -
+    both copies excluded, and nothing either carries counted."""
+    entry = CASES["A09"]
+    onchain_id = register_case(guard, direct_vm, policy_id, "A09")
+    stage(direct_vm, entry["panel_answer"])
+    as_sender(direct_vm, "stranger")
+    guard.run_adversarial_case(onchain_id)
+    record = guard.get_adjudication(guard.get_adversarial_case(onchain_id)["receipt_id"])
+    assert "DUPLICATE_EVIDENCE" in present(record)
+    assert finding(record, "DUPLICATE_EVIDENCE")["evidence_ids"] == ["E1", "E2"]
+    assert [r["counted"] for r in record["receipts"][:2]] == [False, False]
+    assert record["verdict"] == "INSUFFICIENT_EVIDENCE"
+
+
+def test_the_registry_flags_the_later_commitment_never_the_first(guard, direct_vm,
+                                                                 policy_id):
+    """Two agreements, the same third party's record. The agreement that
+    committed those bytes first keeps them unmarked; the one that reused them
+    is flagged, and the artifact itself - a DELIVERABLE - is exempt, because
+    the same work may honestly be sold twice."""
+    from tests.direct.support import FULL_ANSWER, adjudicate, deliver
+    note = ("THIRD_PARTY_RECORD", "sources/thirdparty/verifier-note.txt",
+            "Meridian Data Assurance", "an independent spot check")
+    first = agreement(guard, direct_vm, policy_id)
+    deliver(guard, direct_vm, first)
+    commit(guard, direct_vm, first, [note], "seller")
+    dispute(guard, direct_vm, first)
+    first_record = adjudicate(guard, direct_vm, first, FULL_ANSWER)
+    assert finding(first_record, "CROSS_AGREEMENT_REUSE")["state"] == "ABSENT"
+
+    second = agreement(guard, direct_vm, policy_id)
+    deliver(guard, direct_vm, second)            # the same delivery, sold again
+    commit(guard, direct_vm, second, [note], "seller")
+    dispute(guard, direct_vm, second)
+    second_record = adjudicate(guard, direct_vm, second, FULL_ANSWER)
+    reuse = finding(second_record, "CROSS_AGREEMENT_REUSE")
+    assert reuse["state"] == "PRESENT" and reuse["by"] == "REGISTRY"
+    # the log, the receipt and the third party's note; not the two deliverables
+    assert reuse["evidence_ids"] == ["E3", "E4", "E5"]
+    assert guard.get_adjudication(first_record["adjudication_id"])["indicators"] == \
+        first_record["indicators"]               # the first record is untouched
 
 
 # -- the engine itself -------------------------------------------------------------
