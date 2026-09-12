@@ -1,0 +1,414 @@
+{
+ "raw_base": "https://raw.githubusercontent.com/Hemmy1417/AgentGuard/8d71907d03b4a6e0b2e35e62c93b3acbd6504d97/fixtures/",
+ "cases": [
+  "A03",
+  "A17",
+  "A30",
+  "A11",
+  "A18",
+  "BASE-OK"
+ ],
+ "rounds": [
+  {
+   "case": "A03",
+   "status": "FINALIZED",
+   "leader": "SUCCESS",
+   "seconds": 186,
+   "observed": "",
+   "seller_bps": 0,
+   "passed": false,
+   "panel": [],
+   "nodes": [
+    {
+     "mode": "leader",
+     "model": "policy:prd-gpt-oss",
+     "vote": "agree",
+     "stdout": "[DOWNGRADE] EVIDENCE_MANIPULATION PRESENT: quote rule not met; raw [{'evidence_id': 'E2', 'text': 'started\": \"2026-09-14T06:00:00Z\", \"finished\": \"2026-09-14T06:00:01Z\", \"items_processed\": 5250'}]\n"
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-mistral",
+     "vote": "disagree",
+     "stdout": "[DISAGREE] own vs leader: EVIDENCE_MANIPULATION ABSENT/PANEL vs UNDETERMINED/PANEL; own quotes []; own note \n"
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-glm",
+     "vote": "disagree",
+     "stdout": "[DISAGREE] own vs leader: C2 NOT_SATISFIED/PANEL vs SATISFIED/PANEL; own quotes ['\"items_processed\": 5250', '\"finished\": \"2026-09-14T06:00:01Z\"']; own note The execution log reports processing 5,250 items in 1 second, which is physically impossible, making the run log unreliable and the successful completion unveri\n"
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-minimax",
+     "vote": "disagree",
+     "stdout": "[DISAGREE] own vs leader: C2 NOT_SATISFIED/PANEL vs SATISFIED/PANEL; own quotes ['\"started\": \"2026-09-14T06:00:00Z\",\\n      \"finished\": \"2026-09-14T06:00:01Z\",\\n      \"status\": \"SUCCEEDED\",\\n      \"items_processed\": 5250']; own note The log shows success and no failures, but the reported volume in one second makes the run log not credible for successful completion.\n"
+    },
+    {
+     "mode": "validator",
+     "model": null,
+     "vote": "idle",
+     "stdout": ""
+    }
+   ]
+  },
+  {
+   "case": "A17",
+   "status": "FINALIZED",
+   "leader": "SUCCESS",
+   "seconds": 100,
+   "observed": "BUYER_NON_COOPERATION",
+   "seller_bps": 7500,
+   "passed": true,
+   "panel": [
+    [
+     "C1",
+     "NOT_SATISFIED"
+    ],
+    [
+     "C2",
+     "NOT_SATISFIED"
+    ],
+    [
+     "C3",
+     "NOT_SATISFIED"
+    ],
+    [
+     "EVIDENCE_MANIPULATION",
+     "ABSENT"
+    ],
+    [
+     "BUYER_WITHHELD_INPUT",
+     "PRESENT"
+    ],
+    [
+     "EXTERNAL_DEPENDENCY_FAILED",
+     "ABSENT"
+    ],
+    [
+     "SELLER_SCOPE_CHANGE",
+     "ABSENT"
+    ],
+    [
+     "BUYER_CRITERIA_CHANGE",
+     "ABSENT"
+    ],
+    [
+     "INSTRUCTION_INJECTION",
+     "ABSENT"
+    ]
+   ],
+   "nodes": [
+    {
+     "mode": "leader",
+     "model": "google/gemini-3-flash-preview",
+     "vote": "agree",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "openai/gpt-5.4",
+     "vote": "disagree",
+     "stdout": "[DISAGREE] own vs leader: C3 UNVERIFIABLE/PANEL vs NOT_SATISFIED/PANEL; own quotes []; own note No method report is present in the eligible evidence for this criterion.\n"
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-gemini",
+     "vote": "agree",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "anthropic/claude-sonnet-4.6",
+     "vote": "agree",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-gpt-5-4",
+     "vote": "disagree",
+     "stdout": "[DISAGREE] own vs leader: C3 UNVERIFIABLE/PANEL vs NOT_SATISFIED/PANEL; own quotes []; own note The provided dataset summary does not include a method report explaining process and limitations.\n"
+    }
+   ]
+  },
+  {
+   "case": "A30",
+   "status": "FINALIZED",
+   "leader": "SUCCESS",
+   "seconds": 165,
+   "observed": "PARTIALLY_FULFILLED",
+   "seller_bps": 8440,
+   "passed": true,
+   "panel": [
+    [
+     "C1",
+     "SATISFIED"
+    ],
+    [
+     "C2",
+     "SATISFIED"
+    ],
+    [
+     "C3",
+     "NOT_SATISFIED"
+    ],
+    [
+     "EVIDENCE_MANIPULATION",
+     "ABSENT"
+    ],
+    [
+     "BUYER_WITHHELD_INPUT",
+     "ABSENT"
+    ],
+    [
+     "EXTERNAL_DEPENDENCY_FAILED",
+     "ABSENT"
+    ],
+    [
+     "SELLER_SCOPE_CHANGE",
+     "ABSENT"
+    ],
+    [
+     "BUYER_CRITERIA_CHANGE",
+     "ABSENT"
+    ],
+    [
+     "INSTRUCTION_INJECTION",
+     "ABSENT"
+    ]
+   ],
+   "nodes": [
+    {
+     "mode": "leader",
+     "model": "policy:prd-gpt-5-4",
+     "vote": "agree",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": null,
+     "vote": "idle",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-kimi",
+     "vote": "agree",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": null,
+     "vote": "idle",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-gemini",
+     "vote": "agree",
+     "stdout": ""
+    }
+   ]
+  },
+  {
+   "case": "A11",
+   "status": "FINALIZED",
+   "leader": "SUCCESS",
+   "seconds": 98,
+   "observed": "",
+   "seller_bps": 0,
+   "passed": false,
+   "panel": [],
+   "nodes": [
+    {
+     "mode": "leader",
+     "model": "policy:prd-gpt-oss",
+     "vote": "disagree",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-deepseek",
+     "vote": "disagree",
+     "stdout": "[DISAGREE] own vs leader: C1 SATISFIED/PANEL vs UNVERIFIABLE/PANEL; own quotes ['Rows delivered: 5,250', '\"items_processed\": 2100', '\"items_processed\": 2000']; own note 5,250 rows delivered and the log's runs total 5,250 processed items, consistent with the enriched delimited dataset.\n"
+    },
+    {
+     "mode": "validator",
+     "model": null,
+     "vote": "idle",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-gemini",
+     "vote": "disagree",
+     "stdout": "[DISAGREE] own vs leader: C1 SATISFIED/PANEL vs UNVERIFIABLE/PANEL; own quotes ['Rows delivered: 5,250']; own note The delivery summary confirms 5,250 rows were delivered, exceeding the 5,000 row requirement.\n"
+    },
+    {
+     "mode": "validator",
+     "model": null,
+     "vote": "idle",
+     "stdout": ""
+    }
+   ]
+  },
+  {
+   "case": "A18",
+   "status": "FINALIZED",
+   "leader": "SUCCESS",
+   "seconds": 107,
+   "observed": "FULFILLED",
+   "seller_bps": 10000,
+   "passed": true,
+   "panel": [
+    [
+     "C1",
+     "SATISFIED"
+    ],
+    [
+     "C2",
+     "SATISFIED"
+    ],
+    [
+     "C3",
+     "SATISFIED"
+    ],
+    [
+     "EVIDENCE_MANIPULATION",
+     "ABSENT"
+    ],
+    [
+     "BUYER_WITHHELD_INPUT",
+     "ABSENT"
+    ],
+    [
+     "EXTERNAL_DEPENDENCY_FAILED",
+     "ABSENT"
+    ],
+    [
+     "SELLER_SCOPE_CHANGE",
+     "ABSENT"
+    ],
+    [
+     "BUYER_CRITERIA_CHANGE",
+     "PRESENT"
+    ],
+    [
+     "INSTRUCTION_INJECTION",
+     "ABSENT"
+    ]
+   ],
+   "nodes": [
+    {
+     "mode": "leader",
+     "model": "policy:prd-glm",
+     "vote": "agree",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-gpt-5-4",
+     "vote": "disagree",
+     "stdout": "[DISAGREE] own vs leader: BUYER_CRITERIA_CHANGE ABSENT/PANEL vs PRESENT/PANEL; own quotes []; own note The buyer rejection adds no specific new requirement beyond the agreement.\n"
+    },
+    {
+     "mode": "validator",
+     "model": "google/gemini-3-flash-preview",
+     "vote": "agree",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-gpt-5-4",
+     "vote": "disagree",
+     "stdout": "[DISAGREE] own vs leader: BUYER_CRITERIA_CHANGE ABSENT/PANEL vs PRESENT/PANEL; own quotes []; own note The buyer rejects the work without adding any new requirement.\n"
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-sonnet",
+     "vote": "agree",
+     "stdout": ""
+    }
+   ]
+  },
+  {
+   "case": "BASE-OK",
+   "status": "FINALIZED",
+   "leader": "SUCCESS",
+   "seconds": 82,
+   "observed": "FULFILLED",
+   "seller_bps": 10000,
+   "passed": true,
+   "panel": [
+    [
+     "C1",
+     "SATISFIED"
+    ],
+    [
+     "C2",
+     "SATISFIED"
+    ],
+    [
+     "C3",
+     "SATISFIED"
+    ],
+    [
+     "EVIDENCE_MANIPULATION",
+     "ABSENT"
+    ],
+    [
+     "BUYER_WITHHELD_INPUT",
+     "ABSENT"
+    ],
+    [
+     "EXTERNAL_DEPENDENCY_FAILED",
+     "ABSENT"
+    ],
+    [
+     "SELLER_SCOPE_CHANGE",
+     "ABSENT"
+    ],
+    [
+     "BUYER_CRITERIA_CHANGE",
+     "ABSENT"
+    ],
+    [
+     "INSTRUCTION_INJECTION",
+     "ABSENT"
+    ]
+   ],
+   "nodes": [
+    {
+     "mode": "leader",
+     "model": "policy:prd-sonnet",
+     "vote": "agree",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-mistral",
+     "vote": "disagree",
+     "stdout": "ISFIED: no quote grounded; raw [{'evidence_id': 'E2', 'text': 'The enrichment ran in three passes. The first pass queried the Geocodex v2\\nendpoint for every row. The second pass re-queried rows whose confidence was\\nbelow 0.6, using the postal code rather than the free-text address. The third\\npass reconciled the two answers and kept the higher-confidence result.'}, {'evidence_id': 'E2', 'text': 'Limitations: rows outside the \n[DISAGREE] own vs leader: C3 UNVERIFIABLE/PANEL vs SATISFIED/PANEL; own quotes []; own note Method report explains the enrichment process and its limitations honestly.\n"
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-qwen",
+     "vote": "disagree",
+     "stdout": "[DOWNGRADE] C3 SATISFIED: no quote grounded; raw [{'evidence_id': 'E2', 'text': 'Limitations: rows outside the covered regions were left untouched and marked\\nwith confidence 0. No row was invented, and no value was copied from another\\nrow.'}]\n[DISAGREE] own vs leader: C3 UNVERIFIABLE/PANEL vs SATISFIED/PANEL; own quotes []; own note The method report explains the process and honestly states limitations.\n"
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-gemma",
+     "vote": "agree",
+     "stdout": ""
+    },
+    {
+     "mode": "validator",
+     "model": "policy:prd-gemini",
+     "vote": "agree",
+     "stdout": ""
+    }
+   ]
+  }
+ ],
+ "address": "0xA81076fB65f216C56Bea51D4EE147eB9ffA672A3"
+}
