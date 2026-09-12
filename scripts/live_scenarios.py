@@ -137,6 +137,15 @@ def status_name(receipt) -> str:
     return str(receipt.get("status_name") or receipt.get("status") or "")
 
 
+def accepted(receipt) -> bool:
+    """Did the network accept what the leader did? A leader's SUCCESS says
+    only that its own code ran. With rotations a round can finalize with the
+    majority disagreeing, and then none of the transaction's writes apply."""
+    cast = [v.upper() for v in votes(receipt)]
+    return sum(v.startswith("AGREE") for v in cast) > \
+        sum(v.startswith("DISAGREE") for v in cast)
+
+
 def now_iso(offset: int = 0) -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() + offset))
 
@@ -190,37 +199,50 @@ class Actor:
         return self.balance()
 
     def write(self, step: str, fn: str, args: list, expect: str = "SUCCESS",
-              value: int = 0) -> dict:
+              value: int = 0, attempts: int = 3) -> dict:
         """One transaction, recorded under a step name. A recorded step is
-        never resent; a sent-but-unconfirmed one is awaited, not resent."""
+        never resent; a sent-but-unconfirmed one is awaited, not resent. A
+        round the panel could not agree on is asked again - nothing it did
+        applied, and the next round draws a different panel."""
         done = T.setdefault("steps", {})
         if step in done:
             return done[step]
         pending = T.setdefault("pending", {})
-        if step in pending:
-            tx = pending[step]
-            log(f"  {self.name}.{fn} resuming {tx}")
-        else:
-            tx = retry(lambda: self.client.write_contract(
-                address=self.address, function_name=fn, args=args, value=value,
-                consensus_max_rotations=3))
-            tx = tx if isinstance(tx, str) else tx.hex()
-            pending[step] = tx
+        for attempt in range(attempts):
+            if step in pending:
+                tx = pending[step]
+                log(f"  {self.name}.{fn} resuming {tx}")
+            else:
+                tx = retry(lambda: self.client.write_contract(
+                    address=self.address, function_name=fn, args=args, value=value,
+                    consensus_max_rotations=3))
+                tx = tx if isinstance(tx, str) else tx.hex()
+                pending[step] = tx
+                save()
+                log(f"  {self.name}.{fn} tx {tx}")
+            receipt = retry(lambda: self.client.wait_for_transaction_receipt(
+                transaction_hash=tx, status=TransactionStatus.FINALIZED, **WAIT))
+            result = leader_result(receipt)
+            record = {"step": step, "actor": self.name, "method": fn, "tx": tx,
+                      "status": status_name(receipt), "leader_execution": result,
+                      "votes": votes(receipt), "accepted": accepted(receipt)}
+            if value:
+                record["value_atto"] = str(value)
+            log(f"    {record['status']} leader {result} votes {record['votes']}")
+            del pending[step]
             save()
-            log(f"  {self.name}.{fn} tx {tx}")
-        receipt = retry(lambda: self.client.wait_for_transaction_receipt(
-            transaction_hash=tx, status=TransactionStatus.FINALIZED, **WAIT))
-        result = leader_result(receipt)
-        record = {"step": step, "actor": self.name, "method": fn, "tx": tx,
-                  "status": status_name(receipt), "leader_execution": result,
-                  "votes": votes(receipt)}
-        if value:
-            record["value_atto"] = str(value)
-        log(f"    {record['status']} leader {result} votes {record['votes']}")
-        del pending[step]
+            if expect != "SUCCESS" or result != "SUCCESS" or record["accepted"]:
+                break
+            # the panel could not agree: nothing this transaction did applies
+            T.setdefault("rejected_rounds", []).append(record)
+            log(f"    the panel did not agree ({attempt + 1}/{attempts}); "
+                "nothing applied, asking again")
+            save()
         done[step] = record
         save()
         check(result == expect, f"{step}: leader execution {result}, expected {expect}")
+        check(expect != "SUCCESS" or record["accepted"],
+              f"{step}: the panel did not agree after {attempts} rounds")
         return record
 
 
