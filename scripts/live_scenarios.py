@@ -493,8 +493,11 @@ def phase_c(ac: dict, raw: str):
         "list_agent_agreements", [WALLETS["buyer"], 0, 50])["items"][-1])
     save()
     seller.write("C:accept", "accept_agreement", [accepted_id])
+    # the party check fires before the amount does, so this needs no value -
+    # and the stranger wallet has none: an unfunded wallet can still be
+    # refused, which is the point
     stranger.write("C:refuse:stranger_funds", "fund_escrow", [accepted_id],
-                   expect="ERROR", value=PRICE)
+                   expect="ERROR")
     buyer.write("C:refuse:wrong_price", "fund_escrow", [accepted_id], expect="ERROR",
                 value=PRICE - 1)
     buyer.write("C:fund", "fund_escrow", [accepted_id], value=PRICE)
