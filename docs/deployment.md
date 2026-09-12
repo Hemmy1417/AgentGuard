@@ -9,12 +9,13 @@ and `byte_identical`. The table below is filled from it at release, and
 
 | Item | Value |
 |---|---|
-| Contract | see `deploy/deployment.json` -> `contract_address` |
-| Explorer | `https://explorer-studio.genlayer.com/address/<address>` (the Code tab shows the deployed source) |
-| Deploy transaction | `deploy/deployment.json` -> `deploy_tx` |
-| Status | `FINALIZED`, leader execution `SUCCESS` |
-| Source | `contracts/agentguard.py` at the recorded commit and blob |
-| Source parity | the source read back with `gen_getContractCode` has the same sha256 |
+| Contract | `0xF8bC4Da696306CF5874560469c8483793EC132Ff` |
+| Explorer | https://explorer-studio.genlayer.com/address/0xF8bC4Da696306CF5874560469c8483793EC132Ff (the Code tab shows the deployed source) |
+| Deploy transaction | `0x5650702a29afdcf9c8d1c97aa8c0f3914dde4acadffce85ee6d8174fb25e161b` |
+| Status | `FINALIZED`, leader execution `SUCCESS`, validator votes `AGREE` x3, `IDLE` x2 |
+| Source | `contracts/agentguard.py` at commit `32f5ac0`, blob `43acf32`, sha256 `6233466b...a491` |
+| Source parity | the source read back with `gen_getContractCode` has the same sha256 (`python scripts/deploy_studionet.py --verify`) |
+| Signer | `0xDe156e827E6a6D65Da58f06EaeEbA2A57BC57E8c` |
 
 Addresses that are **not** the deployment of record - disposable diagnostic
 deployments under `deploy/diagnostics/`, and any superseded canonical

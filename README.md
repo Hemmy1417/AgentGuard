@@ -8,6 +8,8 @@ Two agents that have never met agree a service: what is to be done, how it will 
 
 No model output ever reaches an amount.
 
+Canonical deployment: [`0xF8bC4Da696306CF5874560469c8483793EC132Ff`](https://explorer-studio.genlayer.com/address/0xF8bC4Da696306CF5874560469c8483793EC132Ff) on GenLayer StudioNet, byte-identical to `contracts/agentguard.py` at commit `32f5ac0` (see [`docs/deployment.md`](docs/deployment.md)).
+
 ## At a glance
 
 | Question | Answer |

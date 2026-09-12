@@ -12,18 +12,16 @@ escrow.
 
 **Repository** - https://github.com/Hemmy1417/AgentGuard
 
-**Canonical StudioNet address** - see `deploy/deployment.json`
-(`contract_address`); the same value is in `docs/deployment.md`.
+**Canonical StudioNet address** - `0xF8bC4Da696306CF5874560469c8483793EC132Ff`
 
-**Explorer URL** - `https://explorer-studio.genlayer.com/address/<address>`
+**Explorer URL** - https://explorer-studio.genlayer.com/address/0xF8bC4Da696306CF5874560469c8483793EC132Ff
 (the Code tab shows the deployed source).
 
-**Deployment tx** - `deploy/deployment.json` -> `deploy_tx`, FINALIZED with
-leader execution SUCCESS.
+**Deployment tx** - `0x5650702a29afdcf9c8d1c97aa8c0f3914dde4acadffce85ee6d8174fb25e161b`, FINALIZED, leader execution SUCCESS.
 
-**Deployment source** - `contracts/agentguard.py` at the recorded commit and
-blob; the source read back with `gen_getContractCode` has the same sha256
-(`python scripts/deploy_studionet.py --verify`).
+**Deployment source** - `contracts/agentguard.py` at commit `32f5ac0`,
+sha256 `6233466b6c5da722704ca5817a0eca92803c837ac089afb25c5e852b0de6a491`; the source read back with `gen_getContractCode` has the same
+sha256 (`python scripts/deploy_studionet.py --verify`).
 
 ## Why GenLayer is required
 

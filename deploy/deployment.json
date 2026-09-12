@@ -1,0 +1,34 @@
+{
+  "byte_identical": true,
+  "chain_id": 61999,
+  "contract_address": "0xF8bC4Da696306CF5874560469c8483793EC132Ff",
+  "deploy_tx": "0x5650702a29afdcf9c8d1c97aa8c0f3914dde4acadffce85ee6d8174fb25e161b",
+  "deployed_at": "2026-09-12T15:11:54Z",
+  "deployed_sha256": "6233466b6c5da722704ca5817a0eca92803c837ac089afb25c5e852b0de6a491",
+  "explorer": "https://explorer-studio.genlayer.com",
+  "explorer_contract": "https://explorer-studio.genlayer.com/address/0xF8bC4Da696306CF5874560469c8483793EC132Ff",
+  "explorer_tx": "https://explorer-studio.genlayer.com/tx/0x5650702a29afdcf9c8d1c97aa8c0f3914dde4acadffce85ee6d8174fb25e161b",
+  "head_at_deploy": "6032f61c5281f53fd45d5bca850b021bbe33acf8",
+  "leader_execution": "SUCCESS",
+  "network": "studionet",
+  "other_addresses": {
+    "diagnostic_2026-09-12T14:55Z": "0xB398982d7627c573bEe090D28B89CEf807149601",
+    "diagnostic_2026-09-12T15:44Z": "0xA81076fB65f216C56Bea51D4EE147eB9ffA672A3",
+    "diagnostic_2026-09-12T16:44Z": "0x50cfEED4FFf86Fab6737385794e5Fac2113eEC62",
+    "signer": "0xDe156e827E6a6D65Da58f06EaeEbA2A57BC57E8c"
+  },
+  "other_addresses_note": "The three diagnostic addresses are disposable deployments used to see what real validators do with the panel-decided cases before the canonical deployment; deploy/diagnostics/ holds their runs. None is a deployment of record.",
+  "rpc": "https://studio.genlayer.com/api",
+  "signer": "0xDe156e827E6a6D65Da58f06EaeEbA2A57BC57E8c",
+  "source_blob": "43acf328bc01b5f2342b022bb0073176500990b8",
+  "source_commit": "32f5ac07747998e3cc369de6bd6c6b9bb44d9e22",
+  "source_sha256": "6233466b6c5da722704ca5817a0eca92803c837ac089afb25c5e852b0de6a491",
+  "status": "FINALIZED",
+  "votes": [
+    "AGREE",
+    "AGREE",
+    "AGREE",
+    "IDLE",
+    "IDLE"
+  ]
+}
