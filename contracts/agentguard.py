@@ -149,6 +149,14 @@ TAINTING = ("EVIDENCE_UNLINKED", "DUPLICATE_EVIDENCE", "HIDDEN_TEXT",
             "INJECTION_MARKER", "STALE_EVIDENCE", "CROSS_AGREEMENT_REUSE")
 SELLER_FAULT_INDICATORS = ("SELLER_SCOPE_CHANGE",)
 BUYER_FAULT_INDICATORS = ("BUYER_WITHHELD_INPUT", "BUYER_CRITERIA_CHANGE")
+# The indicators whose answer can change the verdict, and so the split. An
+# undecided question holds the escrow when deciding it could have moved the
+# money, and only then: BUYER_CRITERIA_CHANGE records that the buyer demanded
+# more than the criteria, which is fault, not money, and a round that left it
+# undecided must still pay a delivery the panel found complete.
+OUTCOME_INDICATORS = ("EVIDENCE_MANIPULATION", "INSTRUCTION_INJECTION",
+                      "BUYER_WITHHELD_INPUT", "EXTERNAL_DEPENDENCY_FAILED",
+                      "SELLER_SCOPE_CHANGE")
 
 INDICATOR_QUESTIONS = {
     "EVIDENCE_MANIPULATION":
@@ -1855,7 +1863,7 @@ def _derive(ctx: dict, payload, registry: list) -> dict:
       3. the panel's answer unusable                -> INCONCLUSIVE
       4. no usable evidence at all                  -> INSUFFICIENT_EVIDENCE
       5. panel: fabrication, or text aimed at it    -> CONFLICTING_EVIDENCE
-      6. any asked question undecided               -> INCONCLUSIVE
+      6. a question that could change it undecided  -> INCONCLUSIVE
       7. buyer withheld AND seller changed scope    -> MUTUAL_FAULT
       8. buyer withheld what the work needed        -> BUYER_NON_COOPERATION
       9. a declared external dependency failed      -> EXTERNAL_DEPENDENCY_FAILURE
@@ -1878,7 +1886,8 @@ def _derive(ctx: dict, payload, registry: list) -> dict:
     present = [f["id"] for f in indicators if f["state"] == PRESENT]
     row_of = {r["evidence_id"]: r for r in payload["rows"]}
     statuses = [row_of[e]["status"] for e in _allowed_ids(ctx)]
-    undecided = any(f["state"] == UNDETERMINED for f in indicators)
+    undecided = any(f["state"] == UNDETERMINED and f["id"] in OUTCOME_INDICATORS
+                    for f in indicators)
     eligible = [e for e in _examined(payload["rows"])
                 if e not in _tainted(indicators)]
     unverifiable_share = unverifiable * 100 // total if total > 0 else 100
@@ -3210,7 +3219,8 @@ class AgentGuard(gl.Contract):
             "indicators": {"code": list(CODE_INDICATORS),
                            "panel": list(PANEL_INDICATORS),
                            "registry": list(REGISTRY_INDICATORS),
-                           "excluding": list(TAINTING)},
+                           "excluding": list(TAINTING),
+                           "outcome_changing": list(OUTCOME_INDICATORS)},
             "attack_categories": list(ATTACK_CATEGORIES),
             "bounds": {"max_criteria": MAX_CRITERIA, "max_evidence": MAX_EVIDENCE,
                        "max_appeal_evidence": MAX_APPEAL_EVIDENCE,

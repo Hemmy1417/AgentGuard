@@ -155,6 +155,42 @@ def test_both_at_fault_splits_by_policy(guard, direct_vm, policy_id):
     assert int(view["settled_seller_atto"]) == PRICE // 2
 
 
+@pytest.mark.parametrize("indicator,verdict,settles", [
+    # deciding any of these could have moved the money, so an undecided
+    # answer holds the escrow
+    ("EVIDENCE_MANIPULATION", "INCONCLUSIVE", False),
+    ("INSTRUCTION_INJECTION", "INCONCLUSIVE", False),
+    ("BUYER_WITHHELD_INPUT", "INCONCLUSIVE", False),
+    ("EXTERNAL_DEPENDENCY_FAILED", "INCONCLUSIVE", False),
+    ("SELLER_SCOPE_CHANGE", "INCONCLUSIVE", False),
+    # this one only records whether the buyer demanded more than the criteria.
+    # It is fault, not money, and a delivery the panel found complete is paid
+    ("BUYER_CRITERIA_CHANGE", "FULFILLED", True),
+])
+def test_an_undecided_question_holds_only_what_it_could_change(
+        guard, direct_vm, policy_id, indicator, verdict, settles):
+    """A live readjudication found every criterion satisfied at 100/100 and
+    still paid nobody, because the panel had left one fault question
+    undecided. An escrow may only be held by a question whose answer could
+    have changed where it goes."""
+    undecided = answer({
+        "C1": satisfied("E1", "Rows delivered: 5,250"),
+        "C2": satisfied("E3", "\"status\": \"SUCCEEDED\""),
+        "C3": satisfied("E2", "The enrichment ran in three passes"),
+    }, {indicator: {"state": "UNDETERMINED", "quotes": [], "note": "cannot tell"}})
+    view, record = settled(guard, direct_vm, policy_id, undecided)
+    assert record["fulfillment_level"] == 100
+    assert record["verdict"] == verdict
+    assert record["settleable"] is settles
+    if settles:
+        assert record["seller_bps"] == 10000
+        assert view["settled_seller_atto"] == str(PRICE)
+        assert record["buyer_fault_level"] == "NONE"   # unproven is not fault
+    else:
+        assert record["seller_bps"] == 0
+        assert guard.health_check()["escrow_held_atto"] == str(PRICE)
+
+
 # -- the bounds themselves --------------------------------------------------------
 
 def test_allocations_always_reconcile_to_the_escrow(mod):

@@ -20,7 +20,7 @@ Canonical deployment: [`0xF6705A905c766E51945535349322fEE25C075E45`](https://exp
 | What evidence it uses | Only items committed to this agreement, from the per-category prefixes both agents froze at assent. Every node verifies the hash before reading a byte. An agent's own message is admissible as words and can never satisfy a criterion. |
 | How consensus works | `gl.vm.run_nondet_unsafe` once per round. Each validator reproduces the round from its own fetch and model call, gates the leader's payload against its own bytes, and agrees only if every row, fact, scan, panel state and finding state matches. The payload carries no amount: validators agree on the money by construction. |
 | How money moves | One payable entry (`fund_escrow`), one exit (`withdraw`, a pull-payment ledger cleared before the transfer), and eight settlement paths between them - all of which must reconcile to the escrow exactly or revert. |
-| What tests prove it works | 292 Direct Mode tests on the official `genlayer-test` runner, covering all 30 brief attacks twice over (the real commerce path and the on-chain test engine), forged leaders through the captured validator closure, hostile model output, settlement bounds and the appeal lifecycle; a mutation sweep; `genvm-lint check`; preflight. See "Verified". |
+| What tests prove it works | 298 Direct Mode tests on the official `genlayer-test` runner, covering all 30 brief attacks twice over (the real commerce path and the on-chain test engine), forged leaders through the captured validator closure, hostile model output, settlement bounds and the appeal lifecycle; a mutation sweep; `genvm-lint check`; preflight. See "Verified". |
 
 ## What it is
 
@@ -72,7 +72,7 @@ Canonical deployment: [`0xF6705A905c766E51945535349322fEE25C075E45`](https://exp
 | `INSUFFICIENT_EVIDENCE` | too little usable evidence, or too much weight unverifiable | 0 | **held** |
 | `CONFLICTING_EVIDENCE` | fabrication, or text aimed at the panel | 0 | **held** |
 | `SOURCE_UNAVAILABLE` | an allowed item unreachable, or its bytes changed | 0 | **held** |
-| `INCONCLUSIVE` | a malformed item, an unusable model answer, or an undecided question | 0 | **held** |
+| `INCONCLUSIVE` | a malformed item, an unusable model answer, or a question undecided whose answer could have changed the verdict | 0 | **held** |
 
 A held escrow is not a lost one: the agreement stays open for an appeal, and the stalled-agreement route returns it to the agent who paid it once the windows pass.
 
@@ -154,7 +154,7 @@ propose_agreement --> PROPOSED --accept_agreement--> ACCEPTED --fund_escrow--> F
 
 | Check | Command | Result |
 |---|---|---|
-| Direct Mode | `python -m pytest tests/direct -q` | 292 passed |
+| Direct Mode | `python -m pytest tests/direct -q` | 298 passed |
 | Preflight | `python scripts/preflight.py` | 42 checks, 0 failed |
 | GenVM validation | `genvm-lint check contracts/agentguard.py --json` | ok, 40 methods, 0 errors (I200 informational) |
 | Lint | `ruff check .` | clean |

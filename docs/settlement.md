@@ -32,7 +32,7 @@ is its terminal exit. No branch reads model prose.
 | 3 | the panel's answer was not usable | `INCONCLUSIVE` | no |
 | 4 | no untainted examined item, or fewer than the policy's minimum | `INSUFFICIENT_EVIDENCE` | no |
 | 5 | the panel found fabrication, or text aimed at itself | `CONFLICTING_EVIDENCE` | no |
-| 6 | any asked question came back undecided | `INCONCLUSIVE` | no |
+| 6 | a question whose answer could change the verdict came back undecided | `INCONCLUSIVE` | no |
 | 7 | the buyer withheld input **and** the seller changed scope | `MUTUAL_FAULT` | yes |
 | 8 | the buyer withheld what the work needed | `BUYER_NON_COOPERATION` | yes |
 | 9 | a declared external dependency failed | `EXTERNAL_DEPENDENCY_FAILURE` | yes |
@@ -45,6 +45,16 @@ is its terminal exit. No branch reads model prose.
 Both thresholds are inclusive: a level exactly at `full_threshold` is
 FULFILLED, and one exactly at `partial_threshold` is PARTIALLY_FULFILLED at the
 policy's floor.
+
+Step 6 holds the escrow only for the five indicators whose answer appears in
+the chain above - fabrication, injection, a withholding buyer, a failed
+dependency, a substituted service (`OUTCOME_INDICATORS`, published by
+`get_config`). `BUYER_CRITERIA_CHANGE` is not one of them: it records that the
+buyer demanded more than the criteria, which is fault, not money. A live
+readjudication found every criterion SATISFIED at 100/100 and still paid
+nobody, because the panel had left that one question undecided - and the
+stalled route would then have refunded the buyer for work the panel called
+complete. An escrow may only be held by a question that could have moved it.
 
 Two verdicts are never produced here. `SELLER_NON_PERFORMANCE` belongs to the
 stalled route for an agreement that was funded and never delivered - an

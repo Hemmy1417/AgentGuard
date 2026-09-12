@@ -64,6 +64,10 @@ MUTATIONS = [
     ("an undecided question no longer INCONCLUSIVE",
      "    elif undecided:\n",
      "    elif False:\n"),
+    ("an undecided fault-only question holds the escrow",
+     "    undecided = any(f[\"state\"] == UNDETERMINED and f[\"id\"] in OUTCOME_INDICATORS\n"
+     "                    for f in indicators)\n",
+     "    undecided = any(f[\"state\"] == UNDETERMINED for f in indicators)\n"),
     ("both agents at fault collapses to one",
      "    elif \"BUYER_WITHHELD_INPUT\" in present and \"SELLER_SCOPE_CHANGE\" in present:\n",
      "    elif False:\n"),

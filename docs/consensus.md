@@ -30,6 +30,11 @@ declared category and issuer are the submitter's claims, and only
 authoritative. It states that the frozen criteria are the whole standard, and
 that anything either party said afterwards adds nothing.
 
+An indicator the panel cannot decide is UNDETERMINED, and an undecided
+question holds the escrow only when its answer could have changed the verdict -
+the five in `OUTCOME_INDICATORS`. `BUYER_CRITERIA_CHANGE` is not among them:
+it records fault, not money.
+
 Each question has exactly one home. A criterion that is not met is reported on
 that criterion, never as an indicator; a disagreement between two items is a
 criterion matter, while fabrication visible *inside* one item is
