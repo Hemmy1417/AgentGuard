@@ -9,25 +9,33 @@ and `byte_identical`. The table below is filled from it at release, and
 
 | Item | Value |
 |---|---|
-| Contract | `0xE8c834475F23447299835fD14721dBCA72f5c7F2` |
-| Explorer | https://explorer-studio.genlayer.com/address/0xE8c834475F23447299835fD14721dBCA72f5c7F2 (the Code tab shows the deployed source) |
-| Deploy transaction | `0x7842ed2ea50d7c6ba6e02d319e2792c645f8a5f224933bcf49ddf225cd592ac1` |
+| Contract | `0xF6705A905c766E51945535349322fEE25C075E45` |
+| Explorer | https://explorer-studio.genlayer.com/address/0xF6705A905c766E51945535349322fEE25C075E45 (the Code tab shows the deployed source) |
+| Deploy transaction | `0x25e1b1b32e49a5998f3554ad02257f742a56ffc3b8f3bc11b24c077db3b4c35d` |
 | Status | `FINALIZED`, leader execution `SUCCESS`, validator votes `AGREE` x5 |
 | Source | `contracts/agentguard.py` at commit `32f5ac0`, blob `43acf32`, sha256 `6233466b...a491` |
 | Source parity | the source read back with `gen_getContractCode` has the same sha256 (`python scripts/deploy_studionet.py --verify`) |
 | Signer | `0xDe156e827E6a6D65Da58f06EaeEbA2A57BC57E8c` |
 
 Addresses that are **not** the deployment of record are listed in the same
-file under `other_addresses`, with the reason: three disposable diagnostic
-deployments (`deploy/diagnostics/`), and one superseded canonical deployment,
-`0xF8bC4Da696306CF5874560469c8483793EC132Ff`. The contract bytes are identical
-in both; what differed was the live run's own agreement terms, which set a
-60-second appeal window - shorter than the two transactions an appeal takes on
-StudioNet, so the contract refused the appeal exactly as written. That
-agreement was closed through the documented stalled route
-(`UNSETTLED_ADJUDICATION`: the buyer refunded in full and withdrawn, so the
-superseded deployment holds no escrow), the script now gives the arc a
-ten-minute appeal window, and the run was repeated from a clean deployment.
+file under `other_addresses`, with the reason. All carry the same contract
+bytes; what differed was the live run around them.
+
+- Three **diagnostic** deployments (`deploy/diagnostics/`): disposable
+  addresses used to see what real validators do with the panel-decided cases
+  before a canonical deployment.
+- `0xF8bC4Da696306CF5874560469c8483793EC132Ff`, **superseded**: the live run's
+  own agreement terms set a 60-second appeal window - shorter than the two
+  transactions an appeal takes on StudioNet - so the contract refused the
+  appeal exactly as written. That agreement was then closed through the
+  documented stalled route (`UNSETTLED_ADJUDICATION`: the buyer refunded in
+  full and withdrawn), so the address holds no escrow. The script now gives the
+  arc a ten-minute appeal window.
+- `0xE8c834475F23447299835fD14721dBCA72f5c7F2`, **superseded**: an interrupted
+  attempt had already consumed the agreement id `AG-000001`, and the fixture
+  evidence names that id inside its own contents, so the arc was restarted from
+  a clean deployment rather than run against evidence the contract would
+  correctly flag as belonging to another agreement.
 
 ## Network and assumptions
 
