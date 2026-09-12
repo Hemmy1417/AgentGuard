@@ -122,6 +122,14 @@ It is resumable: every transaction hash is saved before its receipt is
 awaited, so an interrupted run continues without resending anything. The
 transcript is `deploy/live_scenarios_transcript.json`.
 
+The fixture catalogue is dated. Its evidence carries fixed `as_of` timestamps
+around the demo agreement's deadline (September 2026, set as constants in
+`scripts/generate_fixtures.py`), and the demo policy counts an item older than
+30 days as stale. A live run much later will therefore see `STALE_EVIDENCE` on
+the structured items and verdicts that differ from the catalogue. Move the
+dates in the generator and regenerate, or raise `maximum_evidence_age_days` in
+the policy the run registers.
+
 Inspect a stored result:
 
 ```bash
