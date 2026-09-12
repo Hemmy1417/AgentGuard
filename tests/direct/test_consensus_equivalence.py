@@ -326,6 +326,33 @@ def test_a_quote_may_elide_but_not_reorder(mod):
     assert not grounds(mod, "ran in three passes ... Rows delivered: 5,250")
 
 
+LOG = {"E1": '{\n  "runs": [\n    {\n      "run_id": "run-1",\n'
+              '      "started": "2026-09-14T06:00:00Z",\n'
+              '      "finished": "2026-09-14T06:00:01Z",\n'
+              '      "status": "SUCCEEDED",\n      "items_processed": 5250\n'
+              '    }\n  ]\n}'}
+
+
+def in_log(mod, text):
+    return mod._quote_grounded({"evidence_id": "E1", "text": text}, ["E1"], LOG)
+
+
+def test_a_reflowed_json_quote_grounds_like_an_elision(mod):
+    """A model quoting a structured item reflows its lines onto one and joins
+    them with a comma. That is the claim an ellipsis makes, so it is read the
+    same way and held to the same rule: every part present, in order. A live
+    round lost a correct fabrication finding to this before the fallback."""
+    assert in_log(mod, '"started": "2026-09-14T06:00:00Z", "finished": '
+                       '"2026-09-14T06:00:01Z", "items_processed": 5250')
+    assert in_log(mod, '"started": "2026-09-14T06:00:00Z" ... "items_processed": 5250')
+    # the same latitude, not more: a part the document does not carry...
+    assert not in_log(mod, '"started": "2026-09-14T06:00:00Z", '
+                           '"items_processed": 9999')
+    # ...and parts out of the document's own order
+    assert not in_log(mod, '"items_processed": 5250, "started": '
+                           '"2026-09-14T06:00:00Z"')
+
+
 def test_a_fragment_needs_more_than_one_word(mod):
     """A single word occurs in half the corpus; a finding resting on one is
     not grounded in anything. Each fragment carries at least two."""
