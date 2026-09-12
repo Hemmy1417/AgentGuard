@@ -199,7 +199,7 @@ class Actor:
         return self.balance()
 
     def write(self, step: str, fn: str, args: list, expect: str = "SUCCESS",
-              value: int = 0, attempts: int = 3) -> dict:
+              value: int = 0, attempts: int = 3, require_acceptance: bool = True) -> dict:
         """One transaction, recorded under a step name. A recorded step is
         never resent; a sent-but-unconfirmed one is awaited, not resent. A
         round the panel could not agree on is asked again - nothing it did
@@ -241,7 +241,7 @@ class Actor:
         done[step] = record
         save()
         check(result == expect, f"{step}: leader execution {result}, expected {expect}")
-        check(expect != "SUCCESS" or record["accepted"],
+        check(expect != "SUCCESS" or record["accepted"] or not require_acceptance,
               f"{step}: the panel did not agree after {attempts} rounds")
         return record
 
@@ -489,8 +489,21 @@ def phase_b(ac: dict, raw: str):
         listed = platform.read("list_adversarial_cases", [POLICY_ID, 1, 0, 50])
         onchain_id = T.setdefault("case_ids", {}).setdefault(step, listed["items"][-1])
         save()
-        run = stranger.write(step + ":run", "run_adversarial_case", [onchain_id])
+        run = stranger.write(step + ":run", "run_adversarial_case", [onchain_id],
+                             require_acceptance=False)
         view = platform.read("get_adversarial_case", [onchain_id])
+        if not run.get("accepted") and view["status"] != "RAN":
+            # three panels read the same evidence differently. Nothing the
+            # rounds did applies, and the case is recorded as what it is
+            phase["cases"][case_id] = {
+                "case_id": case_id, "onchain_id": onchain_id, "tx": run["tx"],
+                "passed": False, "decided_by": entry["decided_by"],
+                "attack": entry["attack_category"], "observed": None,
+                "note": "no verdict: the panel did not agree in three rounds"}
+            log(f"  {case_id} {entry['attack_category']}: no verdict "
+                "(the panel did not agree in three rounds)")
+            save()
+            continue
         record = platform.read("get_adjudication", [view["receipt_id"]])
         result = {"case_id": case_id, "onchain_id": onchain_id, "tx": run["tx"],
                   "passed": view["passed"], "decided_by": entry["decided_by"],
