@@ -26,10 +26,12 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: pip install -r requirements-test.txt
       - run: ruff check .
-      - run: python scripts/preflight.py
       # gltest 0.29.2 asks for an asset name the current GenVM releases no
       # longer publish; seed both caches with the verified bundle first.
       - run: python scripts/fetch_genvm_bundle.py
+      # preflight collects the Direct Mode suite to check the README's count
+      # against it, so it runs after the runner bundle is in place
+      - run: python scripts/preflight.py
       - run: python -m pytest tests/direct -q
       - run: python scripts/run_direct_mode.py
       - run: genvm-lint check contracts/agentguard.py --json

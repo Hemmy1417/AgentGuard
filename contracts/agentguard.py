@@ -360,9 +360,12 @@ PANEL_HEADER = (
     "is not met is reported on that criterion, not as an indicator.\n\n"
     "QUOTES: copy each quote exactly from the cited item - the same words in "
     "the same order, 8 to 240 characters - with that item's evidence_id. Do "
-    "not paraphrase or join words from different places. Code checks every "
-    "quote's words against the item's bytes; a quote whose words are not "
-    "there is discarded and the finding that depended on it is downgraded.\n\n"
+    "not paraphrase or join words from different places. Where you leave text "
+    "out of the middle of a quote, write ... in its place and keep at least "
+    "two words on each side of it - quoting several lines of a JSON document "
+    "is easiest that way. Code checks every quote's words against the item's "
+    "bytes; a quote whose words are not there is discarded and the finding "
+    "that depended on it is downgraded.\n\n"
     "Answer with one JSON object and nothing else:\n"
     "{\"criteria\": {\"<criterion_id>\": {\"state\": \"SATISFIED|"
     "NOT_SATISFIED|UNVERIFIABLE\", \"quotes\": [{\"evidence_id\": \"E1\", "
@@ -663,12 +666,40 @@ def _find_run(haystack: list, needle: list, start: int) -> int:
     return -1
 
 
+def _fragments(text: str) -> list:
+    """A quote's fragments: the parts an ellipsis or a line break separates.
+    [] when any fragment is a single word - one word grounds nothing."""
+    out = []
+    for part in text.replace("\u2026", "...").replace("\n", "...").split("..."):
+        words = _word_tokens(part)
+        if len(words) == 1:
+            return []
+        if words:
+            out.append(words)
+    return out
+
+
+def _runs_in_order(haystack: list, fragments: list) -> bool:
+    if len(fragments) == 0:
+        return False
+    position = 0
+    for words in fragments:
+        position = _find_run(haystack, words, position)
+        if position < 0:
+            return False
+    return True
+
+
 def _quote_grounded(quote: dict, eligible: list, texts) -> bool:
     """A quote grounds when its words occur in the cited document's verified
     bytes as contiguous runs in order - one run, or one per fragment when the
     quote elides with an ellipsis or joins lines with a newline. Every
     fragment needs at least two words. Nothing the document does not say can
-    pass."""
+    pass.
+
+    A model reading a structured document often reflows several of its lines
+    onto one and joins them with a comma, which is the same claim an ellipsis
+    makes. That is tried second, and held to exactly the same rule."""
     if quote["evidence_id"] not in eligible:
         return False
     if texts is None:
@@ -676,23 +707,12 @@ def _quote_grounded(quote: dict, eligible: list, texts) -> bool:
     source = texts.get(quote["evidence_id"])
     if source is None:
         return False
-    fragments = []
-    for part in quote["text"].replace("\u2026", "...").replace("\n", "...") \
-            .split("..."):
-        words = _word_tokens(part)
-        if len(words) == 1:
-            return False
-        if words:
-            fragments.append(words)
-    if len(fragments) == 0:
-        return False
     haystack = _word_tokens(source)
-    position = 0
-    for words in fragments:
-        position = _find_run(haystack, words, position)
-        if position < 0:
-            return False
-    return True
+    if _runs_in_order(haystack, _fragments(quote["text"])):
+        return True
+    if ", " not in quote["text"]:
+        return False
+    return _runs_in_order(haystack, _fragments(quote["text"].replace(", ", "...")))
 
 
 def _evidence_ref(value):

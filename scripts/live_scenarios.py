@@ -271,6 +271,13 @@ def expect(phase: dict, key: str, record: dict, verdict, low=None, high=None,
             f"{got['seller_bps']}")
 
 
+def find(findings: list, subject_id: str) -> dict:
+    for f in findings:
+        if f["id"] == subject_id:
+            return f
+    die("no finding for " + subject_id)
+
+
 def escrow_held(a: Actor) -> int:
     return int(a.read("health_check", [])["escrow_held_atto"])
 
@@ -325,8 +332,11 @@ def phase_a(ac: dict, raw: str):
           "the agreement does not hold the escrow")
     log(f"  escrow funded: {PRICE} atto")
 
+    # the first delivery is the machine record only: the run log and the
+    # upstream receipt. Nothing in it is of a category the third criterion
+    # names, so code marks that criterion UNVERIFIABLE before any model is
+    # asked, and the appeal has something real to change.
     delivery = items_of("BASE-OK", raw, only=(
-        "sources/delivery/enriched-dataset-summary.txt",
         "sources/logs/borealis-run-log.json",
         "sources/receipts/geocodex-receipt.json"))
     ids = commit_items(seller, agreement_id, delivery, "A:evidence")
@@ -334,20 +344,30 @@ def phase_a(ac: dict, raw: str):
         agreement_id, ids,
         "Delivered as agreed; three runs, all successful, 5,250 rows enriched."])
     buyer.write("A:dispute", "open_dispute", [
-        agreement_id, "The method report the criteria ask for is not in the delivery.", []])
+        agreement_id,
+        "There is no dataset summary and no method report: I cannot tell what "
+        "was delivered.", []])
 
     stranger.write("A:adjudicate", "request_adjudication", [agreement_id])
     first = buyer.read("get_latest_adjudication", [agreement_id])
-    expect(phase, "first_round", first, "PARTIALLY_FULFILLED", 4000, 9999,
+    expect(phase, "first_round", first, "PARTIALLY_FULFILLED", 0, 9999,
            decided_by="PANEL")
+    check(find(first["criteria"], "C3")["state"] == "UNVERIFIABLE",
+          "C3 has no evidence of its categories and must be UNVERIFIABLE by code")
+    check(find(first["criteria"], "C3")["by"] == "CODE", "C3 was decided by a model")
+    check(first["seller_bps"] < 10000, "a delivery missing a criterion paid in full")
     check(escrow_held(buyer) == held_before + PRICE,
           "an adjudication moved the escrow; it must not")
     phase["first_digest"] = first["record_digest"]
 
-    method = items_of("BASE-OK", raw, only=("sources/delivery/method-report.txt",))
-    new_ids = commit_items(seller, agreement_id, method, "A:appeal_evidence")
+    later = items_of("BASE-OK", raw, only=(
+        "sources/delivery/enriched-dataset-summary.txt",
+        "sources/delivery/method-report.txt"))
+    new_ids = commit_items(seller, agreement_id, later, "A:appeal_evidence")
     seller.write("A:appeal", "submit_appeal", [
-        agreement_id, "The method report was committed late; it answers C3.", new_ids])
+        agreement_id,
+        "The dataset summary and the method report were committed late; they "
+        "answer the criteria the first round could not read.", new_ids])
     appeal_id = T.setdefault("appeal_id", seller.read(
         "get_agreement", [agreement_id])["appeal_ids"][-1])
     save()

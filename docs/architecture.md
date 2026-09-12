@@ -85,10 +85,11 @@ Money moves later, and only through `_settle`: at `accept_delivery`, at
 `finalize_settlement` once the appeal window has closed, or on one of the four
 `claim_stalled_agreement` routes. `withdraw` is the only transfer.
 
-The panel is not convened when an allowed item could not be examined, when no
-examined item survives the code taints, or when nothing is left to ask. The
-record says which (`panel_state`, `panel_reason`), and a skipped panel never
-becomes anyone's fault - the criteria it would have judged stay UNVERIFIABLE.
+The panel is not convened when an allowed item could not be examined, or when
+no examined item survives the code taints (a third guard, "nothing left to
+ask", cannot fire today - see [consensus.md](consensus.md)). The record says
+which (`panel_state`, `panel_reason`), and a skipped panel never becomes
+anyone's fault: the criteria it would have judged stay UNVERIFIABLE.
 
 ## Single file
 

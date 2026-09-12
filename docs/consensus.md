@@ -120,7 +120,7 @@ validator compute it identically:
 |---|---|
 | `EVIDENCE_NOT_EXAMINED` | some allowed item was not examined; the round cannot be about the evidence, so no model is asked about it |
 | `NO_EXAMINED_EVIDENCE` | every examined item is tainted; there is nothing a panel could read |
-| `NOTHING_TO_ASSESS` | code already answered every criterion and indicator |
+| `NOTHING_TO_ASSESS` | code already answered every criterion and indicator. A guard rather than a state a round reaches today: the panel's indicators are fixed only when no evidence is eligible, and that case is answered one branch earlier |
 
 A skipped panel leaves its subjects UNVERIFIABLE or UNDETERMINED, which holds
 the escrow rather than settling on a guess. `MODEL_OUTPUT_INVALID` is the
@@ -140,6 +140,11 @@ A validator that raises propagates, which counts as disagreement. A leader
 error is never taken on trust: the validator reproduces the round first and
 only then compares.
 
+A round that cannot reach consensus costs nothing but time. The transaction
+fails, no adjudication is stored, the agreement stays DISPUTED and the escrow
+does not move - and anyone may ask again, with a different panel. That is the
+deliberate failure mode: a split panel never settles, and never strands.
+
 ## Direct Mode and what it proves
 
 `genlayer-test`'s direct runner exercises validator logic as well as the
@@ -154,3 +159,12 @@ several model families, and two of them can read the same evidence differently.
 That is what the panel is for, and the appeal path is the answer when a round
 comes back INCONCLUSIVE. The live run in `deploy/` is where the real panel is
 exercised.
+
+Nor does a minority disagreement end a round. GenLayer's own consensus decides
+that: in one recorded diagnostic round three validators ratified the leader
+while two read a criterion as NOT_SATISFIED where the leader had UNVERIFIABLE,
+and the round was accepted on the majority. A criterion's state is therefore
+what a majority of the panel agreed, not what every member would have said -
+and the rest of this design assumes exactly that much and no more: grounded
+quotes, a gate every node applies alone, and code that turns agreed findings
+into money.
