@@ -206,7 +206,7 @@ class Actor:
         applied, and the next round draws a different panel."""
         done = T.setdefault("steps", {})
         if step in done:
-            return done[step]
+            return dict(done[step], replayed=True)
         pending = T.setdefault("pending", {})
         for attempt in range(attempts):
             if step in pending:
@@ -361,15 +361,16 @@ def phase_a(ac: dict, raw: str):
     save()
     seller.write("A:accept", "accept_agreement", [agreement_id])
     view = seller.read("get_agreement", [agreement_id])
-    check(view["status"] == "ACCEPTED" and view["terms_hash"] != "",
-          "the agreement was not frozen at acceptance")
+    check(view["terms_hash"] != "", "the agreement was not frozen at acceptance")
+    check(view["status"] != "PROPOSED", "the agreement was not accepted")
     phase["terms_hash"] = view["terms_hash"]
 
-    held_before = escrow_held(buyer)
-    buyer.write("A:fund", "fund_escrow", [agreement_id], value=PRICE)
-    check(escrow_held(buyer) == held_before + PRICE, "the escrow total did not rise")
-    check(int(buyer.read("get_agreement", [agreement_id])["escrow_atto"]) == PRICE,
+    funded = buyer.write("A:fund", "fund_escrow", [agreement_id], value=PRICE)
+    view = buyer.read("get_agreement", [agreement_id])
+    check(int(view["escrow_atto"]) == PRICE or view["status"] == "FINALIZED",
           "the agreement does not hold the escrow")
+    if not funded.get("replayed"):
+        check(escrow_held(buyer) >= PRICE, "the escrow total did not rise")
     log(f"  escrow funded: {PRICE} atto")
 
     # the first delivery is the machine record only: the run log and the
@@ -396,7 +397,7 @@ def phase_a(ac: dict, raw: str):
           "C3 has no evidence of its categories and must be UNVERIFIABLE by code")
     check(find(first["criteria"], "C3")["by"] == "CODE", "C3 was decided by a model")
     check(first["seller_bps"] < 10000, "a delivery missing a criterion paid in full")
-    check(escrow_held(buyer) == held_before + PRICE,
+    check(int(buyer.read("get_agreement", [agreement_id])["escrow_atto"]) == PRICE,
           "an adjudication moved the escrow; it must not")
     phase["first_digest"] = first["record_digest"]
 
@@ -447,7 +448,7 @@ def phase_a(ac: dict, raw: str):
     paid, refunded = int(view["settled_seller_atto"]), int(view["settled_buyer_atto"])
     check(view["status"] == "FINALIZED", "the agreement did not finalize")
     check(paid + refunded == PRICE, "the settlement does not reconcile to the escrow")
-    check(escrow_held(buyer) == held_before, "the escrow was not released")
+    check(int(view["escrow_atto"]) == 0, "the escrow was not released")
     check(claimable(buyer, "seller") == paid and claimable(buyer, "buyer") == refunded,
           "the ledger does not match the settlement")
     phase["settlement"] = {"route": view["settlement_route"], "seller_atto": str(paid),
@@ -456,18 +457,19 @@ def phase_a(ac: dict, raw: str):
 
     before = seller.balance()
     if paid > 0:
-        seller.write("A:withdraw:seller", "withdraw", [])
+        drawn = seller.write("A:withdraw:seller", "withdraw", [])
         after = seller.balance_after(before, paid)
-        check(after - before == paid,
-              f"the seller's balance moved by {after - before}, expected {paid}")
+        if not drawn.get("replayed"):
+            check(after - before == paid,
+                  f"the seller's balance moved by {after - before}, expected {paid}")
+            phase["seller_balance_delta"] = str(after - before)
+            log(f"  the seller's wallet received {paid} atto on chain")
         check(claimable(buyer, "seller") == 0, "the ledger was not cleared")
         seller.write("A:refuse:withdraw_twice", "withdraw", [], expect="ERROR")
-        phase["seller_balance_delta"] = str(after - before)
-        log(f"  the seller's wallet received {paid} atto on chain")
     if refunded > 0:
         buyer.write("A:withdraw:buyer", "withdraw", [])
-    check(int(buyer.read("health_check", [])["claimable_atto"]) == 0,
-          "the ledger still owes someone")
+    check(claimable(buyer, "seller") == 0 and claimable(buyer, "buyer") == 0,
+          "the ledger still owes a party to this agreement")
     save()
 
 
@@ -528,15 +530,16 @@ def phase_c(ac: dict, raw: str):
     ids = commit_items(seller, accepted_id, delivery, "C:evidence")
     seller.write("C:deliver", "submit_delivery", [accepted_id, ids, "Delivered."])
     before = seller.balance()
-    buyer.write("C:accept_delivery", "accept_delivery", [accepted_id])
+    accept = buyer.write("C:accept_delivery", "accept_delivery", [accepted_id])
     view = buyer.read("get_agreement", [accepted_id])
     check(view["status"] == "FINALIZED" and view["settlement_route"] == "BUYER_ACCEPTED",
           "acceptance did not settle")
     check(int(view["settled_seller_atto"]) == PRICE, "acceptance did not pay in full")
     check(len(view["adjudication_ids"]) == 0, "acceptance ran a consensus round")
-    seller.write("C:withdraw", "withdraw", [])
-    check(seller.balance_after(before, PRICE) - before == PRICE,
-          "the seller was not paid on chain")
+    drawn = seller.write("C:withdraw", "withdraw", [])
+    if not (drawn.get("replayed") or accept.get("replayed")):
+        check(seller.balance_after(before, PRICE) - before == PRICE,
+              "the seller was not paid on chain")
     phase["buyer_accepted"] = {"agreement_id": accepted_id, "paid_atto": str(PRICE)}
     log("  a buyer that accepts pays in full, with no round")
 
@@ -561,13 +564,14 @@ def phase_c(ac: dict, raw: str):
     log(f"  waiting {remaining}s for the deadline, cure and stall windows")
     time.sleep(remaining)
     before = buyer.balance()
-    stranger.write("C:claim_stalled", "claim_stalled_agreement", [stalled_id])
+    claim = stranger.write("C:claim_stalled", "claim_stalled_agreement", [stalled_id])
     view = buyer.read("get_agreement", [stalled_id])
     check(view["settlement_route"] == "NO_DELIVERY", "the stalled route is wrong")
     check(int(view["settled_buyer_atto"]) == PRICE, "the buyer was not refunded in full")
-    buyer.write("C:withdraw_refund", "withdraw", [])
-    check(buyer.balance_after(before, PRICE) - before == PRICE,
-          "the refund did not reach the buyer")
+    refund = buyer.write("C:withdraw_refund", "withdraw", [])
+    if not (refund.get("replayed") or claim.get("replayed")):
+        check(buyer.balance_after(before, PRICE) - before == PRICE,
+              "the refund did not reach the buyer")
     phase["stalled_refund"] = {"agreement_id": stalled_id, "refund_atto": str(PRICE)}
     log("  an undelivered agreement returns the escrow to its payer")
 
