@@ -291,9 +291,16 @@ def test_the_gate_alone_refuses_forgeries(guard, direct_vm, mod, policy_id):
     assert len(over_cap) > mod.QUOTE_CAP
     for change in ("indicator", "panel_reason", "marker", "quote", "criterion_state",
                    "layer", "fixed_finding", "ineligible_id", "unread_scan",
-                   "long_quote", "too_many_quotes", "extra_key", "unsupported_finding"):
+                   "long_quote", "too_many_quotes", "extra_key", "unsupported_finding",
+                   "unquoted_decision", "dropped_fact"):
         forged = copy.deepcopy(honest)
-        if change == "indicator":
+        if change == "unquoted_decision":
+            # a criterion decided with nothing quoted to show it
+            subject(forged, "C1")["quotes"] = []
+        elif change == "dropped_fact":
+            # a structured item this node read, its facts left out
+            forged["facts"] = forged["facts"][1:]
+        elif change == "indicator":
             subject(forged, "DUPLICATE_EVIDENCE")["state"] = "PRESENT"
         elif change == "panel_reason":
             forged["panel_reason"] = "NOTHING_TO_ASSESS"
@@ -326,6 +333,32 @@ def test_the_gate_alone_refuses_forgeries(guard, direct_vm, mod, policy_id):
             subject(forged, "BUYER_WITHHELD_INPUT").update(
                 state="PRESENT", evidence_ids=["E1"],
                 quotes=[{"evidence_id": "E1", "text": grounded}])
+        assert mod._parse_payload(mod._canonical(forged), ctx, texts) is None, change
+
+
+def test_the_gate_alone_holds_rows_to_the_allowlist(guard, direct_vm, mod, policy_id):
+    """A row for an item outside the frozen prefixes says NOT_ALLOWED and
+    carries no bytes. A validator's own comparison would refuse either
+    forgery too; these pin the gate by itself, which is all that stands
+    between a ratified payload and the store."""
+    agreement_id = agreement(guard, direct_vm, policy_id)
+    deliver(guard, direct_vm, agreement_id, items=[
+        DELIVERY[0], DELIVERY[2],
+        ("API_RECEIPT", "impostor/geocodex-official-receipt.json", "Geocodex",
+         "the upstream receipt")])
+    dispute(guard, direct_vm, agreement_id)
+    adjudicate(guard, direct_vm, agreement_id, answer({
+        "C1": satisfied("E1", "Rows delivered: 5,250"),
+        "C2": satisfied("E2", "\"status\": \"SUCCEEDED\"")}))
+    ctx = captured_ctx(direct_vm)
+    honest = captured_payload(direct_vm)
+    texts = mod._node_round(ctx)[1]
+    assert honest["rows"][2]["status"] == "NOT_ALLOWED"
+    assert mod._parse_payload(mod._canonical(honest), ctx, texts) is not None
+    for change, row in (("reported_unreachable", {"status": "UNAVAILABLE"}),
+                        ("bytes_for_a_refused_item", {"byte_count": 412})):
+        forged = copy.deepcopy(honest)
+        forged["rows"][2].update(row)
         assert mod._parse_payload(mod._canonical(forged), ctx, texts) is None, change
 
 
@@ -541,6 +574,13 @@ def test_an_answer_is_normalized_to_what_the_evidence_allows(mod):
     state, ids, _quotes, _note = mod._normalize_answer(
         {"status": "satisfied"}, mod.CRITERION_STATES, ["E1"], SOURCE)
     assert state == "SATISFIED" and ids == []
+    # ids a model lists out of the pool's order come back in it: the gate
+    # refuses a finding whose ids are not, so the model's ordering would
+    # otherwise sink the leader's own payload
+    _state, ids, _quotes, _note = mod._normalize_answer(
+        {"state": "SATISFIED", "evidence_ids": ["E2", "E1"]}, mod.CRITERION_STATES,
+        ["E1", "E2"], SOURCE)
+    assert ids == ["E1", "E2"]
 
 
 def test_a_finding_may_not_rest_only_on_the_agent_it_favours(mod):

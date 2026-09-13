@@ -249,6 +249,11 @@ def test_note_cleaning_is_idempotent(mod):
         assert len(once) <= mod.NOTE_CAP
     assert mod._clean_note("line\nbreak\ttab") == "line break tab"
     assert mod._clean_note(None) == "" and mod._clean_note(17) == ""
+    # the cap landing exactly on a space - the live case - leaves no space behind
+    edge = "a" * (mod.NOTE_CAP - 1) + " tail"
+    once = mod._clean_note(edge)
+    assert once == "a" * (mod.NOTE_CAP - 1)
+    assert mod._clean_note(once) == once
 
 
 def test_scanners(mod):

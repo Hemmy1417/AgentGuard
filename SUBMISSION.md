@@ -88,7 +88,7 @@ five things a caller must get right.
 
 | Check | Command | Result |
 |---|---|---|
-| Direct Mode | `python -m pytest tests/direct -q` | 313 passed |
+| Direct Mode | `python -m pytest tests/direct -q` | 314 passed |
 | Preflight | `python scripts/preflight.py` | 47 checks, 0 failed |
 | GenVM validation | `genvm-lint check contracts/agentguard.py --json` | ok, 40 methods, 0 errors |
 | Lint | `ruff check .` | clean |
@@ -153,6 +153,6 @@ every validator re-grounds in its own bytes. Code then derives the fulfillment
 level, the verdict, both fault levels and the split, so no model output reaches
 an amount. It exposes settlement_status, get_adjudication and get_claimable for
 downstream contracts, and every state has a permissionless wall-clock exit.
-Verified with 313 Direct Mode tests on the official genlayer-test runner, GenVM
+Verified with 314 Direct Mode tests on the official genlayer-test runner, GenVM
 lint and SDK validation, a mutation sweep with an accept-control, StudioNet
 integration tests and a FINALIZED StudioNet deployment.

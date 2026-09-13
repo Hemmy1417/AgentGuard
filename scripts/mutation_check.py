@@ -495,7 +495,7 @@ MUTATIONS = [
     ("a quote below the minimum length is kept",
      "    if len(text) < QUOTE_MIN:\n        return None\n",
      "    if False:\n        return None\n"),
-    ("evidence ids outside the eligible pool are kept",
+    ("evidence ids are not put in the pool's order",
      "    return (state, [e for e in eligible if e in ids], quotes,\n",
      "    return (state, ids, quotes,\n"),
     ("a state outside the vocabulary is accepted",
