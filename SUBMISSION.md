@@ -12,15 +12,15 @@ escrow.
 
 **Repository** - https://github.com/Hemmy1417/AgentGuard
 
-**Canonical StudioNet address** - `0xbB846F3Cc63e0C8fCF138B9CF0e407202158c861`
+**Canonical StudioNet address** - `0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2`
 
-**Explorer URL** - https://explorer-studio.genlayer.com/address/0xbB846F3Cc63e0C8fCF138B9CF0e407202158c861
+**Explorer URL** - https://explorer-studio.genlayer.com/address/0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2
 (the Code tab shows the deployed source).
 
-**Deployment tx** - `0x55e19c406eb742ad830561af3053cd9ba07e7422bb4b95f82a7878920d449376`, FINALIZED, leader execution SUCCESS.
+**Deployment tx** - `0xe77a7f25ad51b29beafde1320b8c717014d29990eb3f9b43fd6f58d8d6c4b266`, FINALIZED, leader execution SUCCESS.
 
-**Deployment source** - `contracts/agentguard.py` at commit `0a28ae9`,
-sha256 `def6c97a70988f43012ff983cd9b4939f791931c9f9d7039ac5aa5cc11447b63`; the source read back with `gen_getContractCode` has the same
+**Deployment source** - `contracts/agentguard.py` at commit `e2853c7`,
+sha256 `c1a3580dd2583e7ed01ef7929ed9332b62086e07fdd9a20893f8155b79a5b4c7`; the source read back with `gen_getContractCode` has the same
 sha256 (`python scripts/deploy_studionet.py --verify`).
 
 ## Why GenLayer is required
@@ -69,8 +69,9 @@ whose answer could have changed the verdict produces a verdict that pays nobody
 and leaves the escrow in place. A held escrow is never stranded: every state
 that can hold funds has a permissionless wall-clock exit
 (`claim_stalled_agreement`) whose four routes are decided in advance, and an
-escrow never shown to be earned returns to the agent who paid it. Money moves in exactly two places - `fund_escrow` in, `withdraw` out - and
-`_settle` reverts unless the two allocations reconcile to the escrow exactly.
+escrow never shown to be earned returns to the agent who paid it. Money moves
+in exactly two places - `fund_escrow` in, `withdraw` out - and `_settle`
+reverts unless the two allocations reconcile to the escrow exactly.
 
 ## Reuse surface
 

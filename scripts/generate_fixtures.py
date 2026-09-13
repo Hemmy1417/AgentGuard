@@ -678,9 +678,13 @@ def cases() -> list:
                              "C3": met("E2", METHOD_QUOTE),
                              "C4": met("E5", "We sampled 200 rows of the delivered "
                                        "dataset")})),
+        # the method report is here so that C3 is plainly met: without it a
+        # panel split on whether the summary's one sentence of limitations was
+        # a method report, and the case is about the outage, not that
         case("A31", "OTHER",
              [("DELIVERABLE", "sources/delivery/partial-dataset-summary.txt", "seller",
                "Borealis", "the delivered summary"),
+              METHOD_REPORT,
               ("EXECUTION_LOG", "sources/logs/borealis-partial-log.json", "seller",
                "Runner Cloud", "the run log"),
               ("THIRD_PARTY_RECORD", "sources/thirdparty/dependency-outage-note.txt",
@@ -689,11 +693,10 @@ def cases() -> list:
              "a genuine outage of a declared dependency, evidenced by a record "
              "neither agent wrote: the policy's own share, not a fault finding",
              "PANEL", panel({"C1": met("E1", "Rows delivered: 2,100", "NOT_SATISFIED"),
-                             "C2": met("E2", '"status": "FAILED"', "NOT_SATISFIED"),
-                             "C3": met("E1", "The upstream endpoint began refusing "
-                                       "requests")},
+                             "C2": met("E3", '"status": "FAILED"', "NOT_SATISFIED"),
+                             "C3": met("E2", METHOD_QUOTE)},
                             {"EXTERNAL_DEPENDENCY_FAILED": flag(
-                                "E3", "returned 503 for all traffic between 02:05 and "
+                                "E4", "returned 503 for all traffic between 02:05 and "
                                 "19:40 UTC")})),
         case("A30", "AMBIGUOUS_CRITERIA_EXPLOIT",
              [DELIVERY_SUMMARY,

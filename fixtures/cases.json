@@ -2908,6 +2908,13 @@
           "description": "the delivered summary"
         },
         {
+          "category": "DELIVERABLE",
+          "path": "sources/delivery/method-report.txt",
+          "party": "seller",
+          "issuer": "Borealis",
+          "description": "the method report"
+        },
+        {
           "category": "EXECUTION_LOG",
           "path": "sources/logs/borealis-partial-log.json",
           "party": "seller",
@@ -2944,7 +2951,7 @@
             "state": "NOT_SATISFIED",
             "quotes": [
               {
-                "evidence_id": "E2",
+                "evidence_id": "E3",
                 "text": "\"status\": \"FAILED\""
               }
             ],
@@ -2954,8 +2961,8 @@
             "state": "SATISFIED",
             "quotes": [
               {
-                "evidence_id": "E1",
-                "text": "The upstream endpoint began refusing requests"
+                "evidence_id": "E2",
+                "text": "The enrichment ran in three passes"
               }
             ],
             "note": ""
@@ -2976,7 +2983,7 @@
             "state": "PRESENT",
             "quotes": [
               {
-                "evidence_id": "E3",
+                "evidence_id": "E4",
                 "text": "returned 503 for all traffic between 02:05 and 19:40 UTC"
               }
             ],

@@ -9,11 +9,11 @@ and `byte_identical`. The table below is filled from it at release, and
 
 | Item | Value |
 |---|---|
-| Contract | `0xbB846F3Cc63e0C8fCF138B9CF0e407202158c861` |
-| Explorer | https://explorer-studio.genlayer.com/address/0xbB846F3Cc63e0C8fCF138B9CF0e407202158c861 (the Code tab shows the deployed source) |
-| Deploy transaction | `0x55e19c406eb742ad830561af3053cd9ba07e7422bb4b95f82a7878920d449376` |
-| Status | `FINALIZED`, leader execution `SUCCESS`, validator votes `IDLE, AGREE, AGREE, AGREE, IDLE` |
-| Source | `contracts/agentguard.py` at commit `0a28ae9`, blob `8b0f94e`, sha256 `def6c97a...7b63` |
+| Contract | `0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2` |
+| Explorer | https://explorer-studio.genlayer.com/address/0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2 (the Code tab shows the deployed source) |
+| Deploy transaction | `0xe77a7f25ad51b29beafde1320b8c717014d29990eb3f9b43fd6f58d8d6c4b266` |
+| Status | `FINALIZED`, leader execution `SUCCESS`, validator votes `AGREE, AGREE, IDLE, AGREE, IDLE` |
+| Source | `contracts/agentguard.py` at commit `e2853c7`, blob `2b821ea`, sha256 `c1a3580d...b4c7` |
 | Source parity | the source read back with `gen_getContractCode` has the same sha256 (`python scripts/deploy_studionet.py --verify`) |
 | Signer | `0xDe156e827E6a6D65Da58f06EaeEbA2A57BC57E8c` |
 
@@ -22,7 +22,7 @@ file under `other_addresses`, with the reason. Read on 12 September 2026,
 every one of them reports `escrow_held_atto` 0 and `claimable_atto` 0 from
 `health_check`: nothing is held and nothing is owed.
 
-- Three **diagnostic** deployments (`deploy/diagnostics/`): disposable
+- Five **diagnostic** deployments (`deploy/diagnostics/`): disposable
   addresses used to see what real validators do with the panel-decided cases
   before a canonical deployment.
 - `0xF8bC4Da696306CF5874560469c8483793EC132Ff`, **superseded**: the live run's
