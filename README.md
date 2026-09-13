@@ -158,10 +158,45 @@ propose_agreement --> PROPOSED --accept_agreement--> ACCEPTED --fund_escrow--> F
 | Preflight | `python scripts/preflight.py` | 47 checks, 0 failed |
 | GenVM validation | `genvm-lint check contracts/agentguard.py --json` | ok, 40 methods, 0 errors (I200 informational) |
 | Lint | `ruff check .` | clean |
-| Mutation sweep | `python scripts/mutation_check.py --jobs 3` | (recorded in `deploy/`) |
+| Mutation sweep | `python scripts/mutation_check.py --jobs 3` | 190 mutations, 190 killed, 0 survived, with an accept-control; 11 equivalent mutants named with their reasons in the script (`deploy/mutation_sweep_885c7fa.txt`) |
 | Sample adjudication | `python scripts/run_direct_mode.py` | FULFILLED, 100/100, seller 400.00 GEN |
-| Integration (the deployment) | `AGENTGUARD_LIVE_WRITES=1 pytest tests/integration -v` | (recorded in `SUBMISSION.md`) |
-| Live run (the deployment) | `python scripts/live_scenarios.py <address> --raw-base ...` | (recorded in `deploy/live_scenarios_transcript.json`) |
+| Integration (the deployment) | `AGENTGUARD_LIVE_WRITES=1 pytest tests/integration -v` | 7 passed against `0x972AdCD7`, including one write through consensus |
+| Live run (the deployment) | `python scripts/live_scenarios.py <address> --raw-base ...` | 96 transactions, every asserted check held, 26 of 26 cases held (`deploy/live_scenarios_transcript.json`) |
+
+### On StudioNet, with real GEN
+
+Everything below is in `deploy/live_scenarios_transcript.json`, with every
+transaction hash, leader result and validator vote.
+
+- **The commerce arc.** The buyer escrowed 0.05 GEN
+  ([fund](https://explorer-studio.genlayer.com/tx/0x83ffdcd42f35033439d287ec7e600961958f44e77ef063f56f5d433e8164c4ae)).
+  The seller's first delivery was a run log and a receipt, and the first round
+  held the escrow as INSUFFICIENT_EVIDENCE: a log cannot show 5,000 delivered
+  rows, and too much weight was unverifiable. The seller appealed with the
+  summary and the method report, and the readjudication found every scored
+  criterion met, 100/100
+  ([readjudicate](https://explorer-studio.genlayer.com/tx/0xbe7d487f670a392ebe2a599f2455d0fc9653f785dc4c797c51d5839d7d889e26)).
+  An early finalization was refused; after the appeal window the agreement
+  settled
+  ([finalize](https://explorer-studio.genlayer.com/tx/0xf751c581bad609a6ddb7985629f8997e1cb9c1c5be3a185c16b508080445a9cb)),
+  and the seller's wallet balance rose by exactly 0.05 GEN when it withdrew
+  ([withdraw](https://explorer-studio.genlayer.com/tx/0x88490959b8aecf26a83d8bb70133e985e00f05197b07355bdc06c0801ebdc254)).
+  A second withdrawal was refused.
+- **The adversarial suite.** All 26 on-chain cases ran through the engine and
+  held: 25 decided by the panel, one by code. A17 held on its second run. Its
+  first run's agreement marked no criterion as needing the buyer's input, and
+  the panel's note said so exactly - "The agreement does not require buyer
+  input, so this indicator is not established." The case now records that
+  obligation in its terms; both runs are in the transcript.
+- **The other exits.** A buyer that accepted paid in full with no consensus
+  round
+  ([accept](https://explorer-studio.genlayer.com/tx/0x976ed5de840e998031be6411846a0f51112a01603060e0e83091566de2be7783)),
+  and a funded agreement that was never delivered returned the escrow to the
+  buyer once its windows passed
+  ([claim](https://explorer-studio.genlayer.com/tx/0xd4e932a3be812bde63883ad9c3cdecd9b9d67f75a995d9df418eae83d3e269b8)).
+  Both withdrawals moved exactly 0.05 GEN on chain, and 13 refusals held.
+- **Consensus.** 3 of 32 rounds stored nothing and were asked again (A08, A16
+  and A17's second run); the deployment this one superseded needed 11 of 38.
 
 ## Repository
 

@@ -92,19 +92,35 @@ five things a caller must get right.
 | Preflight | `python scripts/preflight.py` | 47 checks, 0 failed |
 | GenVM validation | `genvm-lint check contracts/agentguard.py --json` | ok, 40 methods, 0 errors |
 | Lint | `ruff check .` | clean |
-| Mutation sweep | `python scripts/mutation_check.py --jobs 3` | recorded in `deploy/` |
+| Mutation sweep | `python scripts/mutation_check.py --jobs 3` | 190 mutations, 190 killed, 0 survived, with an accept-control; 11 equivalent mutants named with their reasons in the script (`deploy/mutation_sweep_885c7fa.txt`) |
 | Sample adjudication | `python scripts/run_direct_mode.py` | FULFILLED, 100/100, seller 400.00 GEN |
-| Integration | `AGENTGUARD_LIVE_WRITES=1 pytest tests/integration -v` | recorded below |
-| Live run | `python scripts/live_scenarios.py <address> --raw-base ...` | recorded below |
+| Integration | `AGENTGUARD_LIVE_WRITES=1 pytest tests/integration -v` | 7 passed against the deployment, including one write through consensus |
+| Live run | `python scripts/live_scenarios.py <address> --raw-base ...` | 96 transactions, every asserted check held, 26 of 26 cases held |
 
 ## Live evidence
 
 `deploy/live_scenarios_transcript.json` holds every transaction hash, leader
-execution result and validator vote from the live run, together with what was
-asserted and what was recorded. The run covers the commerce arc with real GEN
-(agreement, escrow, delivery, dispute, adjudication, appeal, readjudication,
-finalization, withdrawal), the adversarial catalogue through the on-chain test
-engine, the buyer-acceptance and stalled-refund exits, and the refusals.
+execution result and validator vote from the live run on the deployment of
+record, with what was asserted and what was only recorded.
+
+- **Commerce arc, real GEN.** 0.05 GEN escrowed; a first delivery of a run log
+  and a receipt held as INSUFFICIENT_EVIDENCE; the seller's appeal with the
+  summary and method report readjudicated FULFILLED at 100/100; an early
+  finalization refused; settled after the appeal window; the seller's wallet
+  up exactly 0.05 GEN on withdrawal, and a second withdrawal refused.
+  Readjudication `0xbe7d487f670a392ebe2a599f2455d0fc9653f785dc4c797c51d5839d7d889e26`,
+  withdrawal `0x88490959b8aecf26a83d8bb70133e985e00f05197b07355bdc06c0801ebdc254`.
+- **Adversarial suite.** All 26 on-chain cases held through the engine, 25
+  decided by the panel and one by code. A17 held on its second run: on the
+  first, its agreement marked no criterion as needing the buyer's input, and
+  the panel found nothing the buyer was required to give. The case now
+  records that obligation; both runs are kept.
+- **Other exits.** Buyer acceptance paid in full with no consensus round, and
+  an undelivered agreement refunded the buyer once its windows passed; both
+  withdrawals moved exactly 0.05 GEN on chain, and 13 refusals held.
+- **Consensus.** 3 of 32 rounds stored nothing and were asked again; the
+  superseded deployment needed 11 of 38, before the grounding, fault-only
+  and excluded-text changes described in `docs/consensus.md`.
 
 ## Limitations
 

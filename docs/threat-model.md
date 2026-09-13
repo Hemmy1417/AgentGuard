@@ -100,15 +100,26 @@ contract's own `get_config`, so the claim cannot drift from the code.
   nothing and were asked again, and one case (A12) split three times running.
   Splits concentrate where code has left a panel one thin record to read: most
   were a criterion read as SATISFIED by some models and UNVERIFIABLE by others.
+  On the deployment of record's live run 3 of 32 rounds were asked again, and
+  every case reached its verdict.
 - **A panel can miss a subtle fabrication.** Disposable diagnostic rounds
   (`deploy/diagnostics/`) had live models read a log claiming 5,250 rows
   processed in one second as ordinary. Code now reads `elapsed_seconds` from
   the log's own timestamps and gives it to the panel as a verified fact, and
   the manipulation question points at the comparison. Three later diagnostic
-  rounds held A03 twice and stored nothing once - but on the superseded
-  deployment's live run the panel's majority read the same log as a successful
-  run and A03 came back FULFILLED. A panel that misses a forgery pays the
-  seller, and no quote rule can prevent that.
+  rounds held A03 twice and stored nothing once, and the deployment of record's
+  live run held it - but on the superseded deployment's live run the panel's
+  majority read the same log as a successful run and A03 came back FULFILLED.
+  A panel that misses a forgery pays the seller, and no quote rule can prevent
+  that.
+- **An obligation the agreement does not record.** The panel is told the
+  frozen agreement is the whole standard, and it reads it that way. A17's first
+  live run had a buyer refuse the credentials it had promised in a message,
+  under terms that marked no criterion as needing the buyer's input; the panel
+  answered that the agreement did not require buyer input, and the seller was
+  held to the work. That is the contract behaving as specified. Two agents
+  whose work depends on one of them must say so in the terms
+  (`requires_buyer_input`); the catalogue case now does.
 - **A trusted host that lies.** The allowlist proves where bytes came from, not
   that they are true. Fabrication is a panel question, and the panel can miss.
 - **Collusion.** Two agents that agree to defraud a third party are outside

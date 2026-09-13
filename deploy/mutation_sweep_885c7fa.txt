@@ -1,0 +1,387 @@
+190 mutations, 0 anchor problems
+accept-control: unmodified copy must pass ...
+control green; 190 mutations over 3 job(s)
+
+  [1/190] killed  : unreachable or changed source no longer SOURCE_UNAVAILABLE
+  [2/190] killed  : changed bytes no longer SOURCE_UNAVAILABLE
+  [3/190] killed  : oversized or malformed item no longer INCONCLUSIVE
+  [4/190] killed  : fabrication or injection no longer CONFLICTING_EVIDENCE
+  [5/190] killed  : a panel-found injection still settles
+  [6/190] killed  : no usable evidence still settles
+  [7/190] killed  : policy minimum evidence count ignored
+  [8/190] killed  : an undecided question no longer INCONCLUSIVE
+  [9/190] killed  : a withholding buyer is not recognized
+  [10/190] killed  : a failed dependency is not recognized
+  [11/190] killed  : an undecided fault-only question holds the escrow
+  [12/190] killed  : both agents at fault collapses to one
+  [13/190] killed  : unverifiable weight limit ignored
+  [14/190] killed  : a substituted service is not NOT_FULFILLED
+  [15/190] killed  : a holding verdict settles
+  [16/190] killed  : a buyer who moved the criteria bears no fault
+  [17/190] killed  : full threshold off by one
+  [18/190] killed  : partial threshold off by one
+  [19/190] killed  : optional criteria are scored
+  [20/190] killed  : unverifiable weight counted as satisfied
+  [21/190] killed  : the level rounds up
+  [22/190] killed  : a fulfilled delivery is paid less than the escrow
+  [23/190] killed  : the policy's floor at the partial threshold is ignored
+  [24/190] killed  : unverifiable weight does not lower confidence
+  [25/190] killed  : the buyer-non-cooperation share is ignored
+  [26/190] killed  : the external-failure share is ignored
+  [27/190] killed  : the partial share is not clamped to the whole escrow
+  [28/190] killed  : the not-fulfilled share is ignored
+  [29/190] killed  : a non-performing seller is paid
+  [30/190] killed  : the remainder of the division goes to the seller
+  [31/190] killed  : allocations need not reconcile to the escrow
+  [32/190] killed  : settlement does not close the agreement
+  [33/190] killed  : a negative allocation is allowed
+  [34/190] killed  : escrow accounting is not checked
+  [35/190] killed  : the escrow need not equal the agreed price
+  [36/190] killed  : the ledger is not cleared before the transfer
+  [37/190] killed  : an empty balance may be withdrawn
+  [38/190] killed  : any sender may act as the buyer
+  [39/190] killed  : any sender may act as the seller
+  [40/190] killed  : a stranger may act as a party
+  [41/190] killed  : the agreement state is not required
+  [42/190] killed  : an agreement may be accepted after its deadline
+  [43/190] killed  : the dispute window is not enforced
+  [44/190] killed  : the same bytes may be committed twice to one agreement
+  [45/190] killed  : the same location may be committed twice
+  [46/190] killed  : the evidence cap is off by one
+  [47/190] killed  : the seller may deliver the buyer's evidence
+  [48/190] killed  : a party may point at the other's evidence
+  [49/190] killed  : the seller may answer a dispute twice
+  [50/190] killed  : the appeal window is not enforced
+  [51/190] killed  : appeals are not capped by the policy
+  [52/190] killed  : an appeal may re-submit evidence the adjudication read
+  [53/190] killed  : an appellant may add the other agent's evidence
+  [54/190] killed  : an appeal may be heard twice
+  [55/190] killed  : a readjudication may run on a settled agreement
+  [56/190] killed  : settlement inside the appeal window
+  [57/190] killed  : settlement with an appeal waiting to be heard
+  [58/190] killed  : a stalled claim before the seller's time is up
+  [59/190] killed  : a stalled claim before the buyer's time is up
+  [60/190] killed  : a holding verdict is finalized
+  [61/190] killed  : a stalled claim while an adjudication can still be asked for
+  [62/190] killed  : a stalled claim before the appeal window has passed
+  [63/190] killed  : the policy's silence rule is ignored
+  [64/190] killed  : silence always pays the seller
+  [65/190] killed  : an unsettled adjudication pays the seller
+  [66/190] killed  : a stalled claim ignores a pending appeal
+  [67/190] killed  : a category the agreement does not source is allowed
+  [68/190] killed  : any location is trusted
+  [69/190] killed  : a live agreement is claimable as stalled
+  [70/190] killed  : an agent's own message is refused
+  [71/190] killed  : http locations accepted
+  [72/190] killed  : an agent's own message is treated as a trusted source
+  [73/190] killed  : credentials in a url accepted
+  [74/190] killed  : a port other than 443 accepted
+  [75/190] killed  : an IP literal host accepted
+  [76/190] killed  : localhost accepted
+  [77/190] killed  : an internal name accepted
+  [78/190] killed  : dot-segments accepted
+  [79/190] killed  : encoded separators accepted
+  [80/190] killed  : a url fragment accepted
+  [81/190] killed  : an item outside the allowlist is fetched
+  [82/190] killed  : booleans accepted as integers
+  [83/190] killed  : bytes read without the hash check
+  [84/190] killed  : oversized bytes are read
+  [85/190] killed  : a structured item that breaks its schema is still examined
+  [86/190] killed  : a float or a boolean passes as a structured fact
+  [87/190] killed  : error responses are read
+  [88/190] killed  : empty bytes are examined
+  [89/190] killed  : a test report whose parts do not sum is a fact
+  [90/190] killed  : a run finishing before it started is a fact
+  [91/190] killed  : a document declaring another type is read as its category
+  [92/190] killed  : injection markers are not scanned
+  [93/190] killed  : hidden text is not scanned
+  [94/190] killed  : hidden characters are not checked
+  [95/190] killed  : another agreement's paperwork is not noticed
+  [96/190] killed  : hidden styling is not checked
+  [97/190] killed  : a byte-order mark counts as hidden text
+  [98/190] killed  : duplicate evidence is not flagged
+  [99/190] killed  : stale evidence is not flagged
+  [100/190] killed  : a six-digit agreement id is not required
+  [101/190] killed  : facts about another agreement are not flagged
+  [102/190] killed  : a missed deadline is not flagged
+  [103/190] killed  : the cure period is not allowed for
+  [104/190] killed  : a tainted item may still satisfy a criterion
+  [105/190] killed  : an agreement's own earlier commitment is flagged
+  [106/190] killed  : a registry entry is overwritten by later committers
+  [107/190] killed  : absence is declared without examining every item
+  [108/190] killed  : a legitimately resold artifact is flagged as reuse
+  [109/190] killed  : the panel is convened on unexamined evidence
+  [110/190] killed  : a criterion with no readable evidence is left to the panel
+  [111/190] killed  : the evidence pool ignores the criterion's categories
+  [112/190] killed  : the panel is convened with no eligible evidence
+  [113/190] killed  : a decided criterion is accepted without a quote
+  [114/190] killed  : a finding may rest only on the agent it favours
+  [115/190] killed  : an indicator is accepted without meeting its quote rule
+  [116/190] killed  : support is accepted without any quoted item
+  [117/190] killed  : a quote from an ineligible item grounds
+  [118/190] killed  : a fault-only question is compared on its exact state
+  [119/190] killed  : an excluded item's text is shown to the panel
+  [120/190] killed  : an established fault is not compared
+  [121/190] killed  : findings are compared without their state
+  [122/190] killed  : every panel question is treated as fault-only
+  [123/190] killed  : a part the document does not have grounds
+  [124/190] killed  : elided parts may appear out of order
+  [125/190] killed  : a part is never sought as one run
+  [126/190] killed  : a reflowed quote is not held to the elision rule
+  [127/190] killed  : a one-word part grounds
+  [128/190] killed  : a quote with no words grounds
+  [129/190] killed  : joined lines may appear out of order
+  [130/190] killed  : a joined line the document does not have is skipped
+  [131/190] killed  : lines that follow each other in the document are not one run
+  [132/190] killed  : a one-word run of joined lines grounds
+  [133/190] killed  : the last run of joined lines may be one word
+  [134/190] killed  : an over-long quote is tried at one cut only
+  [135/190] killed  : a cut never steps back over a reflowed item
+  [136/190] killed  : an over-long quote is cut inside a word
+  [137/190] killed  : a quote below the minimum length is kept
+  [138/190] killed  : evidence ids are not put in the pool's order
+  [139/190] killed  : a state outside the vocabulary is accepted
+  [140/190] killed  : an answer with no sections is read as an answer
+  [141/190] killed  : note trimming is not idempotent
+  [142/190] killed  : the gate accepts extra or missing payload keys
+  [143/190] killed  : the gate accepts a payload bound to other terms
+  [144/190] killed  : the gate accepts a payload from another round
+  [145/190] killed  : the gate does not recheck rows against the allowlist
+  [146/190] killed  : the gate accepts a byte count for unverified bytes
+  [147/190] killed  : the gate accepts facts the node did not read
+  [148/190] killed  : the gate does not revalidate each fact
+  [149/190] killed  : the gate does not recompute the scans
+  [150/190] killed  : the gate does not recompute the panel decision
+  [151/190] killed  : the gate accepts an assessed panel where code skipped it
+  [152/190] killed  : the gate does not recompute the code indicators
+  [153/190] killed  : the gate does not re-ground quotes
+  [154/190] killed  : the gate accepts a decided criterion with no quote
+  [155/190] killed  : the gate accepts an indicator whose support rule fails
+  [156/190] killed  : the gate accepts findings outside the eligible pool
+  [157/190] killed  : the gate accepts a finding attributed to code
+  [158/190] killed  : the gate accepts fixed findings the panel rewrote
+  [159/190] killed  : the gate accepts skipped findings that differ
+  [160/190] killed  : the gate accepts a quote longer than the cap
+  [161/190] killed  : the gate accepts more quotes than the cap
+  [162/190] killed  : the gate accepts a finding whose keys differ
+  [163/190] killed  : a validator accepts a payload that fails the gate
+  [164/190] killed  : a validator does not compare its own round
+  [165/190] killed  : facts and scans are not compared
+  [166/190] killed  : row status and byte count are not compared
+  [167/190] killed  : finding states are not compared
+  [168/190] killed  : a model error no longer forces rotation
+  [169/190] killed  : any leader error is agreed with
+  [170/190] killed  : a leader error is agreed with without reproducing
+  [171/190] killed  : policy keys are not an exact set
+  [172/190] killed  : a partial threshold above the full threshold is accepted
+  [173/190] killed  : policy numbers are not bounded
+  [174/190] killed  : terms keys are not an exact set
+  [175/190] killed  : an instruction in the service description is accepted
+  [176/190] killed  : a criterion may name a category the agreement does not source
+  [177/190] killed  : a criterion may be judged on an agent's own words
+  [178/190] killed  : a category may be sourced from anywhere
+  [179/190] killed  : optional enhancements alone are a standard
+  [180/190] killed  : windows are not bounded
+  [181/190] killed  : the price is not bounded
+  [182/190] killed  : an agreement may bind a revoked policy
+  [183/190] killed  : an agent may contract with itself
+  [184/190] killed  : anyone may publish a policy version
+  [185/190] killed  : anyone may revoke a policy version
+  [186/190] killed  : a case may run twice
+  [187/190] killed  : a case passes whatever it observes
+  [188/190] killed  : a case ignores the expected share bounds
+  [189/190] killed  : anyone may replay a case onto another version
+  [190/190] killed  : a case may be replayed onto a revoked version
+
+killed:   unreachable or changed source no longer SOURCE_UNAVAILABLE
+killed:   changed bytes no longer SOURCE_UNAVAILABLE
+killed:   oversized or malformed item no longer INCONCLUSIVE
+killed:   no usable evidence still settles
+killed:   policy minimum evidence count ignored
+killed:   fabrication or injection no longer CONFLICTING_EVIDENCE
+killed:   a panel-found injection still settles
+killed:   an undecided question no longer INCONCLUSIVE
+killed:   an undecided fault-only question holds the escrow
+killed:   both agents at fault collapses to one
+killed:   a withholding buyer is not recognized
+killed:   a failed dependency is not recognized
+killed:   a substituted service is not NOT_FULFILLED
+killed:   unverifiable weight limit ignored
+killed:   full threshold off by one
+killed:   partial threshold off by one
+killed:   a holding verdict settles
+killed:   a buyer who moved the criteria bears no fault
+killed:   unverifiable weight does not lower confidence
+killed:   optional criteria are scored
+killed:   unverifiable weight counted as satisfied
+killed:   the level rounds up
+killed:   a fulfilled delivery is paid less than the escrow
+killed:   the partial share is not clamped to the whole escrow
+killed:   the policy's floor at the partial threshold is ignored
+killed:   the not-fulfilled share is ignored
+killed:   the buyer-non-cooperation share is ignored
+killed:   the external-failure share is ignored
+killed:   a non-performing seller is paid
+killed:   the remainder of the division goes to the seller
+killed:   allocations need not reconcile to the escrow
+killed:   a negative allocation is allowed
+killed:   escrow accounting is not checked
+killed:   settlement does not close the agreement
+killed:   the escrow need not equal the agreed price
+killed:   the ledger is not cleared before the transfer
+killed:   an empty balance may be withdrawn
+killed:   any sender may act as the buyer
+killed:   any sender may act as the seller
+killed:   a stranger may act as a party
+killed:   the agreement state is not required
+killed:   an agreement may be accepted after its deadline
+killed:   the dispute window is not enforced
+killed:   the same bytes may be committed twice to one agreement
+killed:   the same location may be committed twice
+killed:   the evidence cap is off by one
+killed:   the seller may deliver the buyer's evidence
+killed:   a party may point at the other's evidence
+killed:   the seller may answer a dispute twice
+killed:   the appeal window is not enforced
+killed:   appeals are not capped by the policy
+killed:   an appeal may re-submit evidence the adjudication read
+killed:   an appellant may add the other agent's evidence
+killed:   an appeal may be heard twice
+killed:   a readjudication may run on a settled agreement
+killed:   settlement inside the appeal window
+killed:   settlement with an appeal waiting to be heard
+killed:   a holding verdict is finalized
+killed:   a stalled claim before the seller's time is up
+killed:   a stalled claim before the buyer's time is up
+killed:   a stalled claim while an adjudication can still be asked for
+killed:   a stalled claim before the appeal window has passed
+killed:   the policy's silence rule is ignored
+killed:   silence always pays the seller
+killed:   an unsettled adjudication pays the seller
+killed:   a stalled claim ignores a pending appeal
+killed:   a live agreement is claimable as stalled
+killed:   a category the agreement does not source is allowed
+killed:   any location is trusted
+killed:   an agent's own message is treated as a trusted source
+killed:   an agent's own message is refused
+killed:   http locations accepted
+killed:   credentials in a url accepted
+killed:   a port other than 443 accepted
+killed:   an IP literal host accepted
+killed:   localhost accepted
+killed:   an internal name accepted
+killed:   dot-segments accepted
+killed:   encoded separators accepted
+killed:   a url fragment accepted
+killed:   booleans accepted as integers
+killed:   bytes read without the hash check
+killed:   an item outside the allowlist is fetched
+killed:   oversized bytes are read
+killed:   error responses are read
+killed:   empty bytes are examined
+killed:   a structured item that breaks its schema is still examined
+killed:   a float or a boolean passes as a structured fact
+killed:   a test report whose parts do not sum is a fact
+killed:   a run finishing before it started is a fact
+killed:   a document declaring another type is read as its category
+killed:   injection markers are not scanned
+killed:   hidden text is not scanned
+killed:   hidden characters are not checked
+killed:   hidden styling is not checked
+killed:   a byte-order mark counts as hidden text
+killed:   another agreement's paperwork is not noticed
+killed:   a six-digit agreement id is not required
+killed:   duplicate evidence is not flagged
+killed:   facts about another agreement are not flagged
+killed:   stale evidence is not flagged
+killed:   a missed deadline is not flagged
+killed:   the cure period is not allowed for
+killed:   absence is declared without examining every item
+killed:   a tainted item may still satisfy a criterion
+killed:   an agreement's own earlier commitment is flagged
+killed:   a registry entry is overwritten by later committers
+killed:   a legitimately resold artifact is flagged as reuse
+killed:   a criterion with no readable evidence is left to the panel
+killed:   the evidence pool ignores the criterion's categories
+killed:   the panel is convened on unexamined evidence
+killed:   the panel is convened with no eligible evidence
+killed:   a decided criterion is accepted without a quote
+killed:   an indicator is accepted without meeting its quote rule
+killed:   a finding may rest only on the agent it favours
+killed:   support is accepted without any quoted item
+killed:   a quote from an ineligible item grounds
+killed:   an excluded item's text is shown to the panel
+killed:   a fault-only question is compared on its exact state
+killed:   an established fault is not compared
+killed:   findings are compared without their state
+killed:   every panel question is treated as fault-only
+killed:   a part the document does not have grounds
+killed:   elided parts may appear out of order
+killed:   a part is never sought as one run
+killed:   a reflowed quote is not held to the elision rule
+killed:   a one-word part grounds
+killed:   a quote with no words grounds
+killed:   joined lines may appear out of order
+killed:   a joined line the document does not have is skipped
+killed:   lines that follow each other in the document are not one run
+killed:   a one-word run of joined lines grounds
+killed:   the last run of joined lines may be one word
+killed:   an over-long quote is tried at one cut only
+killed:   a cut never steps back over a reflowed item
+killed:   an over-long quote is cut inside a word
+killed:   a quote below the minimum length is kept
+killed:   evidence ids are not put in the pool's order
+killed:   a state outside the vocabulary is accepted
+killed:   an answer with no sections is read as an answer
+killed:   note trimming is not idempotent
+killed:   the gate accepts extra or missing payload keys
+killed:   the gate accepts a payload bound to other terms
+killed:   the gate accepts a payload from another round
+killed:   the gate does not recheck rows against the allowlist
+killed:   the gate accepts a byte count for unverified bytes
+killed:   the gate accepts facts the node did not read
+killed:   the gate does not revalidate each fact
+killed:   the gate does not recompute the scans
+killed:   the gate does not recompute the panel decision
+killed:   the gate accepts an assessed panel where code skipped it
+killed:   the gate does not recompute the code indicators
+killed:   the gate does not re-ground quotes
+killed:   the gate accepts a decided criterion with no quote
+killed:   the gate accepts an indicator whose support rule fails
+killed:   the gate accepts findings outside the eligible pool
+killed:   the gate accepts a finding attributed to code
+killed:   the gate accepts fixed findings the panel rewrote
+killed:   the gate accepts skipped findings that differ
+killed:   the gate accepts a quote longer than the cap
+killed:   the gate accepts more quotes than the cap
+killed:   the gate accepts a finding whose keys differ
+killed:   a validator accepts a payload that fails the gate
+killed:   a validator does not compare its own round
+killed:   facts and scans are not compared
+killed:   row status and byte count are not compared
+killed:   finding states are not compared
+killed:   a model error no longer forces rotation
+killed:   any leader error is agreed with
+killed:   a leader error is agreed with without reproducing
+killed:   policy keys are not an exact set
+killed:   a partial threshold above the full threshold is accepted
+killed:   policy numbers are not bounded
+killed:   terms keys are not an exact set
+killed:   an instruction in the service description is accepted
+killed:   a criterion may name a category the agreement does not source
+killed:   a criterion may be judged on an agent's own words
+killed:   a category may be sourced from anywhere
+killed:   optional enhancements alone are a standard
+killed:   windows are not bounded
+killed:   the price is not bounded
+killed:   an agreement may bind a revoked policy
+killed:   an agent may contract with itself
+killed:   anyone may publish a policy version
+killed:   anyone may revoke a policy version
+killed:   a case may run twice
+killed:   a case passes whatever it observes
+killed:   a case ignores the expected share bounds
+killed:   anyone may replay a case onto another version
+killed:   a case may be replayed onto a revoked version
+
+mutations: 190 killed, 0 survived, 0 anchor missing
