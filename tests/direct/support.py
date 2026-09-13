@@ -348,11 +348,20 @@ def case_items(entry: dict) -> list:
             for e in entry["evidence"]]
 
 
+def case_terms(entry: dict, policy_id: str = "SP-000001", base: str = BASE) -> dict:
+    """The terms a case's agreement froze: the demo terms, with the criteria
+    the case names as needing the buyer's own input marked so."""
+    terms = terms_definition(policy_id, base)
+    for criterion in terms["acceptance_criteria"]:
+        criterion["requires_buyer_input"] = criterion["criterion_id"] in entry["buyer_input"]
+    return terms
+
+
 def bundle_json(entry: dict, policy_id: str = "SP-000001", base: str = BASE) -> str:
     return json.dumps({
         "agreement_id": "AG-000001",          # the agreement a case simulates
         "buyer": wallet("buyer"), "seller": wallet("seller"),
-        "terms": terms_definition(policy_id, base),
+        "terms": case_terms(entry, policy_id, base),
         "evidence": [{"category": e["category"], "url": url_of(e["path"], base),
                       "sha256": item_sha(e["path"]), "issuer": e["issuer"],
                       "description": e["description"], "party": e["party"]}

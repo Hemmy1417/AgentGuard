@@ -414,9 +414,12 @@ ALL_MET = panel({"C1": met("E1", ROWS_QUOTE), "C2": met("E3", STATUS_QUOTE),
 
 def case(case_id, category, evidence, verdict, low, high, notes, decided_by="CODE",
          panel_answer=None, seller_says="", buyer_says="", onchain=True,
-         commerce=True):
+         commerce=True, buyer_input=()):
+    # buyer_input: the criteria this case's agreement says need the buyer's own
+    # input. The frozen terms are the whole standard, so a case about input the
+    # buyer withheld has to be an agreement that required it.
     return {"case_id": case_id, "attack_category": category, "notes": notes,
-            "commerce": commerce,
+            "commerce": commerce, "buyer_input": list(buyer_input),
             "evidence": [{"category": c, "path": p, "party": w, "issuer": i,
                           "description": d} for c, p, w, i, d in evidence],
             "seller_statement": seller_says, "buyer_claim": buyer_says,
@@ -599,7 +602,12 @@ def cases() -> list:
                          "credentials were never issued. We delivered what the "
                          "sample bucket allowed.",
              buyer_says="Only 2,100 of 5,000 rows arrived and there is no "
-                        "admin_region column. I want a refund."),
+                        "admin_region column. I want a refund.",
+             # the rows the enrichment reads are behind the buyer's staging
+             # credentials: without this the agreement asks nothing of the
+             # buyer, and a panel that reads it as the whole standard finds
+             # nothing withheld - which the live run did
+             buyer_input=("C1",)),
         case("A18", "BUYER_REFUSED_CONFIRMATION",
              [DELIVERY_SUMMARY, METHOD_REPORT, RUN_LOG,
               ("AGENT_MESSAGE", "messages/atlas-flat-rejection.txt", "buyer", "Atlas",

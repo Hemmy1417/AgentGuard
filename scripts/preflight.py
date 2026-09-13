@@ -200,8 +200,8 @@ def fixture_checks():
     cases = catalogue["cases"]
     ids = [c["case_id"] for c in cases]
     check("case ids are unique", len(ids) == len(set(ids)))
-    keys = ("case_id", "attack_category", "commerce", "notes", "evidence",
-            "seller_statement", "buyer_claim", "expected_verdict",
+    keys = ("case_id", "attack_category", "commerce", "buyer_input", "notes",
+            "evidence", "seller_statement", "buyer_claim", "expected_verdict",
             "expected_seller_bps_min", "expected_seller_bps_max", "decided_by",
             "panel_answer", "onchain")
     missing = [c["case_id"] for c in cases if any(k not in c for k in keys)]

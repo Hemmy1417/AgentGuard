@@ -10,7 +10,7 @@ import pytest
 
 from tests.direct.support import (
     CASES, CATALOGUE, COMMERCE_CASES, ONCHAIN_CASES, PRICE, agreement, answer_for, as_sender,
-    bundle_json, case_items, claimable, commit, dispute, finding, present,
+    bundle_json, case_items, case_terms, claimable, commit, dispute, finding, present,
     register_case, stage, warp)
 
 AFTER_APPEAL = "2026-09-16T12:00:01Z"
@@ -19,7 +19,8 @@ AFTER_APPEAL = "2026-09-16T12:00:01Z"
 def run_through_commerce(guard, direct_vm, policy_id, case_id):
     """A case as two agents would actually live it."""
     entry = CASES[case_id]
-    agreement_id = agreement(guard, direct_vm, policy_id)
+    agreement_id = agreement(guard, direct_vm, policy_id, acceptance_criteria=case_terms(
+        entry, policy_id)["acceptance_criteria"])
     seller_items = [i for i, e in zip(case_items(entry), entry["evidence"])
                     if e["party"] == "seller"]
     buyer_items = [i for i, e in zip(case_items(entry), entry["evidence"])
@@ -113,6 +114,11 @@ def test_a_buyer_moving_the_goalposts_is_recorded(guard, direct_vm, policy_id):
 
 
 def test_withheld_access_costs_the_buyer_not_the_seller(guard, direct_vm, policy_id):
+    # the premise is in the agreement itself: its first criterion needs the
+    # buyer's input. Without it a panel reading the terms as the whole
+    # standard finds nothing the buyer was required to give - as one did live
+    assert [c["criterion_id"] for c in case_terms(CASES["A17"], policy_id)[
+        "acceptance_criteria"] if c["requires_buyer_input"]] == ["C1"]
     agreement_id, record = run_through_commerce(guard, direct_vm, policy_id, "A17")
     assert record["verdict"] == "BUYER_NON_COOPERATION"
     assert record["buyer_fault_level"] == "FULL"

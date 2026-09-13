@@ -13,6 +13,7 @@
       "attack_category": "LEGITIMATE_BASELINE",
       "notes": "the honest delivery: every criterion met from the frozen sources",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -122,6 +123,7 @@
       "attack_category": "CLAIMED_DELIVERY_WITHOUT_DELIVERY",
       "notes": "the seller's own word is never a fact, so no criterion rests on it",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "AGENT_MESSAGE",
@@ -179,6 +181,7 @@
       "attack_category": "FALSE_REJECTION",
       "notes": "the buyer rejects after accepting in writing; the criteria are met and the buyer's own message says so",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -300,6 +303,7 @@
       "attack_category": "FABRICATED_EXECUTION_LOG",
       "notes": "a log claiming 5,250 rows in one second: the panel names it",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -380,6 +384,7 @@
       "attack_category": "SELECTIVE_AGREEMENT_QUOTE",
       "notes": "the buyer quotes half a criterion; the frozen text is the standard",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -489,6 +494,7 @@
       "attack_category": "PRESENT_BUT_UNUSABLE",
       "notes": "a file is present and unusable: delivery is not fulfillment",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -581,6 +587,7 @@
       "attack_category": "USEFUL_BUT_DIFFERENT_WORDING",
       "notes": "NDJSON instead of CSV, for a stated reason: a variation, not a breach",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -690,6 +697,7 @@
       "attack_category": "CRITERIA_CHANGED_AFTER_DELIVERY",
       "notes": "the buyer adds a requirement after delivery; it is not in the criteria, and the finding rests on the buyer's own message",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -811,6 +819,7 @@
       "attack_category": "SERVICE_CHANGED_AFTER_AGREEMENT",
       "notes": "a translation delivered where enrichment was agreed",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -901,6 +910,7 @@
       "attack_category": "DUPLICATE_DELIVERY_EVIDENCE",
       "notes": "the same bytes at two locations cannot make one delivery look like two; on the commerce path the second commitment is refused outright, so this case runs through the engine only",
       "commerce": false,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -983,6 +993,7 @@
       "attack_category": "EVIDENCE_FROM_ANOTHER_AGREEMENT",
       "notes": "a log from another job is excluded; the rest of the delivery counts",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -1075,6 +1086,7 @@
       "attack_category": "INJECTION_IN_WEBPAGE",
       "notes": "an instruction phrased to miss every marker; the panel must name it",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -1165,6 +1177,7 @@
       "attack_category": "HIDDEN_INSTRUCTIONS_IN_FILE",
       "notes": "a display:none instruction and a zero-width character exclude the file",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -1240,6 +1253,7 @@
       "attack_category": "POLICY_OVERRIDE_ATTEMPT",
       "notes": "an explicit instruction to mark it fulfilled: code excludes the file",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -1315,6 +1329,7 @@
       "attack_category": "SOURCE_IMPERSONATION",
       "notes": "a receipt claiming to be Geocodex, from a host the agreement never froze, is not fetched at all",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -1407,6 +1422,7 @@
       "attack_category": "FALSE_DEPENDENCY_BLAME",
       "notes": "the buyer blames the upstream API while the receipt shows it answered",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -1516,6 +1532,7 @@
       "attack_category": "SELLER_CAUSED_DEPENDENCY_FAILURE",
       "notes": "the seller revoked its own API key and blames the dependency; the receipt names the revocation and the status record shows no incident, so nothing excuses a delivery below the partial threshold",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -1625,6 +1642,9 @@
       "attack_category": "BUYER_WITHHELD_ACCESS",
       "notes": "the buyer withheld the staging credentials the work needed, and the delivery stops exactly where they were needed",
       "commerce": true,
+      "buyer_input": [
+        "C1"
+      ],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -1722,6 +1742,7 @@
       "attack_category": "BUYER_REFUSED_CONFIRMATION",
       "notes": "the buyer refuses to confirm and will not say what is wrong; nothing was withheld that the work needed, so the frozen criteria decide and the refusal costs the seller nothing",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -1831,6 +1852,7 @@
       "attack_category": "STALE_EVIDENCE",
       "notes": "a log from six months before the agreement proves nothing about it",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -1916,6 +1938,7 @@
       "attack_category": "DIVERGENT_SOURCE_CONTENT",
       "notes": "Direct Mode only: one validator is served different bytes and disagrees (test_consensus_equivalence.py)",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -2025,6 +2048,7 @@
       "attack_category": "UNSUPPORTED_LEADER_SETTLEMENT",
       "notes": "Direct Mode only: the payload carries no amount, and a forged criterion state is refused (test_consensus_equivalence.py)",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -2134,6 +2158,7 @@
       "attack_category": "UNSUPPORTED_VALIDATOR_VERDICT",
       "notes": "Direct Mode only: a validator reading a criterion differently disagrees rather than settling (test_consensus_equivalence.py)",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -2243,6 +2268,7 @@
       "attack_category": "PARTIAL_FULFILLMENT_DISAGREEMENT",
       "notes": "Direct Mode only: a split over partial fulfillment is preserved (test_consensus_equivalence.py)",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -2352,6 +2378,7 @@
       "attack_category": "ALLOCATION_EXCEEDS_ESCROW",
       "notes": "the seller's share is capped at the whole escrow and the two allocations reconcile exactly (test_settlement_bounds.py)",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -2461,6 +2488,7 @@
       "attack_category": "NUMERIC_ABUSE",
       "notes": "a negative, fractional item count makes the log unreadable, not zero",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -2491,6 +2519,7 @@
       "attack_category": "REPLAYED_SUBMISSION",
       "notes": "Direct Mode: a delivery, an acceptance and a settlement each happen once (test_agreement_validation.py, test_settlement_bounds.py)",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -2600,6 +2629,7 @@
       "attack_category": "APPEAL_AFTER_WINDOW",
       "notes": "Direct Mode: an appeal one second late is refused (test_appeals.py)",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -2709,6 +2739,7 @@
       "attack_category": "SELF_REFERENTIAL_EVIDENCE",
       "notes": "two of the seller's own messages, each citing the other, prove nothing",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "AGENT_MESSAGE",
@@ -2773,6 +2804,7 @@
       "attack_category": "LEGITIMATE_VARIATION",
       "notes": "the false-positive case: a reasonable variation, independently checked",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -2899,6 +2931,7 @@
       "attack_category": "OTHER",
       "notes": "a genuine outage of a declared dependency, evidenced by a record neither agent wrote: the policy's own share, not a fault finding",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
@@ -3013,6 +3046,7 @@
       "attack_category": "AMBIGUOUS_CRITERIA_EXPLOIT",
       "notes": "the seller files something called a method report that states no limitation at all: filing a document is not meeting the criterion that asks what it says",
       "commerce": true,
+      "buyer_input": [],
       "evidence": [
         {
           "category": "DELIVERABLE",
