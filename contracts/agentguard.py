@@ -501,6 +501,12 @@ def _iso_epoch(text):
     return _date_days(date) * 86400 + hour * 3600 + minute * 60 + second
 
 
+def _delivery_closes(terms: dict) -> int:
+    """The last second a delivery is accepted: the agreed deadline plus its
+    cure period. The buyer's refund route opens the second after."""
+    return _iso_epoch(terms["deadline"]) + terms["cure_period_seconds"]
+
+
 def _epoch_iso(seconds: int) -> str:
     days = seconds // 86400
     rest = seconds - days * 86400
@@ -1345,9 +1351,12 @@ def _code_indicators(ctx: dict, rows: list, facts: list, foreign: list,
     out.append(_per_item("DUPLICATE_EVIDENCE", duplicates, allowed, rows))
     out.append(_per_item("HIDDEN_TEXT", list(hidden), allowed, rows))
     out.append(_per_item("INJECTION_MARKER", list(markers), allowed, rows))
+    # A delivery past the cure period cannot exist (submit_delivery refuses it
+    # and the buyer's refund takes over), so what code records is a delivery
+    # that missed the deadline and arrived inside the cure period.
     late = []
     if ctx["delivered_at"] != "" and _iso_epoch(ctx["delivered_at"]) > \
-            _iso_epoch(ctx["terms"]["deadline"]) + ctx["terms"]["cure_period_seconds"]:
+            _iso_epoch(ctx["terms"]["deadline"]):
         late = [ctx["items"][0]["evidence_id"]] if ctx["items"] else []
     out.append(_finding("DEADLINE_MISSED", PRESENT if late else ABSENT, BY_CODE, late)
                if ctx["delivered_at"] != ""
@@ -2753,6 +2762,12 @@ class AgentGuard(gl.Contract):
         agreement = self._agreement(agreement_id)
         self._require_party(agreement, "seller")
         self._require_state(agreement, ("FUNDED",))
+        closes = _delivery_closes(self._terms_of(agreement))
+        if _iso_epoch(self._now()) > closes:
+            # the cure period is the only grace the agreement gave: past it the
+            # buyer's refund is due, and no delivery can race it
+            self._fail("the deadline and its cure period closed at " + _epoch_iso(closes)
+                       + "; no delivery is accepted, and the buyer's refund is due")
         err = _text_error(statement, STATEMENT_CAP, "statement", True)
         if err != "":
             self._fail(err)
@@ -2835,12 +2850,11 @@ class AgentGuard(gl.Contract):
         agreement.seller_counterclaim = statement
 
     def _round_items(self, agreement: Agreement, terms: dict) -> list:
-        items = []
-        ids = [str(e) for e in agreement.evidence_ids]
-        for i in range(len(ids)):
-            items.append(self._item_plain(self.evidence.get(ids[i]), terms,
-                                          "E" + str(i + 1)))
-        return items
+        return self._items_of([str(e) for e in agreement.evidence_ids], terms)
+
+    def _items_of(self, ids: list, terms: dict) -> list:
+        return [self._item_plain(self.evidence.get(ids[i]), terms, "E" + str(i + 1))
+                for i in range(len(ids))]
 
     @gl.public.write
     def request_adjudication(self, agreement_id: str) -> str:
@@ -2932,7 +2946,12 @@ class AgentGuard(gl.Contract):
         original = json.loads(str(self.adjudications.get(str(appeal.adjudication_id))))
         terms = self._terms_of(agreement)
         policy = self._policy_of(agreement)
-        items = self._round_items(agreement, terms)
+        # exactly the appealed round's evidence plus the items this appeal named
+        # and was authorised to add - never anything else committed since, by
+        # either party, that no appeal put before the panel
+        prior = [e["record_id"] for e in original["evidence"]]
+        added = [str(e) for e in appeal.new_evidence_ids]
+        items = self._items_of(prior + added, terms)
         now = self._now()
         adjudication_id = self._next_id("AD-", "adjudication_count")
         ctx = self._ctx(KIND_READJUDICATION, adjudication_id, agreement, terms, policy,
@@ -2941,6 +2960,7 @@ class AgentGuard(gl.Contract):
         _payload, outcome, record = self._adjudicate(ctx, now, KIND_READJUDICATION)
         record["appeal_of"] = str(appeal.adjudication_id)
         record["appeal_id"] = appeal_id
+        record["evidence_scope"] = {"prior": prior, "added": added}
         before = set(original["reason_codes"])
         after = set(record["reason_codes"])
         record["changes"] = {
@@ -2995,8 +3015,10 @@ class AgentGuard(gl.Contract):
         strand because a counterparty went quiet or an adjudication could not
         conclude. Each route is decided in advance, here, and recorded:
 
-        - funded, nothing delivered by the deadline, cure and stall windows:
-          the buyer is refunded in full;
+        - funded, nothing delivered by the deadline and its cure period: the
+          buyer is refunded in full, from the first second after the cure
+          period closes - the same instant submit_delivery stops accepting a
+          delivery, so the refund and a late delivery can never both happen;
         - delivered, and the buyer neither accepted nor disputed within the
           dispute and stall windows: the policy's silence rule decides - the
           seller is paid in full when it says silence is acceptance, and the
@@ -3016,9 +3038,9 @@ class AgentGuard(gl.Contract):
         escrow = int(agreement.escrow_atto)
         status = str(agreement.status)
         if status == "FUNDED":
-            due = _iso_epoch(terms["deadline"]) + terms["cure_period_seconds"] + stall
-            if at <= due:
-                self._fail("the seller still has time to deliver")
+            if at <= _delivery_closes(terms):
+                self._fail("the seller may still deliver until "
+                           + _epoch_iso(_delivery_closes(terms)))
             self._settle(agreement, 0, escrow, "NO_DELIVERY", now)
             return "SELLER_NON_PERFORMANCE"
         if status == "DELIVERED":
@@ -3483,8 +3505,7 @@ class AgentGuard(gl.Contract):
         if at is not None and not finalized:
             stall = terms["stall_window_seconds"]
             if status == "FUNDED":
-                stalled = at > _iso_epoch(terms["deadline"]) \
-                    + terms["cure_period_seconds"] + stall
+                stalled = at > _delivery_closes(terms)
             elif status == "DELIVERED":
                 stalled = at > _iso_epoch(str(agreement.delivered_at)) \
                     + terms["dispute_window_seconds"] + stall

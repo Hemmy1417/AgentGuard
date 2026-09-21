@@ -56,7 +56,7 @@ Proposed by the buyer (`propose_agreement`), accepted by the seller
 | `acceptance_criteria` | 1-10 criteria | how it will be judged (below) |
 | `price_atto` | 1 - 10^24 | the escrow, in atto-GEN |
 | `deadline` | ISO `YYYY-MM-DDTHH:MM:SSZ` | when delivery is due; must be in the future at both proposal and acceptance |
-| `cure_period_seconds` | 60 - 2592000 | grace after the deadline before delivery counts as late |
+| `cure_period_seconds` | 60 - 2592000 | the only grace after the deadline: a delivery inside it is accepted and recorded as late (`DEADLINE_MISSED`); after it no delivery is accepted and the buyer's refund opens |
 | `dispute_window_seconds` | 60 - 2592000 | how long the buyer has to accept or dispute after delivery |
 | `appeal_window_seconds` | 60 - 2592000 | how long either agent has to appeal an adjudication |
 | `stall_window_seconds` | 60 - 2592000 | the extra wall-clock wait before a stalled agreement can be claimed |

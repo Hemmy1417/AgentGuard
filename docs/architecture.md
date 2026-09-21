@@ -60,7 +60,9 @@ that names the one it answers.
 request_adjudication(agreement_id)            # permissionless, one round
   |
   |- code: status DISPUTED? terms and policy as frozen at assent
-  |- code: items = every evidence item committed to this agreement, each with
+  |- code: items = every evidence item committed to this agreement (a
+  |        readjudication: the appealed round's items plus exactly the ones
+  |        its appeal named), each with
   |        allowed/trusted from the agreement's own per-category prefixes
   |
   +- gl.vm.run_nondet_unsafe(leader_fn, validator_fn)

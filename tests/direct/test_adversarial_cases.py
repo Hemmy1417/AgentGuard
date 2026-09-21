@@ -160,25 +160,28 @@ def test_stale_and_foreign_logs_are_both_excluded(guard, direct_vm, policy_id):
         assert finding(record, "C2")["state"] == "UNVERIFIABLE", case_id
 
 
-def test_a_late_delivery_is_recorded_against_the_deadline(guard, direct_vm, policy_id):
-    """The deadline and the cure period the two agents agreed, applied by the
-    clock alone: a delivery inside the cure period is on time, and one past it
-    is recorded as missed - by code, whatever the panel says about the work."""
+def test_a_delivery_inside_the_cure_period_is_recorded_as_late(guard, direct_vm,
+                                                                policy_id):
+    """The deadline the two agents agreed, applied by the clock alone: a
+    delivery before it is on time; one after it but inside the cure period is
+    accepted and recorded as having missed the deadline - by code, whatever
+    the panel says about the work. A delivery past the cure period cannot be
+    made at all (see test_appeals)."""
     from tests.direct.support import adjudicate, answer, deliver, satisfied, warp
     one_criterion = answer({"C1": satisfied("E1", "Rows delivered: 5,250")})
     on_time = agreement(guard, direct_vm, policy_id)
-    warp(direct_vm, "2026-09-16T11:00:00Z")     # deadline + 23h; the cure period is 24h
+    warp(direct_vm, "2026-09-15T12:00:00Z")     # the deadline itself
     deliver(guard, direct_vm, on_time)
     dispute(guard, direct_vm, on_time)
     record = adjudicate(guard, direct_vm, on_time, one_criterion)
     assert finding(record, "DEADLINE_MISSED")["state"] == "ABSENT"
 
     warp(direct_vm, "2026-09-13T12:00:00Z")
-    late = agreement(guard, direct_vm, policy_id)
-    warp(direct_vm, "2026-09-16T12:00:01Z")     # one second past the cure period
-    deliver(guard, direct_vm, late)
-    dispute(guard, direct_vm, late)
-    record = adjudicate(guard, direct_vm, late, one_criterion)
+    cured = agreement(guard, direct_vm, policy_id)
+    warp(direct_vm, "2026-09-16T12:00:00Z")     # the last second of the cure period
+    deliver(guard, direct_vm, cured)
+    dispute(guard, direct_vm, cured)
+    record = adjudicate(guard, direct_vm, cured, one_criterion)
     assert finding(record, "DEADLINE_MISSED")["state"] == "PRESENT"
     assert finding(record, "DEADLINE_MISSED")["by"] == "CODE"
     assert "INDICATOR:DEADLINE_MISSED" in record["reason_codes"]

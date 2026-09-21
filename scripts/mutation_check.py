@@ -242,8 +242,20 @@ MUTATIONS = [
      "        if False:\n"
      "            self._fail(\"this adjudication does not settle (\" + record[\"verdict\"]\n"),
     ("a stalled claim before the seller's time is up",
-     "            if at <= due:\n                self._fail(\"the seller still has time to deliver\")\n",
-     "            if False:\n                self._fail(\"the seller still has time to deliver\")\n"),
+     "            if at <= _delivery_closes(terms):\n",
+     "            if False:\n"),
+    ("a delivery is accepted after the cure period",
+     "        if _iso_epoch(self._now()) > closes:\n",
+     "        if False:\n"),
+    ("the delivery window ignores the cure period",
+     "    return _iso_epoch(terms[\"deadline\"]) + terms[\"cure_period_seconds\"]\n",
+     "    return _iso_epoch(terms[\"deadline\"])\n"),
+    ("a readjudication reads every item committed since",
+     "        items = self._items_of(prior + added, terms)\n",
+     "        items = self._round_items(agreement, terms)\n"),
+    ("a readjudication drops what the appeal added",
+     "        items = self._items_of(prior + added, terms)\n",
+     "        items = self._items_of(prior, terms)\n"),
     ("a stalled claim before the buyer's time is up",
      "            if at <= due:\n"
      "                self._fail(\"the buyer still has time to accept or dispute\")\n",
@@ -385,9 +397,9 @@ MUTATIONS = [
     ("a missed deadline is not flagged",
      "    if ctx[\"delivered_at\"] != \"\" and _iso_epoch(ctx[\"delivered_at\"]) > \\\n",
      "    if False and _iso_epoch(ctx[\"delivered_at\"]) > \\\n"),
-    ("the cure period is not allowed for",
-     "            _iso_epoch(ctx[\"terms\"][\"deadline\"]) + ctx[\"terms\"][\"cure_period_seconds\"]:\n",
-     "            _iso_epoch(ctx[\"terms\"][\"deadline\"]):\n"),
+    ("a delivery inside the cure period is not recorded as late",
+     "            _iso_epoch(ctx[\"terms\"][\"deadline\"]):\n        late = [",
+     "            _iso_epoch(ctx[\"terms\"][\"deadline\"]) + ctx[\"terms\"][\"cure_period_seconds\"]:\n        late = ["),
     ("absence is declared without examining every item",
      "    if not all(e in examined for e in considered):\n"
      "        return _finding(name, UNDETERMINED, BY_CODE)\n",
@@ -782,7 +794,7 @@ def main() -> None:
         jobs = max(1, int(sys.argv[sys.argv.index("--jobs") + 1]))
 
     todo = [m for m in MUTATIONS
-            if source.count(m[1]) == 1 and (not only or only in m[0].casefold())]
+            if source.count(m[1]) == 1 and (not only or any(part in m[0].casefold() for part in only.split("|")))]
     jobs = min(jobs, max(1, len(todo)))
 
     scratch = pathlib.Path(tempfile.mkdtemp(prefix="agentguard-mut-"))

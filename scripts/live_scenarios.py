@@ -226,6 +226,11 @@ class Actor:
             record = {"step": step, "actor": self.name, "method": fn, "tx": tx,
                       "status": status_name(receipt), "leader_execution": result,
                       "votes": votes(receipt), "accepted": accepted(receipt)}
+            leader = receipt["consensus_data"]["leader_receipt"]
+            payload = (leader[0].get("result") or {}).get("payload") \
+                if isinstance(leader, list) else None
+            if payload is not None:
+                record["returned"] = str(payload)[:300]
             if value:
                 record["value_atto"] = str(value)
             log(f"    {record['status']} leader {result} votes {record['votes']}")
@@ -271,6 +276,11 @@ def items_of(case_id: str, raw: str, only=()) -> list:
              "issuer": e["issuer"], "description": e["description"], "party": e["party"],
              "path": e["path"]}
             for e in entry["evidence"] if not only or e["path"] in only]
+
+
+def plain_item(raw: str, category: str, path: str, issuer: str, description: str) -> dict:
+    return {"category": category, "url": raw + path, "sha256": sha(path), "issuer": issuer,
+            "description": description, "path": path}
 
 
 def commit_items(a: Actor, agreement_id: str, items: list, prefix: str) -> list:
@@ -406,6 +416,15 @@ def phase_a(ac: dict, raw: str):
               "an adjudication moved the escrow; it must not")
     phase["first_digest"] = first["record_digest"]
 
+    # items committed after the first round that no appeal names: one from each
+    # party. The readjudication must read the first round's items plus exactly
+    # the two the appeal names, and neither of these.
+    unnamed_buyer = commit_items(buyer, agreement_id, [plain_item(
+        raw, "ACCEPTANCE_MESSAGE", "sources/inbox/atlas-acceptance.txt", "Atlas",
+        "the buyer's acceptance note, named by no appeal")], "A:unnamed:buyer")
+    unnamed_seller = commit_items(seller, agreement_id, [plain_item(
+        raw, "DELIVERABLE", "sources/delivery/variation-summary.txt", "Borealis",
+        "a second summary, named by no appeal")], "A:unnamed:seller")
     later = items_of("BASE-OK", raw, only=(
         "sources/delivery/enriched-dataset-summary.txt",
         "sources/delivery/method-report.txt"))
@@ -422,6 +441,18 @@ def phase_a(ac: dict, raw: str):
                                          [agreement_id])["adjudication_ids"]]
     check(len(rounds) >= 2, "the readjudication was not stored")
     second = buyer.read("get_adjudication", [rounds[-1]])
+    prior = [e["record_id"] for e in first["evidence"]]
+    read = [e["record_id"] for e in second["evidence"]]
+    check(read == prior + new_ids,
+          f"the readjudication read {read}, not the first round's {prior} plus {new_ids}")
+    check(second["evidence_scope"] == {"prior": prior, "added": new_ids},
+          "the readjudication does not record its evidence scope")
+    check(not set(unnamed_buyer + unnamed_seller) & set(read),
+          "the readjudication read an item no appeal named")
+    phase["readjudication_scope"] = {"prior": prior, "added": new_ids,
+                                     "committed_but_unnamed": unnamed_buyer + unnamed_seller}
+    log(f"  the readjudication read {len(prior)} prior + {len(new_ids)} named items; "
+        f"{len(unnamed_buyer + unnamed_seller)} unnamed items were not read")
     expect(phase, "readjudication", second, "FULFILLED", 10000, 10000, decided_by="PANEL")
     phase["changes"] = second.get("changes")
     original = buyer.read("get_adjudication", [first["adjudication_id"]])
@@ -582,10 +613,20 @@ def phase_c(ac: dict, raw: str):
     buyer.write("C:fund_stalled", "fund_escrow", [stalled_id], value=PRICE)
     stranger.write("C:refuse:early_claim", "claim_stalled_agreement", [stalled_id],
                    expect="ERROR")
-    # the deadline, then the cure period, then the stall window
-    remaining = max(0, deadline_at + 2 * WINDOW + 20 - int(time.time()))
-    log(f"  waiting {remaining}s for the deadline, cure and stall windows")
+    late_ids = commit_items(seller, stalled_id, [plain_item(
+        raw, "DELIVERABLE", "sources/delivery/enriched-dataset-summary.txt", "Borealis",
+        "a delivery that arrives after the cure period")], "C:late_evidence")
+    # the deadline, then the cure period - and nothing after it: the refund opens
+    # the first second after the last second a delivery is accepted
+    remaining = max(0, deadline_at + WINDOW + 20 - int(time.time()))
+    log(f"  waiting {remaining}s for the deadline and the cure period")
     time.sleep(remaining)
+    late = seller.write("C:refuse:delivery_after_cure", "submit_delivery",
+                        [stalled_id, late_ids, "Delivered, a little late."], expect="ERROR")
+    check("cure period closed" in late.get("returned", ""),
+          f"a delivery after the cure period was refused for another reason: {late}")
+    check(buyer.read("get_agreement", [stalled_id])["status"] in ("FUNDED", "FINALIZED"),
+          "a delivery after the cure period changed the agreement")
     before = buyer.balance()
     claim = stranger.write("C:claim_stalled", "claim_stalled_agreement", [stalled_id])
     view = buyer.read("get_agreement", [stalled_id])
@@ -596,7 +637,43 @@ def phase_c(ac: dict, raw: str):
         check(buyer.balance_after(before, PRICE) - before == PRICE,
               "the refund did not reach the buyer")
     phase["stalled_refund"] = {"agreement_id": stalled_id, "refund_atto": str(PRICE)}
-    log("  an undelivered agreement returns the escrow to its payer")
+    log("  a delivery after the cure period was refused; the escrow returned to its payer")
+
+    # 2b. the mirror: delivered after the deadline but inside the cure period.
+    #     The delivery stands, the no-delivery refund is refused, and the buyer
+    #     settles it by accepting.
+    cure_deadline = T.setdefault("cure_deadline_at", int(time.time()) + 4 * WINDOW)
+    save()
+    buyer.write("C:propose_cure", "propose_agreement",
+                [WALLETS["seller"],
+                 terms_json(raw, deadline=time.strftime("%Y-%m-%dT%H:%M:%SZ",
+                                                        time.gmtime(cure_deadline)),
+                            cure_period_seconds=900)])
+    cure_id = T.setdefault("cure_id", buyer.read(
+        "list_agent_agreements", [WALLETS["buyer"], 0, 50])["items"][-1])
+    save()
+    seller.write("C:accept_cure", "accept_agreement", [cure_id])
+    buyer.write("C:fund_cure", "fund_escrow", [cure_id], value=PRICE)
+    cure_ids = commit_items(seller, cure_id, [plain_item(
+        raw, "DELIVERABLE", "sources/delivery/enriched-dataset-summary.txt", "Borealis",
+        "a delivery inside the cure period")], "C:cure_evidence")
+    remaining = max(0, cure_deadline + 20 - int(time.time()))
+    log(f"  waiting {remaining}s for the deadline to pass (the cure period runs 900s)")
+    time.sleep(remaining)
+    seller.write("C:deliver_in_cure", "submit_delivery",
+                 [cure_id, cure_ids, "Delivered after the deadline, inside the cure period."])
+    check(buyer.read("get_agreement", [cure_id])["status"] in ("DELIVERED", "FINALIZED"),
+          "a delivery inside the cure period was not accepted")
+    stranger.write("C:refuse:refund_after_cured_delivery", "claim_stalled_agreement",
+                   [cure_id], expect="ERROR")
+    buyer.write("C:accept_cured", "accept_delivery", [cure_id])
+    view = buyer.read("get_agreement", [cure_id])
+    check(view["settlement_route"] == "BUYER_ACCEPTED"
+          and int(view["settled_seller_atto"]) == PRICE,
+          "the cured delivery did not settle to the seller on acceptance")
+    seller.write("C:withdraw_cured", "withdraw", [])
+    phase["cured_delivery"] = {"agreement_id": cure_id, "route": view["settlement_route"]}
+    log("  a delivery inside the cure period stood, and the no-delivery refund was refused")
 
     # 3. the refusals
     seller.write("C:refuse:seller_disputes", "open_dispute",

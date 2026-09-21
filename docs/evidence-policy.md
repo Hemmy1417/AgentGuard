@@ -91,7 +91,7 @@ Six code indicators, each derived from bytes the node hashed itself:
 | `DUPLICATE_EVIDENCE` | two items in this agreement have the same sha256 |
 | `HIDDEN_TEXT` | zero-width or bidirectional control characters, or CSS that hides text (`display:none`, `opacity:0`, ...) |
 | `INJECTION_MARKER` | one of the literal marker phrases appears in the normalized text |
-| `DEADLINE_MISSED` | delivery arrived after the deadline plus the cure period |
+| `DEADLINE_MISSED` | the delivery arrived after the deadline, inside the cure period (a delivery after the cure period is refused by `submit_delivery`, and the buyer's refund takes over) |
 | `STALE_EVIDENCE` | a structured item's `as_of` is older than the policy's maximum age |
 
 Five of the six taint the items they name: a tainted item may not satisfy a

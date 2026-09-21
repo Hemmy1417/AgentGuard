@@ -123,7 +123,7 @@ Eight call sites reach it, and `scripts/preflight.py` asserts that count:
 |---|---|---|
 | `BUYER_ACCEPTED` | `accept_delivery` | the whole escrow to the seller, at once, with no consensus round - no panel is needed to agree with the agent who is paying |
 | `ADJUDICATED` | `finalize_settlement`, and the same route inside `claim_stalled_agreement` | the standing adjudication's own allocation |
-| `NO_DELIVERY` | `claim_stalled_agreement`, FUNDED past deadline + cure + stall | refund in full |
+| `NO_DELIVERY` | `claim_stalled_agreement`, FUNDED past deadline + cure - the first second after the last second `submit_delivery` accepts, so a late delivery and this refund can never both happen | refund in full |
 | `BUYER_SILENCE` | `claim_stalled_agreement`, DELIVERED past dispute + stall | the whole escrow to the seller when `silence_is_acceptance`, otherwise refund in full |
 | `NO_ADJUDICATION` | `claim_stalled_agreement`, DISPUTED past stall | refund in full |
 | `UNSETTLED_ADJUDICATION` | `claim_stalled_agreement`, ADJUDICATED with a holding verdict past appeal + stall | refund in full - an escrow never shown to be earned goes back to the agent who paid it |
@@ -150,8 +150,10 @@ to the second without changing the total.
 Either agent may appeal the standing adjudication inside its window, naming
 1-4 evidence items committed **after** that adjudication read the record, and
 only its own. `request_readjudication` hears it: the same frozen terms, the same
-policy version, the same escrow, the first round's evidence plus what the appeal
-added. The appealed record is never modified - the new one names it in
+policy version, the same escrow, and exactly the appealed round's evidence plus
+the items the appeal named - nothing else committed to the agreement since, by
+either party, is read (`evidence_scope` in the record lists both parts). The
+appealed record is never modified - the new one names it in
 `appeal_of` and carries a `changes` block with the verdict, level, bps and
 allocation before and after, the added evidence, and the reason codes gained
 and lost. The escrow has not moved at either point, so an appeal never has to

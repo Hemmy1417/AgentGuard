@@ -5,7 +5,7 @@ does, can it be filed after its window, and can the escrow ever strand?"""
 import pytest
 
 from tests.direct.support import (
-    FULL_ANSWER, PRICE, adjudicate, agreement, answer, as_sender, claimable,
+    DELIVERY, FULL_ANSWER, PRICE, adjudicate, agreement, answer, as_sender, claimable,
     commit, deliver, dispute, satisfied, setup, stage, wallet,
     warp)
 
@@ -70,6 +70,36 @@ def test_an_appeal_reopens_the_same_escrow_under_the_same_terms(guard, direct_vm
     assert guard.get_adjudication(original["adjudication_id"]) == original
     assert guard.get_appeal(appeal_id)["status"] == "HEARD"
     assert guard.get_latest_adjudication(agreement_id)["adjudication_id"] == new_id
+
+
+BUYER_NOTE = ("ACCEPTANCE_MESSAGE", "sources/inbox/atlas-acceptance.txt", "Atlas",
+              "the buyer's acceptance note")
+SECOND_OWN = ("DELIVERABLE", "sources/delivery/variation-summary.txt", "Borealis",
+              "a second summary the appeal does not name")
+
+
+def test_a_readjudication_reads_only_the_prior_evidence_and_the_appeals_own(
+        guard, direct_vm, policy_id):
+    """After the first round, the buyer commits an item and the seller commits
+    two; the seller's appeal names one of them. The readjudication reads the
+    appealed round's items plus exactly that one - neither the buyer's item
+    nor the seller's un-named one, although both belong to the agreement."""
+    agreement_id, original = adjudicated(guard, direct_vm, policy_id)
+    buyer_ids = commit(guard, direct_vm, agreement_id, [BUYER_NOTE], "buyer")
+    unnamed = commit(guard, direct_vm, agreement_id, [SECOND_OWN], "seller")
+    named = commit(guard, direct_vm, agreement_id, [VERIFIER], "seller")
+    as_sender(direct_vm, "seller")
+    appeal_id = guard.submit_appeal(agreement_id, "The checker confirms the runs.", named)
+    warp(direct_vm, "2026-09-14T12:00:00Z")
+    stage(direct_vm, APPEALED)
+    as_sender(direct_vm, "stranger")
+    new = guard.get_adjudication(guard.request_readjudication(appeal_id))
+    prior = [e["record_id"] for e in original["evidence"]]
+    read = [e["record_id"] for e in new["evidence"]]
+    assert read == prior + named
+    assert new["evidence_scope"] == {"prior": prior, "added": named}
+    assert not set(buyer_ids + unnamed) & set(read)
+    assert len(guard.get_agreement(agreement_id)["evidence_ids"]) == len(prior) + 3
 
 
 def test_the_readjudication_is_what_settles(guard, direct_vm, policy_id):
@@ -188,16 +218,58 @@ def test_a_readjudication_cannot_be_heard_twice(guard, direct_vm, policy_id):
 
 # -- the terminal exits ------------------------------------------------------------
 
-def test_no_delivery_by_the_deadline_refunds_the_buyer(guard, direct_vm, policy_id):
+CURE_CLOSES = "2026-09-16T12:00:00Z"            # deadline + the 24 h cure period
+AFTER_CURE = "2026-09-16T12:00:01Z"
+
+
+def test_no_delivery_by_the_cure_period_refunds_the_buyer(guard, direct_vm, policy_id):
+    """The refund opens the first second after the cure period closes - no
+    stall window in between, because nothing can arrive to change it."""
     agreement_id = agreement(guard, direct_vm, policy_id)
+    warp(direct_vm, CURE_CLOSES)
     as_sender(direct_vm, "stranger")
-    with direct_vm.expect_revert("seller still has time to deliver"):
+    with direct_vm.expect_revert("the seller may still deliver until 2026-09-16T12:00:00Z"):
         guard.claim_stalled_agreement(agreement_id)
-    warp(direct_vm, "2026-09-21T12:00:01Z")     # deadline + cure + stall
+    assert guard.settlement_status(agreement_id, CURE_CLOSES)["can_claim_stalled_now"] is False
+    warp(direct_vm, AFTER_CURE)
+    assert guard.settlement_status(agreement_id, AFTER_CURE)["can_claim_stalled_now"] is True
     assert guard.claim_stalled_agreement(agreement_id) == "SELLER_NON_PERFORMANCE"
     assert claimable(guard, "buyer") == PRICE
     assert claimable(guard, "seller") == 0
     assert guard.get_agreement(agreement_id)["settlement_route"] == "NO_DELIVERY"
+
+
+def test_a_delivery_after_the_cure_period_is_refused(guard, direct_vm, policy_id):
+    """The deadline and its cure period are consequential: one second past
+    them the seller cannot deliver, so a late delivery can never race the
+    buyer's refund. The escrow stays put until the refund is claimed."""
+    agreement_id = agreement(guard, direct_vm, policy_id)
+    ids = commit(guard, direct_vm, agreement_id, DELIVERY, "seller")
+    warp(direct_vm, AFTER_CURE)
+    as_sender(direct_vm, "seller")
+    with direct_vm.expect_revert("the deadline and its cure period closed at "
+                                 "2026-09-16T12:00:00Z"):
+        guard.submit_delivery(agreement_id, ids, "Here it is, a little late.")
+    assert guard.get_agreement(agreement_id)["status"] == "FUNDED"
+    as_sender(direct_vm, "stranger")
+    assert guard.claim_stalled_agreement(agreement_id) == "SELLER_NON_PERFORMANCE"
+    assert claimable(guard, "buyer") == PRICE
+
+
+def test_a_delivery_at_the_last_second_of_the_cure_period_closes_the_refund(
+        guard, direct_vm, policy_id):
+    """The mirror: a delivery at the last second of the cure period stands,
+    and the no-delivery refund is then unavailable - the agreement is
+    delivered, and only the delivered-agreement routes remain."""
+    agreement_id = agreement(guard, direct_vm, policy_id)
+    warp(direct_vm, CURE_CLOSES)
+    deliver(guard, direct_vm, agreement_id)
+    assert guard.get_agreement(agreement_id)["status"] == "DELIVERED"
+    warp(direct_vm, AFTER_CURE)
+    as_sender(direct_vm, "stranger")
+    with direct_vm.expect_revert("the buyer still has time to accept or dispute"):
+        guard.claim_stalled_agreement(agreement_id)
+    assert claimable(guard, "buyer") == 0
 
 
 def test_buyer_silence_pays_the_seller_when_the_policy_says_so(guard, direct_vm,
