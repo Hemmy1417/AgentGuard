@@ -1,0 +1,141 @@
+verifying the evidence host
+  verified 32 evidence locations against local bytes
+platform: 0xB14362e2456a80794338E4ffF589084afa40Db04
+buyer: 0x3A90A6b8dDBbAb7Bdba5EDfC63dEfb113bc0320c
+seller: 0x254074bfEa2C8BE3ab28EF9879EA639F1524c09a
+rival_buyer: 0x53369EA62e6F24B7F91B3EE8f42E989Fc0eF00A9
+rival_seller: 0x4E3D0295aa0514649182964bD698A76548503E25
+stranger: 0xC05Ed50f87D4d13CF5d41004009d72a999fa8820
+
+PHASE A - agreement, escrow, dispute, appeal, settlement (real GEN)
+  buyer.register_agent tx 0x305bc1baea96ed658c32ed6b10f4128991a483f23bc997050e9cff415073e616
+    rpc transient on eth_getTransactionByHash (1/8): Request to https://studio.genlayer.com/api failed: ('Connection aborted.', RemoteDisconnec; retry in 5s
+    FINALIZED leader SUCCESS votes ['IDLE', 'AGREE', 'AGREE', 'AGREE', 'IDLE']
+  seller.register_agent tx 0x028a84d6f570ed2028a502c83e928e6bae2ac3b381b78d4ca4e2a56c5fedf20d
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  platform.register_policy tx 0x195f08e6fab397c9024bdbdac838ae8b6e722680f8e0c6f2c5ea102b3ad7e2c2
+    FINALIZED leader SUCCESS votes ['IDLE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  buyer.propose_agreement tx 0x1c5a9965dee407af678b6271c41011a98008543b167a1f4d838581639b16c9e2
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  seller.accept_agreement tx 0x1dd04be13e0a66d9558afef976c9bbdda4c061f72d6f54ae67ddf0c9840e43d2
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'IDLE']
+  buyer.fund_escrow tx 0x08f81b0ae2428960f4184e163475bfff16e989b94f3ee006495b3288e5ec677c
+    rpc transient on eth_getTransactionByHash (1/8): Request to https://studio.genlayer.com/api failed: ('Connection aborted.', RemoteDisconnec; retry in 5s
+    FINALIZED leader SUCCESS votes ['AGREE', 'IDLE', 'AGREE', 'AGREE', 'AGREE']
+  escrow funded: 50000000000000000 atto
+  seller.submit_evidence tx 0xe5cd1a3cc6a056e9ad4ecbcb591dee61a24123277f03e4ee87ecd17336967393
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'IDLE']
+  seller.submit_evidence tx 0xe6397160804011a56d98083ba3948e533bcd84241f2a2edcd088a99281e64974
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'IDLE', 'AGREE', 'AGREE']
+  seller.submit_delivery tx 0x489b5fe97577c243910dd793b0f31835aea033ed80f58212d6a5c3eee8079b2a
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  buyer.open_dispute tx 0x36fd7c0e2ed2af1873d67df834678d506023a9fec75461af30e286105f239a41
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  stranger.request_adjudication tx 0x445bc41a49653f902403fe6c5a74747e07e14c1bfa8d26eae25769c6acd1b205
+    FINALIZED leader SUCCESS votes ['AGREE', 'IDLE', 'AGREE', 'AGREE', 'IDLE']
+  first_round: INSUFFICIENT_EVIDENCE 0 bps (PANEL) held=False
+  buyer.submit_evidence tx 0xbf1a5b3cc7ad37740f25aeb0dde5878fc2c2dd435fafb4f80c6360ff8ab3876a
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  seller.submit_evidence tx 0xf6c31d10a4a75b49f6c9f602cb77638c8e8712c21b28132852194858d85058a5
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  seller.submit_evidence tx 0x20f4e9a4f4a3ab681746a9b3a0aa79c0c489187c828be6d2414f55e569afa41f
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'IDLE', 'IDLE', 'AGREE']
+  seller.submit_evidence tx 0x58940d1a747b58b0d2208af308b1f90fba559d5ca84b456372b4dd659a760a72
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  seller.submit_appeal tx 0x27d8a8d493198d6c030b9e2a79d9b7ead3642645986fcef0c665481731614e72
+    FINALIZED leader SUCCESS votes ['IDLE', 'AGREE', 'AGREE', 'AGREE', 'IDLE']
+  stranger.request_readjudication tx 0x637d626c192b2fcfc3c2b1838bef5494f78c6301a37d5bd5dfdd35a7dd2206d8
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'IDLE', 'IDLE', 'AGREE']
+  the readjudication read 2 prior + 2 named items; 2 unnamed items were not read
+  readjudication: FULFILLED 10000 bps (PANEL) held=True
+  stranger.finalize_settlement tx 0xccdb09e664576112b1ac5b7d75d2ba2e7b161c790f8bfdfba0848d38a1d6fd4f
+    FINALIZED leader ERROR votes ['IDLE', 'IDLE', 'AGREE', 'AGREE', 'AGREE']
+  waiting 615s for the appeal window to close
+  stranger.finalize_settlement tx 0x1f97e9ebe59230f0d4fe8a52474055b07ab92c9ad62aa747395e1cf6ae36c3c2
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'IDLE', 'AGREE']
+  settled: seller 50000000000000000, buyer 0, route ADJUDICATED
+  seller.withdraw tx 0xc45132d200c01e03c37fbe528e63be26b70fb470ff46de03d457453dddd1ebd9
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  the seller's wallet received 50000000000000000 atto on chain
+  seller.withdraw tx 0x60b8c73c504fd1f26f7da095eafe392c338bdf0c33e754b6cdec3020259cf33a
+    FINALIZED leader ERROR votes ['AGREE', 'AGREE', 'IDLE', 'AGREE', 'IDLE']
+
+PHASE C - the other exits, and the refusals
+  buyer.propose_agreement tx 0x6b6ac0ca23dbf1a3dfefef8eca3d306aa033a9ded7add63fd2979f3663c4cb04
+    rpc transient on eth_getTransactionByHash (1/8): eth_getTransactionByHash returned invalid JSON: Expecting value: line 1 column 1 (char 0).; retry in 5s
+    FINALIZED leader SUCCESS votes ['IDLE', 'AGREE', 'AGREE', 'IDLE', 'AGREE']
+  seller.accept_agreement tx 0x01ef99e6c8b09b16f83c25dad4eb65b0477adb5b89c2d768eed79830211ce8d7
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  stranger.fund_escrow tx 0x9759c671bdc9e5b45dff10261ed5b7b648f72ed54d54f74f4d669cd49fb28b02
+    FINALIZED leader ERROR votes ['AGREE', 'AGREE', 'AGREE', 'IDLE', 'IDLE']
+  buyer.fund_escrow tx 0xd1085876d4fe504ce4fc754e80916ffa50853af4f4ddb18f4690f40fbf08ebd2
+    FINALIZED leader ERROR votes ['AGREE', 'AGREE', 'IDLE', 'AGREE', 'IDLE']
+  buyer.fund_escrow tx 0xdbfac31bfc5a9fe4e6498925171469d13e808dad2f7e3b5bdea35e58dcf3d21a
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  seller.submit_evidence tx 0x139e9d1d6cd6a2e39eacb6705625ad9fac289b5c80cfb3e5cd12626407b4c292
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  seller.submit_delivery tx 0x42c2cf2b2012959cc303d72f1d75ce2728b81915a91669c7b1307d13a62edaeb
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'IDLE', 'IDLE']
+  buyer.accept_delivery tx 0x3b99d058272201dac2d14d069a918de83e94c9c3af8875427c609516c22cc38b
+    FINALIZED leader SUCCESS votes ['IDLE', 'AGREE', 'IDLE', 'AGREE', 'AGREE']
+  seller.withdraw tx 0x0891b4dddd2d5400851f77f6e1e2352aeaaabbbeda7e8afc010d0c67bb9eb0f5
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'IDLE', 'IDLE']
+    rpc transient on eth_getBalance (1/8): eth_getBalance returned invalid JSON: Expecting value: line 1 column 1 (char 0). Response ; retry in 5s
+  a buyer that accepts pays in full, with no round
+  buyer.propose_agreement tx 0xf2ff64991530edfdd702d56f77aec534eb506585adede0cfeddfc452e07e8e55
+    FINALIZED leader SUCCESS votes ['AGREE', 'IDLE', 'IDLE', 'AGREE', 'AGREE']
+  seller.accept_agreement tx 0x0351b631609cf8e5601a6f33119c48adc71020d1fcc9e749d47deb1ded527f92
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'IDLE', 'AGREE']
+  buyer.fund_escrow tx 0x87f8f0dfb9125f74677da2c239ea03833562754b19fbb90f7dd426de46e57739
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  stranger.claim_stalled_agreement tx 0xa68f1138cc99d88b8986269e1cc7ab6502b6f9fbd5cc2aec1e64e9dcdef70925
+    FINALIZED leader ERROR votes ['IDLE', 'AGREE', 'AGREE', 'AGREE', 'IDLE']
+  seller.submit_evidence tx 0x406179734d0ea4593674914fd3a652607d5b8c7647d0b7c652c6b70f2cf101ab
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  waiting 111s for the deadline and the cure period
+  seller.submit_delivery tx 0x6b35b74d966a3549d189de924a4e45d38679e3e93a2ad6dec0d5aa05114fbbf4
+    FINALIZED leader ERROR votes ['IDLE', 'AGREE', 'AGREE', 'IDLE', 'AGREE']
+    rpc transient on eth_getTransactionReceipt (1/8): Request to https://studio.genlayer.com/api failed: ('Connection aborted.', RemoteDisconnec; retry in 5s
+    rpc transient on eth_getTransactionReceipt (2/8): Request to https://studio.genlayer.com/api failed: ('Connection aborted.', RemoteDisconnec; retry in 10s
+  stranger.claim_stalled_agreement tx 0x37c7118b011589228906038a0c01baf016d65e970e94e93f4587924fa72b789a
+    FINALIZED leader SUCCESS votes ['AGREE', 'IDLE', 'IDLE', 'AGREE', 'AGREE']
+  buyer.withdraw tx 0xd288054e650bdaf5fdf8f95e8160ccb97641cea44294bcc323629b07ea4dadda
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'IDLE', 'AGREE', 'IDLE']
+  a delivery after the cure period was refused; the escrow returned to its payer
+  buyer.propose_agreement tx 0x144f551f1f840820d855a47651334795c3e8f37445fcc1d179381c86eefaa01a
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  seller.accept_agreement tx 0xd7c4ed7d6bc37d67afd4c90fb3f9e065578c8589dc0bc63eed44f6304cec8bf2
+    FINALIZED leader SUCCESS votes ['IDLE', 'AGREE', 'IDLE', 'AGREE', 'AGREE']
+  buyer.fund_escrow tx 0xbb26562a695daca5d1692d8a1388ea018086712ae2d5afed191c8e090a6f748e
+    FINALIZED leader SUCCESS votes ['AGREE', 'IDLE', 'AGREE', 'IDLE', 'AGREE']
+  seller.submit_evidence tx 0x9bd2353893279b4106b6b1f6c1db4196e3fd3560138e705abae9b003cdc4b6db
+    FINALIZED leader SUCCESS votes ['AGREE', 'IDLE', 'AGREE', 'AGREE', 'IDLE']
+  waiting 90s for the deadline to pass (the cure period runs 900s)
+  seller.submit_delivery tx 0xaaad2c4ce0e0d5702d62415ff23fa02ebdb297b62d6d41389ca8cdc7098d710d
+    FINALIZED leader SUCCESS votes ['IDLE', 'IDLE', 'AGREE', 'AGREE', 'AGREE']
+  stranger.claim_stalled_agreement tx 0x79c376e730f17cb654cf0843578c1a4e01fbf43e5eb8330ef6c648aa095a3024
+    FINALIZED leader ERROR votes ['IDLE', 'AGREE', 'IDLE', 'AGREE', 'AGREE']
+  buyer.accept_delivery tx 0xd23d4e542bf62056707e28c1e46fe342c49b7e398f742dec4da27228ca33baba
+    FINALIZED leader SUCCESS votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  seller.withdraw tx 0x05b2ebe76d7fb5f388ab834ef580cf89f54a69847e09ff671abd0f83d289fcc9
+    FINALIZED leader SUCCESS votes ['IDLE', 'AGREE', 'AGREE', 'AGREE', 'IDLE']
+  a delivery inside the cure period stood, and the no-delivery refund was refused
+  seller.open_dispute tx 0xf8de74328febec73743d7525a551aa299dd037a530e3a3f504ada6d64e3dd5b9
+    FINALIZED leader ERROR votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  stranger.publish_policy_version tx 0xd43eab75fdbbc44bf1d1e5eece651f7c4c39e3e5ff055dba6ccab6d7053f0cc5
+    FINALIZED leader ERROR votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  buyer.propose_agreement tx 0x84c92e63cfa37e3344a94873437f643d5b0f3527dc15779df10834a598c19511
+    FINALIZED leader ERROR votes ['AGREE', 'AGREE', 'AGREE', 'IDLE', 'AGREE']
+  buyer.propose_agreement tx 0x8149ac7f89037c35b25ac87cc1d76be44c3a3d005a66d9ecd2948236ffdd33bb
+    FINALIZED leader ERROR votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  seller.register_agent tx 0xa7c98b71e5159153a9d5c550544beaf5945d1c42ac67a7fe32b5a8ed3a1861d7
+    FINALIZED leader ERROR votes ['AGREE', 'IDLE', 'IDLE', 'AGREE', 'AGREE']
+  seller.submit_evidence tx 0xf3195c4ae7d159d73f1307c06138c88c4591aa365723baabf3467740c43ead9e
+    FINALIZED leader ERROR votes ['IDLE', 'AGREE', 'AGREE', 'AGREE', 'IDLE']
+  seller.submit_evidence tx 0x335c0915a6e147a98e036c1d49ce40c15e0f9125ad5342d5b1a66664715c7780
+    FINALIZED leader ERROR votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  buyer.propose_agreement tx 0x744b08b89816c841f71b995495a9cc967e21015bb2f37c799147de593be4045b
+    FINALIZED leader ERROR votes ['AGREE', 'AGREE', 'AGREE', 'AGREE', 'AGREE']
+  13 refusals held
+
+DONE {"code": [], "panel_held": [], "panel_not_held": []} 54 transactions
