@@ -8,7 +8,7 @@ Two agents that have never met agree a service: what is to be done, how it will 
 
 No model output ever reaches an amount.
 
-Canonical deployment: [`0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2`](https://explorer-studio.genlayer.com/address/0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2) on GenLayer StudioNet, byte-identical to `contracts/agentguard.py` at commit `e2853c7` (see [`docs/deployment.md`](docs/deployment.md)).
+Canonical deployment: [`0xD67E15e75F434f7265a31eEf5dA47c6966ecF33c`](https://explorer-studio.genlayer.com/address/0xD67E15e75F434f7265a31eEf5dA47c6966ecF33c) on GenLayer StudioNet, byte-identical to `contracts/agentguard.py` at commit `c5dd0c4`. It answers the judge round of 21 September 2026 - [`docs/judge-round.md`](docs/judge-round.md).
 
 ## At a glance
 
@@ -160,10 +160,12 @@ propose_agreement --> PROPOSED --accept_agreement--> ACCEPTED --fund_escrow--> F
 | Lint | `ruff check .` | clean |
 | Mutation sweep | `python scripts/mutation_check.py --jobs 3` | 190 mutations, 190 killed, 0 survived, with an accept-control; 11 equivalent mutants named with their reasons in the script (`deploy/mutation_sweep_885c7fa.txt`) |
 | Sample adjudication | `python scripts/run_direct_mode.py` | FULFILLED, 100/100, seller 400.00 GEN |
-| Integration (the deployment) | `AGENTGUARD_LIVE_WRITES=1 pytest tests/integration -v` | 7 passed against `0x972AdCD7`, including one write through consensus |
-| Live run (the deployment) | `python scripts/live_scenarios.py <address> --raw-base ...` | 96 transactions, every asserted check held, 26 of 26 cases held (`deploy/live_scenarios_transcript.json`) |
+| Integration (the deployment) | `python -m pytest tests/integration -q` | 6 passed, 1 skipped (the opt-in live write) against `0xD67E15e7`; the superseded record passed 7 including the write |
+| Live run (the deployment) | `python scripts/live_scenarios.py <address> --raw-base ... --only A,C` | 54 transactions, every asserted check held, both judge-round fixes shown on chain ([`docs/judge-round.md`](docs/judge-round.md)); the 26-case suite and the arc below ran on the superseded record `0x972AdCD7` |
 
 ### On StudioNet, with real GEN
+
+The judge-round live run on `0xD67E15e75F434f7265a31eEf5dA47c6966ecF33c` is written up in [`docs/judge-round.md`](docs/judge-round.md). What follows is the live run on the superseded record `0x972AdCD7`, which exercised the same code apart from the two changes that round made.
 
 Everything below is in `deploy/live_scenarios_transcript.json`, with every
 transaction hash, leader result and validator vote.

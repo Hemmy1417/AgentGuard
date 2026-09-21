@@ -9,18 +9,21 @@ and `byte_identical`. The table below is filled from it at release, and
 
 | Item | Value |
 |---|---|
-| Contract | `0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2` |
-| Explorer | https://explorer-studio.genlayer.com/address/0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2 (the Code tab shows the deployed source) |
-| Deploy transaction | `0xe77a7f25ad51b29beafde1320b8c717014d29990eb3f9b43fd6f58d8d6c4b266` |
+| Contract | `0xD67E15e75F434f7265a31eEf5dA47c6966ecF33c` |
+| Explorer | https://explorer-studio.genlayer.com/address/0xD67E15e75F434f7265a31eEf5dA47c6966ecF33c (the Code tab shows the deployed source) |
+| Deploy transaction | `0xb362ac3098883e51d43faabf8239dae2ff501a91b5596232f470912135761762` |
 | Status | `FINALIZED`, leader execution `SUCCESS`, validator votes `AGREE, AGREE, IDLE, AGREE, IDLE` |
-| Source | `contracts/agentguard.py` at commit `e2853c7`, blob `2b821ea`, sha256 `c1a3580d...b4c7` |
+| Source | `contracts/agentguard.py` at commit `c5dd0c4`, blob `b8863c6`, sha256 `cedeff5f...ffde` |
 | Source parity | the source read back with `gen_getContractCode` has the same sha256 (`python scripts/deploy_studionet.py --verify`) |
 | Signer | `0xDe156e827E6a6D65Da58f06EaeEbA2A57BC57E8c` |
 
-Addresses that are **not** the deployment of record are listed in the same
+It replaced `0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2` after the judge round of 21
+September 2026 ([`judge-round.md`](judge-round.md)). Addresses that are **not** the deployment of record are listed in the same
 file under `other_addresses`, with the reason. Read on 12 September 2026,
 every one of them reports `escrow_held_atto` 0 and `claimable_atto` 0 from
-`health_check`: nothing is held and nothing is owed.
+`health_check`: nothing is held and nothing is owed. (The superseded record `0x972AdCD7` also reads 0 and 0, but its chain balance is
+49999999999999999 atto kept by StudioNet from a refused funding - see
+[`judge-round.md`](judge-round.md#one-further-finding-recorded-and-not-changed-here).)
 
 - Five **diagnostic** deployments (`deploy/diagnostics/`): disposable
   addresses used to see what real validators do with the panel-decided cases

@@ -1,0 +1,1190 @@
+{
+  "A": {
+    "agreement_id": "AG-000001",
+    "appealed_record_preserved": true,
+    "buyer_balance_before": "1800000000000000001",
+    "changes": {
+      "added_evidence": [
+        "EV-000005",
+        "EV-000006"
+      ],
+      "fulfillment_level": [
+        33,
+        100
+      ],
+      "payment_allocation_atto": [
+        "0",
+        "50000000000000000"
+      ],
+      "reason_codes_added": [
+        "CRITERION:C1:SATISFIED",
+        "CRITERION:C3:SATISFIED",
+        "LEVEL:100/100",
+        "SELLER_BPS:10000",
+        "UNDETERMINED:BUYER_CRITERIA_CHANGE",
+        "UNVERIFIABLE_WEIGHT:0%",
+        "VERDICT:FULFILLED"
+      ],
+      "reason_codes_removed": [
+        "CRITERION:C1:UNVERIFIABLE",
+        "CRITERION:C3:UNVERIFIABLE",
+        "ESCROW_HELD",
+        "LEVEL:33/100",
+        "SELLER_BPS:0",
+        "UNVERIFIABLE_WEIGHT:66%",
+        "VERDICT:INSUFFICIENT_EVIDENCE"
+      ],
+      "seller_bps": [
+        0,
+        10000
+      ],
+      "verdict": [
+        "INSUFFICIENT_EVIDENCE",
+        "FULFILLED"
+      ]
+    },
+    "first_digest": "c75d1b4e51dfab7ef1ba780d0c54be5320afd71cd1026aa4b84e34f97c5ec2ed",
+    "first_round": {
+      "decided_by": "PANEL",
+      "expected_seller_bps": [
+        0,
+        9999
+      ],
+      "expected_verdict": "PARTIALLY_FULFILLED",
+      "held": false,
+      "observed": {
+        "adjudication_id": "AD-000001",
+        "confidence": "MEDIUM",
+        "criteria": [
+          [
+            "C1",
+            "UNVERIFIABLE",
+            "PANEL"
+          ],
+          [
+            "C2",
+            "SATISFIED",
+            "PANEL"
+          ],
+          [
+            "C3",
+            "UNVERIFIABLE",
+            "CODE"
+          ],
+          [
+            "C4",
+            "NOT_APPLICABLE",
+            "CODE"
+          ]
+        ],
+        "escrow_atto": "50000000000000000",
+        "fulfillment_level": 33,
+        "kind": "ADJUDICATION",
+        "panel_reason": "",
+        "panel_state": "ASSESSED",
+        "payment_allocation_atto": "0",
+        "present": [],
+        "reason_codes": [
+          "CRITERION:C1:UNVERIFIABLE",
+          "CRITERION:C2:SATISFIED",
+          "CRITERION:C3:UNVERIFIABLE",
+          "CRITERION:C4:NOT_APPLICABLE",
+          "LEVEL:33/100",
+          "UNVERIFIABLE_WEIGHT:66%",
+          "ESCROW_HELD",
+          "SELLER_BPS:0",
+          "VERDICT:INSUFFICIENT_EVIDENCE"
+        ],
+        "refund_allocation_atto": "0",
+        "rows": [
+          [
+            "E1",
+            "EXAMINED"
+          ],
+          [
+            "E2",
+            "EXAMINED"
+          ]
+        ],
+        "seller_bps": 0,
+        "settleable": false,
+        "verdict": "INSUFFICIENT_EVIDENCE"
+      }
+    },
+    "readjudication": {
+      "decided_by": "PANEL",
+      "expected_seller_bps": [
+        10000,
+        10000
+      ],
+      "expected_verdict": "FULFILLED",
+      "held": true,
+      "observed": {
+        "adjudication_id": "AD-000002",
+        "confidence": "HIGH",
+        "criteria": [
+          [
+            "C1",
+            "SATISFIED",
+            "PANEL"
+          ],
+          [
+            "C2",
+            "SATISFIED",
+            "PANEL"
+          ],
+          [
+            "C3",
+            "SATISFIED",
+            "PANEL"
+          ],
+          [
+            "C4",
+            "NOT_APPLICABLE",
+            "CODE"
+          ]
+        ],
+        "escrow_atto": "50000000000000000",
+        "fulfillment_level": 100,
+        "kind": "READJUDICATION",
+        "panel_reason": "",
+        "panel_state": "ASSESSED",
+        "payment_allocation_atto": "50000000000000000",
+        "present": [],
+        "reason_codes": [
+          "CRITERION:C1:SATISFIED",
+          "CRITERION:C2:SATISFIED",
+          "CRITERION:C3:SATISFIED",
+          "CRITERION:C4:NOT_APPLICABLE",
+          "UNDETERMINED:BUYER_CRITERIA_CHANGE",
+          "LEVEL:100/100",
+          "UNVERIFIABLE_WEIGHT:0%",
+          "SELLER_BPS:10000",
+          "VERDICT:FULFILLED"
+        ],
+        "refund_allocation_atto": "0",
+        "rows": [
+          [
+            "E1",
+            "EXAMINED"
+          ],
+          [
+            "E2",
+            "EXAMINED"
+          ],
+          [
+            "E3",
+            "EXAMINED"
+          ],
+          [
+            "E4",
+            "EXAMINED"
+          ]
+        ],
+        "seller_bps": 10000,
+        "settleable": true,
+        "verdict": "FULFILLED"
+      }
+    },
+    "readjudication_scope": {
+      "added": [
+        "EV-000005",
+        "EV-000006"
+      ],
+      "committed_but_unnamed": [
+        "EV-000003",
+        "EV-000004"
+      ],
+      "prior": [
+        "EV-000001",
+        "EV-000002"
+      ]
+    },
+    "seller_balance_delta": "50000000000000000",
+    "settlement": {
+      "buyer_atto": "0",
+      "route": "ADJUDICATED",
+      "seller_atto": "50000000000000000"
+    },
+    "status_during_appeal_window": {
+      "appeal_window_open": true,
+      "can_claim_stalled_now": false,
+      "can_finalize_now": false,
+      "verdict": "FULFILLED"
+    },
+    "terms_hash": "86320f0b695e906e96b18f6f1d3cdd27a1bd07120644d2a56b9dcac20dde5077"
+  },
+  "C": {
+    "buyer_accepted": {
+      "agreement_id": "AG-000002",
+      "paid_atto": "50000000000000000"
+    },
+    "cured_delivery": {
+      "agreement_id": "AG-000004",
+      "route": "BUYER_ACCEPTED"
+    },
+    "refusals": [
+      "C:refuse:stranger_funds",
+      "C:refuse:wrong_price",
+      "C:refuse:early_claim",
+      "C:refuse:delivery_after_cure",
+      "C:refuse:refund_after_cured_delivery",
+      "C:refuse:seller_disputes",
+      "C:refuse:stranger_publishes",
+      "C:refuse:past_deadline",
+      "C:refuse:self_dealing",
+      "C:refuse:register_twice",
+      "C:refuse:same_bytes_twice",
+      "C:refuse:http_source",
+      "C:refuse:instruction_in_terms"
+    ],
+    "stalled_refund": {
+      "agreement_id": "AG-000003",
+      "refund_atto": "50000000000000000"
+    }
+  },
+  "accepted_id": "AG-000002",
+  "address": "0xD67E15e75F434f7265a31eEf5dA47c6966ecF33c",
+  "agreement_id": "AG-000001",
+  "appeal_id": "AP-000001",
+  "cure_deadline_at": 1790008423,
+  "cure_id": "AG-000004",
+  "finished_at": "2026-09-21T16:42:25Z",
+  "network": "studionet",
+  "pending": {},
+  "price_atto": "50000000000000000",
+  "raw_base": "https://raw.githubusercontent.com/Hemmy1417/AgentGuard/c5dd0c4e019424ddc570f50074d93ca02bf929d2/fixtures/",
+  "stalled_deadline_at": 1790007924,
+  "stalled_id": "AG-000003",
+  "steps": {
+    "A:accept": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "accept_agreement",
+      "returned": "{'readable': '\"86320f0b695e906e96b18f6f1d3cdd27a1bd07120644d2a56b9dcac20dde5077\"'}",
+      "status": "FINALIZED",
+      "step": "A:accept",
+      "tx": "0x1dd04be13e0a66d9558afef976c9bbdda4c061f72d6f54ae67ddf0c9840e43d2",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "A:adjudicate": {
+      "accepted": true,
+      "actor": "stranger",
+      "leader_execution": "SUCCESS",
+      "method": "request_adjudication",
+      "returned": "{'readable': '\"AD-000001\"'}",
+      "status": "FINALIZED",
+      "step": "A:adjudicate",
+      "tx": "0x445bc41a49653f902403fe6c5a74747e07e14c1bfa8d26eae25769c6acd1b205",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "A:appeal": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_appeal",
+      "returned": "{'readable': '\"AP-000001\"'}",
+      "status": "FINALIZED",
+      "step": "A:appeal",
+      "tx": "0x27d8a8d493198d6c030b9e2a79d9b7ead3642645986fcef0c665481731614e72",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "A:appeal_evidence:0": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_evidence",
+      "returned": "{'readable': '\"EV-000005\"'}",
+      "status": "FINALIZED",
+      "step": "A:appeal_evidence:0",
+      "tx": "0x20f4e9a4f4a3ab681746a9b3a0aa79c0c489187c828be6d2414f55e569afa41f",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE"
+      ]
+    },
+    "A:appeal_evidence:1": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_evidence",
+      "returned": "{'readable': '\"EV-000006\"'}",
+      "status": "FINALIZED",
+      "step": "A:appeal_evidence:1",
+      "tx": "0x58940d1a747b58b0d2208af308b1f90fba559d5ca84b456372b4dd659a760a72",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:deliver": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_delivery",
+      "returned": "{'readable': 'null'}",
+      "status": "FINALIZED",
+      "step": "A:deliver",
+      "tx": "0x489b5fe97577c243910dd793b0f31835aea033ed80f58212d6a5c3eee8079b2a",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:dispute": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "open_dispute",
+      "returned": "{'readable': 'null'}",
+      "status": "FINALIZED",
+      "step": "A:dispute",
+      "tx": "0x36fd7c0e2ed2af1873d67df834678d506023a9fec75461af30e286105f239a41",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:evidence:0": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_evidence",
+      "returned": "{'readable': '\"EV-000001\"'}",
+      "status": "FINALIZED",
+      "step": "A:evidence:0",
+      "tx": "0xe5cd1a3cc6a056e9ad4ecbcb591dee61a24123277f03e4ee87ecd17336967393",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "A:evidence:1": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_evidence",
+      "returned": "{'readable': '\"EV-000002\"'}",
+      "status": "FINALIZED",
+      "step": "A:evidence:1",
+      "tx": "0xe6397160804011a56d98083ba3948e533bcd84241f2a2edcd088a99281e64974",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:finalize": {
+      "accepted": true,
+      "actor": "stranger",
+      "leader_execution": "SUCCESS",
+      "method": "finalize_settlement",
+      "returned": "{'readable': '\"FULFILLED\"'}",
+      "status": "FINALIZED",
+      "step": "A:finalize",
+      "tx": "0x1f97e9ebe59230f0d4fe8a52474055b07ab92c9ad62aa747395e1cf6ae36c3c2",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ]
+    },
+    "A:fund": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "fund_escrow",
+      "returned": "{'readable': '\"50000000000000000\"'}",
+      "status": "FINALIZED",
+      "step": "A:fund",
+      "tx": "0x08f81b0ae2428960f4184e163475bfff16e989b94f3ee006495b3288e5ec677c",
+      "value_atto": "50000000000000000",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:policy": {
+      "accepted": true,
+      "actor": "platform",
+      "leader_execution": "SUCCESS",
+      "method": "register_policy",
+      "returned": "{'readable': '\"SP-000001\"'}",
+      "status": "FINALIZED",
+      "step": "A:policy",
+      "tx": "0x195f08e6fab397c9024bdbdac838ae8b6e722680f8e0c6f2c5ea102b3ad7e2c2",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:propose": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "propose_agreement",
+      "returned": "{'readable': '\"AG-000001\"'}",
+      "status": "FINALIZED",
+      "step": "A:propose",
+      "tx": "0x1c5a9965dee407af678b6271c41011a98008543b167a1f4d838581639b16c9e2",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:readjudicate": {
+      "accepted": true,
+      "actor": "stranger",
+      "leader_execution": "SUCCESS",
+      "method": "request_readjudication",
+      "returned": "{'readable': '\"AD-000002\"'}",
+      "status": "FINALIZED",
+      "step": "A:readjudicate",
+      "tx": "0x637d626c192b2fcfc3c2b1838bef5494f78c6301a37d5bd5dfdd35a7dd2206d8",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE"
+      ]
+    },
+    "A:refuse:early_finalize": {
+      "accepted": true,
+      "actor": "stranger",
+      "leader_execution": "ERROR",
+      "method": "finalize_settlement",
+      "returned": "[EXPECTED] the appeal window is still open",
+      "status": "FINALIZED",
+      "step": "A:refuse:early_finalize",
+      "tx": "0xccdb09e664576112b1ac5b7d75d2ba2e7b161c790f8bfdfba0848d38a1d6fd4f",
+      "votes": [
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:refuse:withdraw_twice": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "ERROR",
+      "method": "withdraw",
+      "returned": "[EXPECTED] nothing to withdraw",
+      "status": "FINALIZED",
+      "step": "A:refuse:withdraw_twice",
+      "tx": "0x60b8c73c504fd1f26f7da095eafe392c338bdf0c33e754b6cdec3020259cf33a",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "A:register:buyer": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "register_agent",
+      "returned": "{'readable': '\"0x3a90a6b8ddbbab7bdba5edfc63defb113bc0320c\"'}",
+      "status": "FINALIZED",
+      "step": "A:register:buyer",
+      "tx": "0x305bc1baea96ed658c32ed6b10f4128991a483f23bc997050e9cff415073e616",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "A:register:seller": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "register_agent",
+      "returned": "{'readable': '\"0x254074bfea2c8be3ab28ef9879ea639f1524c09a\"'}",
+      "status": "FINALIZED",
+      "step": "A:register:seller",
+      "tx": "0x028a84d6f570ed2028a502c83e928e6bae2ac3b381b78d4ca4e2a56c5fedf20d",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:unnamed:buyer:0": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "submit_evidence",
+      "returned": "{'readable': '\"EV-000003\"'}",
+      "status": "FINALIZED",
+      "step": "A:unnamed:buyer:0",
+      "tx": "0xbf1a5b3cc7ad37740f25aeb0dde5878fc2c2dd435fafb4f80c6360ff8ab3876a",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:unnamed:seller:0": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_evidence",
+      "returned": "{'readable': '\"EV-000004\"'}",
+      "status": "FINALIZED",
+      "step": "A:unnamed:seller:0",
+      "tx": "0xf6c31d10a4a75b49f6c9f602cb77638c8e8712c21b28132852194858d85058a5",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "A:withdraw:seller": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "withdraw",
+      "returned": "{'readable': '\"50000000000000000\"'}",
+      "status": "FINALIZED",
+      "step": "A:withdraw:seller",
+      "tx": "0xc45132d200c01e03c37fbe528e63be26b70fb470ff46de03d457453dddd1ebd9",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:accept": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "accept_agreement",
+      "returned": "{'readable': '\"2f135c07ac978b8fca2f76d60da0483d95b99deeff253a6db5ee8012b172c8ac\"'}",
+      "status": "FINALIZED",
+      "step": "C:accept",
+      "tx": "0x01ef99e6c8b09b16f83c25dad4eb65b0477adb5b89c2d768eed79830211ce8d7",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:accept_cure": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "accept_agreement",
+      "returned": "{'readable': '\"266a4753a9f66c5bd042618795f3c9b32e5f4f81e7d041fbf6aa21722351e20b\"'}",
+      "status": "FINALIZED",
+      "step": "C:accept_cure",
+      "tx": "0xd7c4ed7d6bc37d67afd4c90fb3f9e065578c8589dc0bc63eed44f6304cec8bf2",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:accept_cured": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "accept_delivery",
+      "returned": "{'readable': '\"50000000000000000\"'}",
+      "status": "FINALIZED",
+      "step": "C:accept_cured",
+      "tx": "0xd23d4e542bf62056707e28c1e46fe342c49b7e398f742dec4da27228ca33baba",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:accept_delivery": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "accept_delivery",
+      "returned": "{'readable': '\"50000000000000000\"'}",
+      "status": "FINALIZED",
+      "step": "C:accept_delivery",
+      "tx": "0x3b99d058272201dac2d14d069a918de83e94c9c3af8875427c609516c22cc38b",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:accept_stalled": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "accept_agreement",
+      "returned": "{'readable': '\"1dba15895ea35eb24bae7e5f1dc38e7dc6662cdeb015189a1af02dc886d95913\"'}",
+      "status": "FINALIZED",
+      "step": "C:accept_stalled",
+      "tx": "0x0351b631609cf8e5601a6f33119c48adc71020d1fcc9e749d47deb1ded527f92",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ]
+    },
+    "C:claim_stalled": {
+      "accepted": true,
+      "actor": "stranger",
+      "leader_execution": "SUCCESS",
+      "method": "claim_stalled_agreement",
+      "returned": "{'readable': '\"SELLER_NON_PERFORMANCE\"'}",
+      "status": "FINALIZED",
+      "step": "C:claim_stalled",
+      "tx": "0x37c7118b011589228906038a0c01baf016d65e970e94e93f4587924fa72b789a",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:cure_evidence:0": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_evidence",
+      "returned": "{'readable': '\"EV-000009\"'}",
+      "status": "FINALIZED",
+      "step": "C:cure_evidence:0",
+      "tx": "0x9bd2353893279b4106b6b1f6c1db4196e3fd3560138e705abae9b003cdc4b6db",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "C:deliver": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_delivery",
+      "returned": "{'readable': 'null'}",
+      "status": "FINALIZED",
+      "step": "C:deliver",
+      "tx": "0x42c2cf2b2012959cc303d72f1d75ce2728b81915a91669c7b1307d13a62edaeb",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE"
+      ]
+    },
+    "C:deliver_in_cure": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_delivery",
+      "returned": "{'readable': 'null'}",
+      "status": "FINALIZED",
+      "step": "C:deliver_in_cure",
+      "tx": "0xaaad2c4ce0e0d5702d62415ff23fa02ebdb297b62d6d41389ca8cdc7098d710d",
+      "votes": [
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:evidence:0": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_evidence",
+      "returned": "{'readable': '\"EV-000007\"'}",
+      "status": "FINALIZED",
+      "step": "C:evidence:0",
+      "tx": "0x139e9d1d6cd6a2e39eacb6705625ad9fac289b5c80cfb3e5cd12626407b4c292",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:fund": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "fund_escrow",
+      "returned": "{'readable': '\"50000000000000000\"'}",
+      "status": "FINALIZED",
+      "step": "C:fund",
+      "tx": "0xdbfac31bfc5a9fe4e6498925171469d13e808dad2f7e3b5bdea35e58dcf3d21a",
+      "value_atto": "50000000000000000",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:fund_cure": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "fund_escrow",
+      "returned": "{'readable': '\"50000000000000000\"'}",
+      "status": "FINALIZED",
+      "step": "C:fund_cure",
+      "tx": "0xbb26562a695daca5d1692d8a1388ea018086712ae2d5afed191c8e090a6f748e",
+      "value_atto": "50000000000000000",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ]
+    },
+    "C:fund_stalled": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "fund_escrow",
+      "returned": "{'readable': '\"50000000000000000\"'}",
+      "status": "FINALIZED",
+      "step": "C:fund_stalled",
+      "tx": "0x87f8f0dfb9125f74677da2c239ea03833562754b19fbb90f7dd426de46e57739",
+      "value_atto": "50000000000000000",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:late_evidence:0": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "submit_evidence",
+      "returned": "{'readable': '\"EV-000008\"'}",
+      "status": "FINALIZED",
+      "step": "C:late_evidence:0",
+      "tx": "0x406179734d0ea4593674914fd3a652607d5b8c7647d0b7c652c6b70f2cf101ab",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:propose": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "propose_agreement",
+      "returned": "{'readable': '\"AG-000002\"'}",
+      "status": "FINALIZED",
+      "step": "C:propose",
+      "tx": "0x6b6ac0ca23dbf1a3dfefef8eca3d306aa033a9ded7add63fd2979f3663c4cb04",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ]
+    },
+    "C:propose_cure": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "propose_agreement",
+      "returned": "{'readable': '\"AG-000004\"'}",
+      "status": "FINALIZED",
+      "step": "C:propose_cure",
+      "tx": "0x144f551f1f840820d855a47651334795c3e8f37445fcc1d179381c86eefaa01a",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:propose_stalled": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "propose_agreement",
+      "returned": "{'readable': '\"AG-000003\"'}",
+      "status": "FINALIZED",
+      "step": "C:propose_stalled",
+      "tx": "0xf2ff64991530edfdd702d56f77aec534eb506585adede0cfeddfc452e07e8e55",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:refuse:delivery_after_cure": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "ERROR",
+      "method": "submit_delivery",
+      "returned": "[EXPECTED] the deadline and its cure period closed at 2026-09-21T16:26:24Z; no delivery is accepted, and the buyer's refund is due",
+      "status": "FINALIZED",
+      "step": "C:refuse:delivery_after_cure",
+      "tx": "0x6b35b74d966a3549d189de924a4e45d38679e3e93a2ad6dec0d5aa05114fbbf4",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ]
+    },
+    "C:refuse:early_claim": {
+      "accepted": true,
+      "actor": "stranger",
+      "leader_execution": "ERROR",
+      "method": "claim_stalled_agreement",
+      "returned": "[EXPECTED] the seller may still deliver until 2026-09-21T16:26:24Z",
+      "status": "FINALIZED",
+      "step": "C:refuse:early_claim",
+      "tx": "0xa68f1138cc99d88b8986269e1cc7ab6502b6f9fbd5cc2aec1e64e9dcdef70925",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "C:refuse:http_source": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "ERROR",
+      "method": "submit_evidence",
+      "returned": "[EXPECTED] agreement is FINALIZED; this action needs FUNDED or DELIVERED or DISPUTED or ADJUDICATED",
+      "status": "FINALIZED",
+      "step": "C:refuse:http_source",
+      "tx": "0x335c0915a6e147a98e036c1d49ce40c15e0f9125ad5342d5b1a66664715c7780",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:refuse:instruction_in_terms": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "ERROR",
+      "method": "propose_agreement",
+      "returned": "[EXPECTED] service_description must not contain instructions or hidden text",
+      "status": "FINALIZED",
+      "step": "C:refuse:instruction_in_terms",
+      "tx": "0x744b08b89816c841f71b995495a9cc967e21015bb2f37c799147de593be4045b",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:refuse:past_deadline": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "ERROR",
+      "method": "propose_agreement",
+      "returned": "[EXPECTED] the deadline is already past",
+      "status": "FINALIZED",
+      "step": "C:refuse:past_deadline",
+      "tx": "0x84c92e63cfa37e3344a94873437f643d5b0f3527dc15779df10834a598c19511",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ]
+    },
+    "C:refuse:refund_after_cured_delivery": {
+      "accepted": true,
+      "actor": "stranger",
+      "leader_execution": "ERROR",
+      "method": "claim_stalled_agreement",
+      "returned": "[EXPECTED] the buyer still has time to accept or dispute",
+      "status": "FINALIZED",
+      "step": "C:refuse:refund_after_cured_delivery",
+      "tx": "0x79c376e730f17cb654cf0843578c1a4e01fbf43e5eb8330ef6c648aa095a3024",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:refuse:register_twice": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "ERROR",
+      "method": "register_agent",
+      "returned": "[EXPECTED] this wallet is already registered",
+      "status": "FINALIZED",
+      "step": "C:refuse:register_twice",
+      "tx": "0xa7c98b71e5159153a9d5c550544beaf5945d1c42ac67a7fe32b5a8ed3a1861d7",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:refuse:same_bytes_twice": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "ERROR",
+      "method": "submit_evidence",
+      "returned": "[EXPECTED] agreement is FINALIZED; this action needs FUNDED or DELIVERED or DISPUTED or ADJUDICATED",
+      "status": "FINALIZED",
+      "step": "C:refuse:same_bytes_twice",
+      "tx": "0xf3195c4ae7d159d73f1307c06138c88c4591aa365723baabf3467740c43ead9e",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "C:refuse:self_dealing": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "ERROR",
+      "method": "propose_agreement",
+      "returned": "[EXPECTED] an agent cannot contract with itself",
+      "status": "FINALIZED",
+      "step": "C:refuse:self_dealing",
+      "tx": "0x8149ac7f89037c35b25ac87cc1d76be44c3a3d005a66d9ecd2948236ffdd33bb",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:refuse:seller_disputes": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "ERROR",
+      "method": "open_dispute",
+      "returned": "[EXPECTED] only the buyer agent can do this",
+      "status": "FINALIZED",
+      "step": "C:refuse:seller_disputes",
+      "tx": "0xf8de74328febec73743d7525a551aa299dd037a530e3a3f504ada6d64e3dd5b9",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:refuse:stranger_funds": {
+      "accepted": true,
+      "actor": "stranger",
+      "leader_execution": "ERROR",
+      "method": "fund_escrow",
+      "returned": "[EXPECTED] only the buyer agent can do this",
+      "status": "FINALIZED",
+      "step": "C:refuse:stranger_funds",
+      "tx": "0x9759c671bdc9e5b45dff10261ed5b7b648f72ed54d54f74f4d669cd49fb28b02",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE"
+      ]
+    },
+    "C:refuse:stranger_publishes": {
+      "accepted": true,
+      "actor": "stranger",
+      "leader_execution": "ERROR",
+      "method": "publish_policy_version",
+      "returned": "[EXPECTED] only the policy owner can publish a version",
+      "status": "FINALIZED",
+      "step": "C:refuse:stranger_publishes",
+      "tx": "0xd43eab75fdbbc44bf1d1e5eece651f7c4c39e3e5ff055dba6ccab6d7053f0cc5",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ]
+    },
+    "C:refuse:wrong_price": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "ERROR",
+      "method": "fund_escrow",
+      "returned": "[EXPECTED] send exactly the agreed price: 50000000000000000 atto",
+      "status": "FINALIZED",
+      "step": "C:refuse:wrong_price",
+      "tx": "0xd1085876d4fe504ce4fc754e80916ffa50853af4f4ddb18f4690f40fbf08ebd2",
+      "value_atto": "49999999999999999",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "C:withdraw": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "withdraw",
+      "returned": "{'readable': '\"50000000000000000\"'}",
+      "status": "FINALIZED",
+      "step": "C:withdraw",
+      "tx": "0x0891b4dddd2d5400851f77f6e1e2352aeaaabbbeda7e8afc010d0c67bb9eb0f5",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE"
+      ]
+    },
+    "C:withdraw_cured": {
+      "accepted": true,
+      "actor": "seller",
+      "leader_execution": "SUCCESS",
+      "method": "withdraw",
+      "returned": "{'readable': '\"50000000000000000\"'}",
+      "status": "FINALIZED",
+      "step": "C:withdraw_cured",
+      "tx": "0x05b2ebe76d7fb5f388ab834ef580cf89f54a69847e09ff671abd0f83d289fcc9",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ]
+    },
+    "C:withdraw_refund": {
+      "accepted": true,
+      "actor": "buyer",
+      "leader_execution": "SUCCESS",
+      "method": "withdraw",
+      "returned": "{'readable': '\"50000000000000000\"'}",
+      "status": "FINALIZED",
+      "step": "C:withdraw_refund",
+      "tx": "0xd288054e650bdaf5fdf8f95e8160ccb97641cea44294bcc323629b07ea4dadda",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE"
+      ]
+    }
+  },
+  "summary": {
+    "code": [],
+    "panel_held": [],
+    "panel_not_held": []
+  },
+  "transactions": 54
+}

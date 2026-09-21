@@ -12,15 +12,15 @@ escrow.
 
 **Repository** - https://github.com/Hemmy1417/AgentGuard
 
-**Canonical StudioNet address** - `0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2`
+**Canonical StudioNet address** - `0xD67E15e75F434f7265a31eEf5dA47c6966ecF33c`
 
-**Explorer URL** - https://explorer-studio.genlayer.com/address/0x972AdCD7e9ac0D93FD8D678c9fF59cf5B714b4c2
+**Explorer URL** - https://explorer-studio.genlayer.com/address/0xD67E15e75F434f7265a31eEf5dA47c6966ecF33c
 (the Code tab shows the deployed source).
 
-**Deployment tx** - `0xe77a7f25ad51b29beafde1320b8c717014d29990eb3f9b43fd6f58d8d6c4b266`, FINALIZED, leader execution SUCCESS.
+**Deployment tx** - `0xb362ac3098883e51d43faabf8239dae2ff501a91b5596232f470912135761762`, FINALIZED, leader execution SUCCESS.
 
-**Deployment source** - `contracts/agentguard.py` at commit `e2853c7`,
-sha256 `c1a3580dd2583e7ed01ef7929ed9332b62086e07fdd9a20893f8155b79a5b4c7`; the source read back with `gen_getContractCode` has the same
+**Deployment source** - `contracts/agentguard.py` at commit `c5dd0c4`,
+sha256 `cedeff5fbe20e4a4c5a4464fd12dd7e56dde914f5e40263abc7f127b0410ffde`; the source read back with `gen_getContractCode` has the same
 sha256 (`python scripts/deploy_studionet.py --verify`).
 
 ## Why GenLayer is required
@@ -94,8 +94,8 @@ five things a caller must get right.
 | Lint | `ruff check .` | clean |
 | Mutation sweep | `python scripts/mutation_check.py --jobs 3` | 190 mutations, 190 killed, 0 survived, with an accept-control; 11 equivalent mutants named with their reasons in the script (`deploy/mutation_sweep_885c7fa.txt`) |
 | Sample adjudication | `python scripts/run_direct_mode.py` | FULFILLED, 100/100, seller 400.00 GEN |
-| Integration | `AGENTGUARD_LIVE_WRITES=1 pytest tests/integration -v` | 7 passed against the deployment, including one write through consensus |
-| Live run | `python scripts/live_scenarios.py <address> --raw-base ...` | 96 transactions, every asserted check held, 26 of 26 cases held |
+| Integration | `python -m pytest tests/integration -q` | 6 passed, 1 skipped (the opt-in live write) against the deployment |
+| Live run | `python scripts/live_scenarios.py <address> --raw-base ... --only A,C` | 54 transactions on the deployment, every asserted check held, both judge-round fixes shown on chain (`docs/judge-round.md`); the 26-case suite held 26 of 26 on the superseded record |
 
 ## Live evidence
 
